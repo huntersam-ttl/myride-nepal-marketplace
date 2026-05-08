@@ -14,16 +14,288 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      blog_posts: {
+        Row: {
+          author: string
+          category: string
+          content: string
+          cover_image: string | null
+          created_at: string
+          excerpt: string | null
+          id: string
+          published: boolean
+          slug: string
+          title: string
+        }
+        Insert: {
+          author: string
+          category: string
+          content: string
+          cover_image?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          published?: boolean
+          slug: string
+          title: string
+        }
+        Update: {
+          author?: string
+          category?: string
+          content?: string
+          cover_image?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          published?: boolean
+          slug?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      dealer_profiles: {
+        Row: {
+          banner_url: string | null
+          brands: string[] | null
+          business_name: string
+          created_at: string
+          description: string | null
+          id: string
+          location: string | null
+          logo_url: string | null
+          service_area: string[] | null
+          slug: string
+          user_id: string
+          verified: boolean
+        }
+        Insert: {
+          banner_url?: string | null
+          brands?: string[] | null
+          business_name: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          location?: string | null
+          logo_url?: string | null
+          service_area?: string[] | null
+          slug: string
+          user_id: string
+          verified?: boolean
+        }
+        Update: {
+          banner_url?: string | null
+          brands?: string[] | null
+          business_name?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          location?: string | null
+          logo_url?: string | null
+          service_area?: string[] | null
+          slug?: string
+          user_id?: string
+          verified?: boolean
+        }
+        Relationships: []
+      }
+      listings: {
+        Row: {
+          bike_type: Database["public"]["Enums"]["bike_type"]
+          brand: string
+          colour: string | null
+          condition: Database["public"]["Enums"]["bike_condition"]
+          created_at: string
+          description: string | null
+          district: string
+          featured: boolean
+          fuel_type: Database["public"]["Enums"]["fuel_type"]
+          id: string
+          images: string[]
+          mileage: number
+          model: string
+          phone: string
+          price: number
+          status: Database["public"]["Enums"]["listing_status"]
+          title: string
+          user_id: string
+          views: number
+          whatsapp: string | null
+          year: number
+        }
+        Insert: {
+          bike_type?: Database["public"]["Enums"]["bike_type"]
+          brand: string
+          colour?: string | null
+          condition: Database["public"]["Enums"]["bike_condition"]
+          created_at?: string
+          description?: string | null
+          district: string
+          featured?: boolean
+          fuel_type?: Database["public"]["Enums"]["fuel_type"]
+          id?: string
+          images?: string[]
+          mileage?: number
+          model: string
+          phone: string
+          price: number
+          status?: Database["public"]["Enums"]["listing_status"]
+          title: string
+          user_id: string
+          views?: number
+          whatsapp?: string | null
+          year: number
+        }
+        Update: {
+          bike_type?: Database["public"]["Enums"]["bike_type"]
+          brand?: string
+          colour?: string | null
+          condition?: Database["public"]["Enums"]["bike_condition"]
+          created_at?: string
+          description?: string | null
+          district?: string
+          featured?: boolean
+          fuel_type?: Database["public"]["Enums"]["fuel_type"]
+          id?: string
+          images?: string[]
+          mileage?: number
+          model?: string
+          phone?: string
+          price?: number
+          status?: Database["public"]["Enums"]["listing_status"]
+          title?: string
+          user_id?: string
+          views?: number
+          whatsapp?: string | null
+          year?: number
+        }
+        Relationships: []
+      }
+      price_estimates: {
+        Row: {
+          base_price: number
+          brand: string
+          created_at: string
+          id: string
+          model: string
+        }
+        Insert: {
+          base_price: number
+          brand: string
+          created_at?: string
+          id?: string
+          model: string
+        }
+        Update: {
+          base_price?: number
+          brand?: string
+          created_at?: string
+          id?: string
+          model?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string | null
+          id: string
+          name: string | null
+          phone: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          id: string
+          name?: string | null
+          phone?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string | null
+          phone?: string | null
+        }
+        Relationships: []
+      }
+      saved_listings: {
+        Row: {
+          created_at: string
+          id: string
+          listing_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          listing_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          listing_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_listings_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "user" | "dealer" | "admin"
+      bike_condition: "new" | "excellent" | "good" | "fair" | "poor"
+      bike_type:
+        | "sport"
+        | "commuter"
+        | "scooter"
+        | "cruiser"
+        | "off-road"
+        | "touring"
+      fuel_type: "petrol" | "electric" | "hybrid"
+      listing_status: "pending" | "active" | "sold" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +422,19 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["user", "dealer", "admin"],
+      bike_condition: ["new", "excellent", "good", "fair", "poor"],
+      bike_type: [
+        "sport",
+        "commuter",
+        "scooter",
+        "cruiser",
+        "off-road",
+        "touring",
+      ],
+      fuel_type: ["petrol", "electric", "hybrid"],
+      listing_status: ["pending", "active", "sold", "rejected"],
+    },
   },
 } as const
