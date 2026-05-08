@@ -69,7 +69,7 @@ function ListingDetailPage() {
           </div>
           {listing.images.length > 1 && (
             <div className="flex gap-2 mt-3 overflow-x-auto pb-2">
-              {listing.images.map((src, i) => (
+              {listing.images.map((src: string, i: number) => (
                 <button
                   key={i}
                   onClick={() => setImgIdx(i)}
