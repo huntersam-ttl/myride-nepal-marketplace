@@ -9,38 +9,175 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SellRouteImport } from './routes/sell'
+import { Route as PriceEstimatorRouteImport } from './routes/price-estimator'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as BrowseRouteImport } from './routes/browse'
+import { Route as BlogRouteImport } from './routes/blog'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ListingsIdRouteImport } from './routes/listings.$id'
 
+const SellRoute = SellRouteImport.update({
+  id: '/sell',
+  path: '/sell',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PriceEstimatorRoute = PriceEstimatorRouteImport.update({
+  id: '/price-estimator',
+  path: '/price-estimator',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BrowseRoute = BrowseRouteImport.update({
+  id: '/browse',
+  path: '/browse',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogRoute = BlogRouteImport.update({
+  id: '/blog',
+  path: '/blog',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ListingsIdRoute = ListingsIdRouteImport.update({
+  id: '/listings/$id',
+  path: '/listings/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/blog': typeof BlogRoute
+  '/browse': typeof BrowseRoute
+  '/dashboard': typeof DashboardRoute
+  '/price-estimator': typeof PriceEstimatorRoute
+  '/sell': typeof SellRoute
+  '/listings/$id': typeof ListingsIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/blog': typeof BlogRoute
+  '/browse': typeof BrowseRoute
+  '/dashboard': typeof DashboardRoute
+  '/price-estimator': typeof PriceEstimatorRoute
+  '/sell': typeof SellRoute
+  '/listings/$id': typeof ListingsIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/blog': typeof BlogRoute
+  '/browse': typeof BrowseRoute
+  '/dashboard': typeof DashboardRoute
+  '/price-estimator': typeof PriceEstimatorRoute
+  '/sell': typeof SellRoute
+  '/listings/$id': typeof ListingsIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/blog'
+    | '/browse'
+    | '/dashboard'
+    | '/price-estimator'
+    | '/sell'
+    | '/listings/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/blog'
+    | '/browse'
+    | '/dashboard'
+    | '/price-estimator'
+    | '/sell'
+    | '/listings/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/auth'
+    | '/blog'
+    | '/browse'
+    | '/dashboard'
+    | '/price-estimator'
+    | '/sell'
+    | '/listings/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthRoute: typeof AuthRoute
+  BlogRoute: typeof BlogRoute
+  BrowseRoute: typeof BrowseRoute
+  DashboardRoute: typeof DashboardRoute
+  PriceEstimatorRoute: typeof PriceEstimatorRoute
+  SellRoute: typeof SellRoute
+  ListingsIdRoute: typeof ListingsIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sell': {
+      id: '/sell'
+      path: '/sell'
+      fullPath: '/sell'
+      preLoaderRoute: typeof SellRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/price-estimator': {
+      id: '/price-estimator'
+      path: '/price-estimator'
+      fullPath: '/price-estimator'
+      preLoaderRoute: typeof PriceEstimatorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/browse': {
+      id: '/browse'
+      path: '/browse'
+      fullPath: '/browse'
+      preLoaderRoute: typeof BrowseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog': {
+      id: '/blog'
+      path: '/blog'
+      fullPath: '/blog'
+      preLoaderRoute: typeof BlogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +185,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/listings/$id': {
+      id: '/listings/$id'
+      path: '/listings/$id'
+      fullPath: '/listings/$id'
+      preLoaderRoute: typeof ListingsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthRoute: AuthRoute,
+  BlogRoute: BlogRoute,
+  BrowseRoute: BrowseRoute,
+  DashboardRoute: DashboardRoute,
+  PriceEstimatorRoute: PriceEstimatorRoute,
+  SellRoute: SellRoute,
+  ListingsIdRoute: ListingsIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
