@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SellRouteImport } from './routes/sell'
+import { Route as SavedRouteImport } from './routes/saved'
 import { Route as PriceEstimatorRouteImport } from './routes/price-estimator'
 import { Route as DealersRouteImport } from './routes/dealers'
 import { Route as DealerSignupRouteImport } from './routes/dealer-signup'
@@ -27,6 +28,11 @@ import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 const SellRoute = SellRouteImport.update({
   id: '/sell',
   path: '/sell',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SavedRoute = SavedRouteImport.update({
+  id: '/saved',
+  path: '/saved',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PriceEstimatorRoute = PriceEstimatorRouteImport.update({
@@ -106,6 +112,7 @@ export interface FileRoutesByFullPath {
   '/dealer-signup': typeof DealerSignupRoute
   '/dealers': typeof DealersRouteWithChildren
   '/price-estimator': typeof PriceEstimatorRoute
+  '/saved': typeof SavedRoute
   '/sell': typeof SellRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/dealers/$slug': typeof DealersSlugRoute
@@ -122,6 +129,7 @@ export interface FileRoutesByTo {
   '/dealer-signup': typeof DealerSignupRoute
   '/dealers': typeof DealersRouteWithChildren
   '/price-estimator': typeof PriceEstimatorRoute
+  '/saved': typeof SavedRoute
   '/sell': typeof SellRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/dealers/$slug': typeof DealersSlugRoute
@@ -139,6 +147,7 @@ export interface FileRoutesById {
   '/dealer-signup': typeof DealerSignupRoute
   '/dealers': typeof DealersRouteWithChildren
   '/price-estimator': typeof PriceEstimatorRoute
+  '/saved': typeof SavedRoute
   '/sell': typeof SellRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/dealers/$slug': typeof DealersSlugRoute
@@ -157,6 +166,7 @@ export interface FileRouteTypes {
     | '/dealer-signup'
     | '/dealers'
     | '/price-estimator'
+    | '/saved'
     | '/sell'
     | '/blog/$slug'
     | '/dealers/$slug'
@@ -173,6 +183,7 @@ export interface FileRouteTypes {
     | '/dealer-signup'
     | '/dealers'
     | '/price-estimator'
+    | '/saved'
     | '/sell'
     | '/blog/$slug'
     | '/dealers/$slug'
@@ -189,6 +200,7 @@ export interface FileRouteTypes {
     | '/dealer-signup'
     | '/dealers'
     | '/price-estimator'
+    | '/saved'
     | '/sell'
     | '/blog/$slug'
     | '/dealers/$slug'
@@ -206,6 +218,7 @@ export interface RootRouteChildren {
   DealerSignupRoute: typeof DealerSignupRoute
   DealersRoute: typeof DealersRouteWithChildren
   PriceEstimatorRoute: typeof PriceEstimatorRoute
+  SavedRoute: typeof SavedRoute
   SellRoute: typeof SellRoute
   ListingsIdRoute: typeof ListingsIdRoute
 }
@@ -217,6 +230,13 @@ declare module '@tanstack/react-router' {
       path: '/sell'
       fullPath: '/sell'
       preLoaderRoute: typeof SellRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/saved': {
+      id: '/saved'
+      path: '/saved'
+      fullPath: '/saved'
+      preLoaderRoute: typeof SavedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/price-estimator': {
@@ -345,6 +365,7 @@ const rootRouteChildren: RootRouteChildren = {
   DealerSignupRoute: DealerSignupRoute,
   DealersRoute: DealersRouteWithChildren,
   PriceEstimatorRoute: PriceEstimatorRoute,
+  SavedRoute: SavedRoute,
   SellRoute: SellRoute,
   ListingsIdRoute: ListingsIdRoute,
 }
