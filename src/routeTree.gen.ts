@@ -22,6 +22,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ListingsIdRouteImport } from './routes/listings.$id'
 import { Route as DealersSlugRouteImport } from './routes/dealers.$slug'
+import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 
 const SellRoute = SellRouteImport.update({
   id: '/sell',
@@ -88,12 +89,17 @@ const DealersSlugRoute = DealersSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => DealersRoute,
 } as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => BlogRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
-  '/blog': typeof BlogRoute
+  '/blog': typeof BlogRouteWithChildren
   '/browse': typeof BrowseRoute
   '/compare': typeof CompareRoute
   '/dashboard': typeof DashboardRoute
@@ -101,6 +107,7 @@ export interface FileRoutesByFullPath {
   '/dealers': typeof DealersRouteWithChildren
   '/price-estimator': typeof PriceEstimatorRoute
   '/sell': typeof SellRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/dealers/$slug': typeof DealersSlugRoute
   '/listings/$id': typeof ListingsIdRoute
 }
@@ -108,7 +115,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
-  '/blog': typeof BlogRoute
+  '/blog': typeof BlogRouteWithChildren
   '/browse': typeof BrowseRoute
   '/compare': typeof CompareRoute
   '/dashboard': typeof DashboardRoute
@@ -116,6 +123,7 @@ export interface FileRoutesByTo {
   '/dealers': typeof DealersRouteWithChildren
   '/price-estimator': typeof PriceEstimatorRoute
   '/sell': typeof SellRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/dealers/$slug': typeof DealersSlugRoute
   '/listings/$id': typeof ListingsIdRoute
 }
@@ -124,7 +132,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
-  '/blog': typeof BlogRoute
+  '/blog': typeof BlogRouteWithChildren
   '/browse': typeof BrowseRoute
   '/compare': typeof CompareRoute
   '/dashboard': typeof DashboardRoute
@@ -132,6 +140,7 @@ export interface FileRoutesById {
   '/dealers': typeof DealersRouteWithChildren
   '/price-estimator': typeof PriceEstimatorRoute
   '/sell': typeof SellRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/dealers/$slug': typeof DealersSlugRoute
   '/listings/$id': typeof ListingsIdRoute
 }
@@ -149,6 +158,7 @@ export interface FileRouteTypes {
     | '/dealers'
     | '/price-estimator'
     | '/sell'
+    | '/blog/$slug'
     | '/dealers/$slug'
     | '/listings/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -164,6 +174,7 @@ export interface FileRouteTypes {
     | '/dealers'
     | '/price-estimator'
     | '/sell'
+    | '/blog/$slug'
     | '/dealers/$slug'
     | '/listings/$id'
   id:
@@ -179,6 +190,7 @@ export interface FileRouteTypes {
     | '/dealers'
     | '/price-estimator'
     | '/sell'
+    | '/blog/$slug'
     | '/dealers/$slug'
     | '/listings/$id'
   fileRoutesById: FileRoutesById
@@ -187,7 +199,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
   AuthRoute: typeof AuthRoute
-  BlogRoute: typeof BlogRoute
+  BlogRoute: typeof BlogRouteWithChildren
   BrowseRoute: typeof BrowseRoute
   CompareRoute: typeof CompareRoute
   DashboardRoute: typeof DashboardRoute
@@ -291,8 +303,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DealersSlugRouteImport
       parentRoute: typeof DealersRoute
     }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof BlogRoute
+    }
   }
 }
+
+interface BlogRouteChildren {
+  BlogSlugRoute: typeof BlogSlugRoute
+}
+
+const BlogRouteChildren: BlogRouteChildren = {
+  BlogSlugRoute: BlogSlugRoute,
+}
+
+const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
 
 interface DealersRouteChildren {
   DealersSlugRoute: typeof DealersSlugRoute
@@ -309,7 +338,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   AuthRoute: AuthRoute,
-  BlogRoute: BlogRoute,
+  BlogRoute: BlogRouteWithChildren,
   BrowseRoute: BrowseRoute,
   CompareRoute: CompareRoute,
   DashboardRoute: DashboardRoute,
@@ -322,3 +351,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
