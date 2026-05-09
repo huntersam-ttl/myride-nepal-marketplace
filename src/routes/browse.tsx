@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { POPULAR_BRANDS, NEPAL_DISTRICTS, BIKE_TYPES, CONDITIONS } from "@/lib/nepal";
 import { Filter, X } from "lucide-react";
+import { useSavedIds, useToggleSave } from "@/hooks/use-saved";
 
 interface SearchParams {
   brand?: string; district?: string; type?: string; condition?: string;
