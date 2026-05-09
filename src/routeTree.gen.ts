@@ -14,6 +14,7 @@ import { Route as PriceEstimatorRouteImport } from './routes/price-estimator'
 import { Route as DealersRouteImport } from './routes/dealers'
 import { Route as DealerSignupRouteImport } from './routes/dealer-signup'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as CompareRouteImport } from './routes/compare'
 import { Route as BrowseRouteImport } from './routes/browse'
 import { Route as BlogRouteImport } from './routes/blog'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -45,6 +46,11 @@ const DealerSignupRoute = DealerSignupRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompareRoute = CompareRouteImport.update({
+  id: '/compare',
+  path: '/compare',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BrowseRoute = BrowseRouteImport.update({
@@ -89,6 +95,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/blog': typeof BlogRoute
   '/browse': typeof BrowseRoute
+  '/compare': typeof CompareRoute
   '/dashboard': typeof DashboardRoute
   '/dealer-signup': typeof DealerSignupRoute
   '/dealers': typeof DealersRouteWithChildren
@@ -103,6 +110,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/blog': typeof BlogRoute
   '/browse': typeof BrowseRoute
+  '/compare': typeof CompareRoute
   '/dashboard': typeof DashboardRoute
   '/dealer-signup': typeof DealerSignupRoute
   '/dealers': typeof DealersRouteWithChildren
@@ -118,6 +126,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/blog': typeof BlogRoute
   '/browse': typeof BrowseRoute
+  '/compare': typeof CompareRoute
   '/dashboard': typeof DashboardRoute
   '/dealer-signup': typeof DealerSignupRoute
   '/dealers': typeof DealersRouteWithChildren
@@ -134,6 +143,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/blog'
     | '/browse'
+    | '/compare'
     | '/dashboard'
     | '/dealer-signup'
     | '/dealers'
@@ -148,6 +158,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/blog'
     | '/browse'
+    | '/compare'
     | '/dashboard'
     | '/dealer-signup'
     | '/dealers'
@@ -162,6 +173,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/blog'
     | '/browse'
+    | '/compare'
     | '/dashboard'
     | '/dealer-signup'
     | '/dealers'
@@ -177,6 +189,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   BlogRoute: typeof BlogRoute
   BrowseRoute: typeof BrowseRoute
+  CompareRoute: typeof CompareRoute
   DashboardRoute: typeof DashboardRoute
   DealerSignupRoute: typeof DealerSignupRoute
   DealersRoute: typeof DealersRouteWithChildren
@@ -220,6 +233,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/compare': {
+      id: '/compare'
+      path: '/compare'
+      fullPath: '/compare'
+      preLoaderRoute: typeof CompareRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/browse': {
@@ -291,6 +311,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   BlogRoute: BlogRoute,
   BrowseRoute: BrowseRoute,
+  CompareRoute: CompareRoute,
   DashboardRoute: DashboardRoute,
   DealerSignupRoute: DealerSignupRoute,
   DealersRoute: DealersRouteWithChildren,
@@ -301,3 +322,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
