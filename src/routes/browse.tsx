@@ -34,6 +34,8 @@ export const Route = createFileRoute("/browse")({
 function BrowsePage() {
   const search = Route.useSearch();
   const navigate = useNavigate();
+  const { data: savedIds } = useSavedIds();
+  const toggleSave = useToggleSave();
 
   const update = (patch: Partial<SearchParams>) => {
     navigate({ to: "/browse", search: { ...search, ...patch } as any });
