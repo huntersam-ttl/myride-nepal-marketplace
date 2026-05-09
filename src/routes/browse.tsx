@@ -175,7 +175,7 @@ function BrowsePage() {
             </div>
           ) : data?.length ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-              {data.map(l => <ListingCard key={l.id} listing={l as any} />)}
+              {data.map(l => <ListingCard key={l.id} listing={l as any} onSave={toggleSave} isSaved={savedIds?.has(l.id)} />)}
             </div>
           ) : (
             <div className="text-center py-20 border rounded-xl">
