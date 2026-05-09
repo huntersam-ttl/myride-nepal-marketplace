@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SellRouteImport } from './routes/sell'
 import { Route as PriceEstimatorRouteImport } from './routes/price-estimator'
+import { Route as DealersRouteImport } from './routes/dealers'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as BrowseRouteImport } from './routes/browse'
 import { Route as BlogRouteImport } from './routes/blog'
@@ -26,6 +27,11 @@ const SellRoute = SellRouteImport.update({
 const PriceEstimatorRoute = PriceEstimatorRouteImport.update({
   id: '/price-estimator',
   path: '/price-estimator',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DealersRoute = DealersRouteImport.update({
+  id: '/dealers',
+  path: '/dealers',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -65,6 +71,7 @@ export interface FileRoutesByFullPath {
   '/blog': typeof BlogRoute
   '/browse': typeof BrowseRoute
   '/dashboard': typeof DashboardRoute
+  '/dealers': typeof DealersRoute
   '/price-estimator': typeof PriceEstimatorRoute
   '/sell': typeof SellRoute
   '/listings/$id': typeof ListingsIdRoute
@@ -75,6 +82,7 @@ export interface FileRoutesByTo {
   '/blog': typeof BlogRoute
   '/browse': typeof BrowseRoute
   '/dashboard': typeof DashboardRoute
+  '/dealers': typeof DealersRoute
   '/price-estimator': typeof PriceEstimatorRoute
   '/sell': typeof SellRoute
   '/listings/$id': typeof ListingsIdRoute
@@ -86,6 +94,7 @@ export interface FileRoutesById {
   '/blog': typeof BlogRoute
   '/browse': typeof BrowseRoute
   '/dashboard': typeof DashboardRoute
+  '/dealers': typeof DealersRoute
   '/price-estimator': typeof PriceEstimatorRoute
   '/sell': typeof SellRoute
   '/listings/$id': typeof ListingsIdRoute
@@ -98,6 +107,7 @@ export interface FileRouteTypes {
     | '/blog'
     | '/browse'
     | '/dashboard'
+    | '/dealers'
     | '/price-estimator'
     | '/sell'
     | '/listings/$id'
@@ -108,6 +118,7 @@ export interface FileRouteTypes {
     | '/blog'
     | '/browse'
     | '/dashboard'
+    | '/dealers'
     | '/price-estimator'
     | '/sell'
     | '/listings/$id'
@@ -118,6 +129,7 @@ export interface FileRouteTypes {
     | '/blog'
     | '/browse'
     | '/dashboard'
+    | '/dealers'
     | '/price-estimator'
     | '/sell'
     | '/listings/$id'
@@ -129,6 +141,7 @@ export interface RootRouteChildren {
   BlogRoute: typeof BlogRoute
   BrowseRoute: typeof BrowseRoute
   DashboardRoute: typeof DashboardRoute
+  DealersRoute: typeof DealersRoute
   PriceEstimatorRoute: typeof PriceEstimatorRoute
   SellRoute: typeof SellRoute
   ListingsIdRoute: typeof ListingsIdRoute
@@ -148,6 +161,13 @@ declare module '@tanstack/react-router' {
       path: '/price-estimator'
       fullPath: '/price-estimator'
       preLoaderRoute: typeof PriceEstimatorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dealers': {
+      id: '/dealers'
+      path: '/dealers'
+      fullPath: '/dealers'
+      preLoaderRoute: typeof DealersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -201,6 +221,7 @@ const rootRouteChildren: RootRouteChildren = {
   BlogRoute: BlogRoute,
   BrowseRoute: BrowseRoute,
   DashboardRoute: DashboardRoute,
+  DealersRoute: DealersRoute,
   PriceEstimatorRoute: PriceEstimatorRoute,
   SellRoute: SellRoute,
   ListingsIdRoute: ListingsIdRoute,
@@ -208,3 +229,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
