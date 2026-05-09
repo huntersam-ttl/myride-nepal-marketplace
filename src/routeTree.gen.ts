@@ -24,6 +24,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ListingsIdRouteImport } from './routes/listings.$id'
 import { Route as DealersSlugRouteImport } from './routes/dealers.$slug'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
+import { Route as ListingsIdEditRouteImport } from './routes/listings.$id.edit'
 
 const SellRoute = SellRouteImport.update({
   id: '/sell',
@@ -100,6 +101,11 @@ const BlogSlugRoute = BlogSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => BlogRoute,
 } as any)
+const ListingsIdEditRoute = ListingsIdEditRouteImport.update({
+  id: '/edit',
+  path: '/edit',
+  getParentRoute: () => ListingsIdRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -116,7 +122,8 @@ export interface FileRoutesByFullPath {
   '/sell': typeof SellRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/dealers/$slug': typeof DealersSlugRoute
-  '/listings/$id': typeof ListingsIdRoute
+  '/listings/$id': typeof ListingsIdRouteWithChildren
+  '/listings/$id/edit': typeof ListingsIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -133,7 +140,8 @@ export interface FileRoutesByTo {
   '/sell': typeof SellRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/dealers/$slug': typeof DealersSlugRoute
-  '/listings/$id': typeof ListingsIdRoute
+  '/listings/$id': typeof ListingsIdRouteWithChildren
+  '/listings/$id/edit': typeof ListingsIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -151,7 +159,8 @@ export interface FileRoutesById {
   '/sell': typeof SellRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/dealers/$slug': typeof DealersSlugRoute
-  '/listings/$id': typeof ListingsIdRoute
+  '/listings/$id': typeof ListingsIdRouteWithChildren
+  '/listings/$id/edit': typeof ListingsIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -171,6 +180,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/dealers/$slug'
     | '/listings/$id'
+    | '/listings/$id/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -188,6 +198,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/dealers/$slug'
     | '/listings/$id'
+    | '/listings/$id/edit'
   id:
     | '__root__'
     | '/'
@@ -205,6 +216,7 @@ export interface FileRouteTypes {
     | '/blog/$slug'
     | '/dealers/$slug'
     | '/listings/$id'
+    | '/listings/$id/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -220,7 +232,7 @@ export interface RootRouteChildren {
   PriceEstimatorRoute: typeof PriceEstimatorRoute
   SavedRoute: typeof SavedRoute
   SellRoute: typeof SellRoute
-  ListingsIdRoute: typeof ListingsIdRoute
+  ListingsIdRoute: typeof ListingsIdRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -330,6 +342,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BlogSlugRouteImport
       parentRoute: typeof BlogRoute
     }
+    '/listings/$id/edit': {
+      id: '/listings/$id/edit'
+      path: '/edit'
+      fullPath: '/listings/$id/edit'
+      preLoaderRoute: typeof ListingsIdEditRouteImport
+      parentRoute: typeof ListingsIdRoute
+    }
   }
 }
 
@@ -354,6 +373,18 @@ const DealersRouteChildren: DealersRouteChildren = {
 const DealersRouteWithChildren =
   DealersRoute._addFileChildren(DealersRouteChildren)
 
+interface ListingsIdRouteChildren {
+  ListingsIdEditRoute: typeof ListingsIdEditRoute
+}
+
+const ListingsIdRouteChildren: ListingsIdRouteChildren = {
+  ListingsIdEditRoute: ListingsIdEditRoute,
+}
+
+const ListingsIdRouteWithChildren = ListingsIdRoute._addFileChildren(
+  ListingsIdRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
@@ -367,7 +398,7 @@ const rootRouteChildren: RootRouteChildren = {
   PriceEstimatorRoute: PriceEstimatorRoute,
   SavedRoute: SavedRoute,
   SellRoute: SellRoute,
-  ListingsIdRoute: ListingsIdRoute,
+  ListingsIdRoute: ListingsIdRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
