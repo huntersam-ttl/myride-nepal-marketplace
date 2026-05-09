@@ -134,8 +134,12 @@ function ListingDetailPage() {
               </Button>
             </div>
             <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
-              <Button variant="ghost" size="sm" className="gap-2"><Heart className="w-4 h-4" /> Save</Button>
-              <Button variant="ghost" size="sm" className="gap-2"><Flag className="w-4 h-4" /> Report</Button>
+              <Button variant="ghost" size="sm" className="gap-2" onClick={() => toggleSave(listing.id)}>
+                <Heart className={`w-4 h-4 ${isSaved ? "fill-primary text-primary" : ""}`} /> {isSaved ? "Saved" : "Save"}
+              </Button>
+              <Button variant="ghost" size="sm" className="gap-2" onClick={() => nav({ to: "/compare", search: { ids: listing.id } as any })}>
+                <GitCompare className="w-4 h-4" /> Compare
+              </Button>
             </div>
           </Card>
         </aside>
