@@ -10,17 +10,30 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SellRouteImport } from './routes/sell'
+import { Route as SavedRouteImport } from './routes/saved'
 import { Route as PriceEstimatorRouteImport } from './routes/price-estimator'
+import { Route as DealersRouteImport } from './routes/dealers'
+import { Route as DealerSignupRouteImport } from './routes/dealer-signup'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as CompareRouteImport } from './routes/compare'
 import { Route as BrowseRouteImport } from './routes/browse'
 import { Route as BlogRouteImport } from './routes/blog'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ListingsIdRouteImport } from './routes/listings.$id'
+import { Route as DealersSlugRouteImport } from './routes/dealers.$slug'
+import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
+import { Route as ListingsIdEditRouteImport } from './routes/listings.$id.edit'
 
 const SellRoute = SellRouteImport.update({
   id: '/sell',
   path: '/sell',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SavedRoute = SavedRouteImport.update({
+  id: '/saved',
+  path: '/saved',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PriceEstimatorRoute = PriceEstimatorRouteImport.update({
@@ -28,9 +41,24 @@ const PriceEstimatorRoute = PriceEstimatorRouteImport.update({
   path: '/price-estimator',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DealersRoute = DealersRouteImport.update({
+  id: '/dealers',
+  path: '/dealers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DealerSignupRoute = DealerSignupRouteImport.update({
+  id: '/dealer-signup',
+  path: '/dealer-signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompareRoute = CompareRouteImport.update({
+  id: '/compare',
+  path: '/compare',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BrowseRoute = BrowseRouteImport.update({
@@ -48,6 +76,11 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -58,80 +91,148 @@ const ListingsIdRoute = ListingsIdRouteImport.update({
   path: '/listings/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DealersSlugRoute = DealersSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => DealersRoute,
+} as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => BlogRoute,
+} as any)
+const ListingsIdEditRoute = ListingsIdEditRouteImport.update({
+  id: '/edit',
+  path: '/edit',
+  getParentRoute: () => ListingsIdRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
-  '/blog': typeof BlogRoute
+  '/blog': typeof BlogRouteWithChildren
   '/browse': typeof BrowseRoute
+  '/compare': typeof CompareRoute
   '/dashboard': typeof DashboardRoute
+  '/dealer-signup': typeof DealerSignupRoute
+  '/dealers': typeof DealersRouteWithChildren
   '/price-estimator': typeof PriceEstimatorRoute
+  '/saved': typeof SavedRoute
   '/sell': typeof SellRoute
-  '/listings/$id': typeof ListingsIdRoute
+  '/blog/$slug': typeof BlogSlugRoute
+  '/dealers/$slug': typeof DealersSlugRoute
+  '/listings/$id': typeof ListingsIdRouteWithChildren
+  '/listings/$id/edit': typeof ListingsIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
-  '/blog': typeof BlogRoute
+  '/blog': typeof BlogRouteWithChildren
   '/browse': typeof BrowseRoute
+  '/compare': typeof CompareRoute
   '/dashboard': typeof DashboardRoute
+  '/dealer-signup': typeof DealerSignupRoute
+  '/dealers': typeof DealersRouteWithChildren
   '/price-estimator': typeof PriceEstimatorRoute
+  '/saved': typeof SavedRoute
   '/sell': typeof SellRoute
-  '/listings/$id': typeof ListingsIdRoute
+  '/blog/$slug': typeof BlogSlugRoute
+  '/dealers/$slug': typeof DealersSlugRoute
+  '/listings/$id': typeof ListingsIdRouteWithChildren
+  '/listings/$id/edit': typeof ListingsIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
-  '/blog': typeof BlogRoute
+  '/blog': typeof BlogRouteWithChildren
   '/browse': typeof BrowseRoute
+  '/compare': typeof CompareRoute
   '/dashboard': typeof DashboardRoute
+  '/dealer-signup': typeof DealerSignupRoute
+  '/dealers': typeof DealersRouteWithChildren
   '/price-estimator': typeof PriceEstimatorRoute
+  '/saved': typeof SavedRoute
   '/sell': typeof SellRoute
-  '/listings/$id': typeof ListingsIdRoute
+  '/blog/$slug': typeof BlogSlugRoute
+  '/dealers/$slug': typeof DealersSlugRoute
+  '/listings/$id': typeof ListingsIdRouteWithChildren
+  '/listings/$id/edit': typeof ListingsIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/auth'
     | '/blog'
     | '/browse'
+    | '/compare'
     | '/dashboard'
+    | '/dealer-signup'
+    | '/dealers'
     | '/price-estimator'
+    | '/saved'
     | '/sell'
+    | '/blog/$slug'
+    | '/dealers/$slug'
     | '/listings/$id'
+    | '/listings/$id/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin'
     | '/auth'
     | '/blog'
     | '/browse'
+    | '/compare'
     | '/dashboard'
+    | '/dealer-signup'
+    | '/dealers'
     | '/price-estimator'
+    | '/saved'
     | '/sell'
+    | '/blog/$slug'
+    | '/dealers/$slug'
     | '/listings/$id'
+    | '/listings/$id/edit'
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/auth'
     | '/blog'
     | '/browse'
+    | '/compare'
     | '/dashboard'
+    | '/dealer-signup'
+    | '/dealers'
     | '/price-estimator'
+    | '/saved'
     | '/sell'
+    | '/blog/$slug'
+    | '/dealers/$slug'
     | '/listings/$id'
+    | '/listings/$id/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
   AuthRoute: typeof AuthRoute
-  BlogRoute: typeof BlogRoute
+  BlogRoute: typeof BlogRouteWithChildren
   BrowseRoute: typeof BrowseRoute
+  CompareRoute: typeof CompareRoute
   DashboardRoute: typeof DashboardRoute
+  DealerSignupRoute: typeof DealerSignupRoute
+  DealersRoute: typeof DealersRouteWithChildren
   PriceEstimatorRoute: typeof PriceEstimatorRoute
+  SavedRoute: typeof SavedRoute
   SellRoute: typeof SellRoute
-  ListingsIdRoute: typeof ListingsIdRoute
+  ListingsIdRoute: typeof ListingsIdRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -143,6 +244,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/saved': {
+      id: '/saved'
+      path: '/saved'
+      fullPath: '/saved'
+      preLoaderRoute: typeof SavedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/price-estimator': {
       id: '/price-estimator'
       path: '/price-estimator'
@@ -150,11 +258,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PriceEstimatorRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dealers': {
+      id: '/dealers'
+      path: '/dealers'
+      fullPath: '/dealers'
+      preLoaderRoute: typeof DealersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dealer-signup': {
+      id: '/dealer-signup'
+      path: '/dealer-signup'
+      fullPath: '/dealer-signup'
+      preLoaderRoute: typeof DealerSignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/compare': {
+      id: '/compare'
+      path: '/compare'
+      fullPath: '/compare'
+      preLoaderRoute: typeof CompareRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/browse': {
@@ -178,6 +307,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -192,18 +328,77 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ListingsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dealers/$slug': {
+      id: '/dealers/$slug'
+      path: '/$slug'
+      fullPath: '/dealers/$slug'
+      preLoaderRoute: typeof DealersSlugRouteImport
+      parentRoute: typeof DealersRoute
+    }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof BlogRoute
+    }
+    '/listings/$id/edit': {
+      id: '/listings/$id/edit'
+      path: '/edit'
+      fullPath: '/listings/$id/edit'
+      preLoaderRoute: typeof ListingsIdEditRouteImport
+      parentRoute: typeof ListingsIdRoute
+    }
   }
 }
 
+interface BlogRouteChildren {
+  BlogSlugRoute: typeof BlogSlugRoute
+}
+
+const BlogRouteChildren: BlogRouteChildren = {
+  BlogSlugRoute: BlogSlugRoute,
+}
+
+const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
+
+interface DealersRouteChildren {
+  DealersSlugRoute: typeof DealersSlugRoute
+}
+
+const DealersRouteChildren: DealersRouteChildren = {
+  DealersSlugRoute: DealersSlugRoute,
+}
+
+const DealersRouteWithChildren =
+  DealersRoute._addFileChildren(DealersRouteChildren)
+
+interface ListingsIdRouteChildren {
+  ListingsIdEditRoute: typeof ListingsIdEditRoute
+}
+
+const ListingsIdRouteChildren: ListingsIdRouteChildren = {
+  ListingsIdEditRoute: ListingsIdEditRoute,
+}
+
+const ListingsIdRouteWithChildren = ListingsIdRoute._addFileChildren(
+  ListingsIdRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
   AuthRoute: AuthRoute,
-  BlogRoute: BlogRoute,
+  BlogRoute: BlogRouteWithChildren,
   BrowseRoute: BrowseRoute,
+  CompareRoute: CompareRoute,
   DashboardRoute: DashboardRoute,
+  DealerSignupRoute: DealerSignupRoute,
+  DealersRoute: DealersRouteWithChildren,
   PriceEstimatorRoute: PriceEstimatorRoute,
+  SavedRoute: SavedRoute,
   SellRoute: SellRoute,
-  ListingsIdRoute: ListingsIdRoute,
+  ListingsIdRoute: ListingsIdRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { POPULAR_BRANDS, NEPAL_DISTRICTS, BIKE_TYPES, CONDITIONS } from "@/lib/nepal";
 import { Filter, X } from "lucide-react";
+import { useSavedIds, useToggleSave } from "@/hooks/use-saved";
 
 interface SearchParams {
   brand?: string; district?: string; type?: string; condition?: string;
@@ -33,6 +34,8 @@ export const Route = createFileRoute("/browse")({
 function BrowsePage() {
   const search = Route.useSearch();
   const navigate = useNavigate();
+  const { data: savedIds } = useSavedIds();
+  const toggleSave = useToggleSave();
 
   const update = (patch: Partial<SearchParams>) => {
     navigate({ to: "/browse", search: { ...search, ...patch } as any });
@@ -174,7 +177,7 @@ function BrowsePage() {
             </div>
           ) : data?.length ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-              {data.map(l => <ListingCard key={l.id} listing={l as any} />)}
+              {data.map(l => <ListingCard key={l.id} listing={l as any} onSave={toggleSave} isSaved={savedIds?.has(l.id)} />)}
             </div>
           ) : (
             <div className="text-center py-20 border rounded-xl">

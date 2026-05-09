@@ -7,7 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { ListingCard } from "@/components/ListingCard";
 import { formatNPR, whatsappLink } from "@/lib/nepal";
-import { Phone, MessageCircle, MapPin, Calendar, Gauge, Fuel, Bike, Heart, Flag } from "lucide-react";
+import { Phone, MessageCircle, MapPin, Calendar, Gauge, Fuel, Bike, Heart, GitCompare } from "lucide-react";
+import { useSavedIds, useToggleSave } from "@/hooks/use-saved";
+import { useNavigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/listings/$id")({
   component: ListingDetailPage,
@@ -43,6 +45,10 @@ function ListingDetailPage() {
   const { listing } = Route.useLoaderData();
   const [imgIdx, setImgIdx] = useState(0);
   const cover = listing.images?.[imgIdx] || "https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=1200";
+  const nav = useNavigate();
+  const { data: savedIds } = useSavedIds();
+  const toggleSave = useToggleSave();
+  const isSaved = savedIds?.has(listing.id) ?? false;
 
   const { data: similar } = useQuery({
     queryKey: ["similar", listing.brand, listing.id],
@@ -132,8 +138,12 @@ function ListingDetailPage() {
               </Button>
             </div>
             <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
-              <Button variant="ghost" size="sm" className="gap-2"><Heart className="w-4 h-4" /> Save</Button>
-              <Button variant="ghost" size="sm" className="gap-2"><Flag className="w-4 h-4" /> Report</Button>
+              <Button variant="ghost" size="sm" className="gap-2" onClick={() => toggleSave(listing.id)}>
+                <Heart className={`w-4 h-4 ${isSaved ? "fill-primary text-primary" : ""}`} /> {isSaved ? "Saved" : "Save"}
+              </Button>
+              <Button variant="ghost" size="sm" className="gap-2" onClick={() => nav({ to: "/compare", search: { ids: listing.id } as any })}>
+                <GitCompare className="w-4 h-4" /> Compare
+              </Button>
             </div>
           </Card>
         </aside>

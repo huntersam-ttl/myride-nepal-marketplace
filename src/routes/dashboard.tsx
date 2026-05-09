@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatNPR } from "@/lib/nepal";
-import { Loader2, Plus, Trash2 } from "lucide-react";
+import { Loader2, Plus, Trash2, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect } from "react";
 
@@ -74,6 +74,9 @@ function DashboardPage() {
                 <p className="text-primary font-bold mt-1">{formatNPR(l.price)}</p>
                 <p className="text-xs text-muted-foreground mt-1">{l.views} views · {new Date(l.created_at).toLocaleDateString()}</p>
               </div>
+              <Button asChild variant="outline" size="sm" className="gap-1">
+                <Link to="/listings/$id/edit" params={{ id: l.id }}><Pencil className="w-3 h-3" /> Edit</Link>
+              </Button>
               <Button variant="ghost" size="icon" onClick={() => remove(l.id)}>
                 <Trash2 className="w-4 h-4 text-destructive" />
               </Button>
