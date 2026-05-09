@@ -18,6 +18,7 @@ import { Route as BlogRouteImport } from './routes/blog'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ListingsIdRouteImport } from './routes/listings.$id'
+import { Route as DealersSlugRouteImport } from './routes/dealers.$slug'
 
 const SellRoute = SellRouteImport.update({
   id: '/sell',
@@ -64,6 +65,11 @@ const ListingsIdRoute = ListingsIdRouteImport.update({
   path: '/listings/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DealersSlugRoute = DealersSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => DealersRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -71,9 +77,10 @@ export interface FileRoutesByFullPath {
   '/blog': typeof BlogRoute
   '/browse': typeof BrowseRoute
   '/dashboard': typeof DashboardRoute
-  '/dealers': typeof DealersRoute
+  '/dealers': typeof DealersRouteWithChildren
   '/price-estimator': typeof PriceEstimatorRoute
   '/sell': typeof SellRoute
+  '/dealers/$slug': typeof DealersSlugRoute
   '/listings/$id': typeof ListingsIdRoute
 }
 export interface FileRoutesByTo {
@@ -82,9 +89,10 @@ export interface FileRoutesByTo {
   '/blog': typeof BlogRoute
   '/browse': typeof BrowseRoute
   '/dashboard': typeof DashboardRoute
-  '/dealers': typeof DealersRoute
+  '/dealers': typeof DealersRouteWithChildren
   '/price-estimator': typeof PriceEstimatorRoute
   '/sell': typeof SellRoute
+  '/dealers/$slug': typeof DealersSlugRoute
   '/listings/$id': typeof ListingsIdRoute
 }
 export interface FileRoutesById {
@@ -94,9 +102,10 @@ export interface FileRoutesById {
   '/blog': typeof BlogRoute
   '/browse': typeof BrowseRoute
   '/dashboard': typeof DashboardRoute
-  '/dealers': typeof DealersRoute
+  '/dealers': typeof DealersRouteWithChildren
   '/price-estimator': typeof PriceEstimatorRoute
   '/sell': typeof SellRoute
+  '/dealers/$slug': typeof DealersSlugRoute
   '/listings/$id': typeof ListingsIdRoute
 }
 export interface FileRouteTypes {
@@ -110,6 +119,7 @@ export interface FileRouteTypes {
     | '/dealers'
     | '/price-estimator'
     | '/sell'
+    | '/dealers/$slug'
     | '/listings/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -121,6 +131,7 @@ export interface FileRouteTypes {
     | '/dealers'
     | '/price-estimator'
     | '/sell'
+    | '/dealers/$slug'
     | '/listings/$id'
   id:
     | '__root__'
@@ -132,6 +143,7 @@ export interface FileRouteTypes {
     | '/dealers'
     | '/price-estimator'
     | '/sell'
+    | '/dealers/$slug'
     | '/listings/$id'
   fileRoutesById: FileRoutesById
 }
@@ -141,7 +153,7 @@ export interface RootRouteChildren {
   BlogRoute: typeof BlogRoute
   BrowseRoute: typeof BrowseRoute
   DashboardRoute: typeof DashboardRoute
-  DealersRoute: typeof DealersRoute
+  DealersRoute: typeof DealersRouteWithChildren
   PriceEstimatorRoute: typeof PriceEstimatorRoute
   SellRoute: typeof SellRoute
   ListingsIdRoute: typeof ListingsIdRoute
@@ -212,8 +224,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ListingsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dealers/$slug': {
+      id: '/dealers/$slug'
+      path: '/$slug'
+      fullPath: '/dealers/$slug'
+      preLoaderRoute: typeof DealersSlugRouteImport
+      parentRoute: typeof DealersRoute
+    }
   }
 }
+
+interface DealersRouteChildren {
+  DealersSlugRoute: typeof DealersSlugRoute
+}
+
+const DealersRouteChildren: DealersRouteChildren = {
+  DealersSlugRoute: DealersSlugRoute,
+}
+
+const DealersRouteWithChildren =
+  DealersRoute._addFileChildren(DealersRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -221,7 +251,7 @@ const rootRouteChildren: RootRouteChildren = {
   BlogRoute: BlogRoute,
   BrowseRoute: BrowseRoute,
   DashboardRoute: DashboardRoute,
-  DealersRoute: DealersRoute,
+  DealersRoute: DealersRouteWithChildren,
   PriceEstimatorRoute: PriceEstimatorRoute,
   SellRoute: SellRoute,
   ListingsIdRoute: ListingsIdRoute,
