@@ -45,6 +45,10 @@ function ListingDetailPage() {
   const { listing } = Route.useLoaderData();
   const [imgIdx, setImgIdx] = useState(0);
   const cover = listing.images?.[imgIdx] || "https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=1200";
+  const nav = useNavigate();
+  const { data: savedIds } = useSavedIds();
+  const toggleSave = useToggleSave();
+  const isSaved = savedIds?.has(listing.id) ?? false;
 
   const { data: similar } = useQuery({
     queryKey: ["similar", listing.brand, listing.id],
