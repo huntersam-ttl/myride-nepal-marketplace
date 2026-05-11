@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { ListingCard } from "@/components/ListingCard";
-import { formatNPR, whatsappLink } from "@/lib/nepal";
+import { formatNPR, whatsappLink, telLink } from "@/lib/nepal";
 import { Phone, MessageCircle, MapPin, Calendar, Gauge, Fuel, Bike, Heart, GitCompare } from "lucide-react";
 import { useSavedIds, useToggleSave } from "@/hooks/use-saved";
 import { useNavigate } from "@tanstack/react-router";
