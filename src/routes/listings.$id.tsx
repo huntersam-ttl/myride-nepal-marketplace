@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { ListingCard } from "@/components/ListingCard";
-import { formatNPR, whatsappLink } from "@/lib/nepal";
+import { formatNPR, whatsappLink, telLink } from "@/lib/nepal";
 import { Phone, MessageCircle, MapPin, Calendar, Gauge, Fuel, Bike, Heart, GitCompare } from "lucide-react";
 import { useSavedIds, useToggleSave } from "@/hooks/use-saved";
 import { useNavigate } from "@tanstack/react-router";
@@ -127,16 +127,37 @@ function ListingDetailPage() {
           <Card className="p-5 sticky top-20">
             <p className="text-sm text-muted-foreground">Contact seller</p>
             <p className="font-semibold mt-1">MyRideNepal Verified Listing</p>
-            <div className="space-y-2 mt-4">
-              <Button asChild size="lg" className="w-full gap-2">
-                <a href={whatsappLink(listing.whatsapp || listing.phone, waMsg)} target="_blank" rel="noopener">
-                  <MessageCircle className="w-4 h-4" /> WhatsApp
-                </a>
-              </Button>
-              <Button asChild size="lg" variant="outline" className="w-full gap-2">
-                <a href={`tel:${listing.phone}`}><Phone className="w-4 h-4" /> Call seller</a>
-              </Button>
-            </div>
+            {(() => {
+              const wa = whatsappLink(listing.whatsapp || listing.phone, waMsg);
+              const tel = telLink(listing.phone);
+              return (
+                <div className="space-y-2 mt-4">
+                  <Button asChild size="lg" className="w-full gap-2" disabled={!wa}>
+                    <a
+                      href={wa ?? "#"}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-disabled={!wa}
+                      onClick={(e) => { if (!wa) e.preventDefault(); }}
+                    >
+                      <MessageCircle className="w-4 h-4" /> WhatsApp
+                    </a>
+                  </Button>
+                  <Button asChild size="lg" variant="outline" className="w-full gap-2" disabled={!tel}>
+                    <a
+                      href={tel ?? "#"}
+                      aria-disabled={!tel}
+                      onClick={(e) => { if (!tel) e.preventDefault(); }}
+                    >
+                      <Phone className="w-4 h-4" /> Call seller
+                    </a>
+                  </Button>
+                  {!wa && !tel && (
+                    <p className="text-xs text-muted-foreground">Seller contact unavailable.</p>
+                  )}
+                </div>
+              );
+            })()}
             <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
               <Button variant="ghost" size="sm" className="gap-2" onClick={() => toggleSave(listing.id)}>
                 <Heart className={`w-4 h-4 ${isSaved ? "fill-primary text-primary" : ""}`} /> {isSaved ? "Saved" : "Save"}
