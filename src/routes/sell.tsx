@@ -56,6 +56,19 @@ function SellPage() {
   const onFiles = (fileList: FileList | null) => {
     if (!fileList) return;
     const arr = Array.from(fileList).slice(0, 8 - files.length);
+    
+    // Validate files
+    for (const file of arr) {
+      if (!file.type.startsWith("image/")) {
+        toast.error(`${file.name} is not an image`);
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error(`${file.name} is too large. Max 5MB per image.`);
+        return;
+      }
+    }
+    
     setFiles(prev => [...prev, ...arr]);
     setPreviews(prev => [...prev, ...arr.map(f => URL.createObjectURL(f))]);
   };
@@ -67,11 +80,21 @@ function SellPage() {
 
   const submit = async () => {
     if (files.length === 0) { toast.error("Please upload at least one photo"); return; }
+    if (!f.phone.match(/^\+?977[-\s]?\d{10}$/)) { toast.error("Please enter a valid Nepali phone number"); return; }
+    if (!f.title.trim()) { toast.error("Title is required"); return; }
+    if (!f.brand || !f.model) { toast.error("Brand and model are required"); return; }
+    if (!f.price || Number(f.price) <= 0) { toast.error("Valid price is required"); return; }
+    
     setSubmitting(true);
     try {
-      // Upload images
+      // Validate and upload images
       const urls: string[] = [];
       for (const file of files) {
+        // Validate file size (5MB max)
+        if (file.size > 5 * 1024 * 1024) {
+          throw new Error(`Image ${file.name} is too large. Max 5MB per image.`);
+        }
+        
         const ext = file.name.split(".").pop();
         const path = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
         const { error } = await supabase.storage.from("listings").upload(path, file);
@@ -82,11 +105,11 @@ function SellPage() {
 
       const { error } = await supabase.from("listings").insert({
         user_id: user.id,
-        title: f.title, brand: f.brand, model: f.model,
+        title: f.title.trim(), brand: f.brand, model: f.model,
         year: Number(f.year), condition: f.condition as any,
         fuel_type: f.fuel_type as any, bike_type: f.bike_type as any,
         price: Number(f.price), mileage: Number(f.mileage),
-        colour: f.colour, district: f.district, description: f.description,
+        colour: f.colour, district: f.district, description: f.description.trim(),
         phone: f.phone, whatsapp: f.whatsapp || f.phone,
         images: urls, status: "pending",
       });

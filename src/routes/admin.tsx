@@ -59,6 +59,9 @@ function AdminPage() {
 }
 
 function AdminListings() {
+  const [rejectingId, setRejectingId] = useState<string | null>(null);
+  const [rejectReason, setRejectReason] = useState("");
+  
   const { data, refetch, isLoading } = useQuery({
     queryKey: ["admin-listings"],
     queryFn: async () => {
@@ -67,10 +70,18 @@ function AdminListings() {
     },
   });
 
-  const setStatus = async (id: string, status: "active" | "rejected") => {
-    const { error } = await supabase.from("listings").update({ status }).eq("id", id);
+  const setStatus = async (id: string, status: "active" | "rejected", reason?: string) => {
+    const updates: any = { status };
+    if (status === "rejected" && reason) {
+      updates.rejection_reason = reason;
+    } else if (status === "active") {
+      updates.rejection_reason = null; // Clear rejection reason when approving
+    }
+    const { error } = await supabase.from("listings").update(updates).eq("id", id);
     if (error) return toast.error(error.message);
     toast.success(`Listing ${status}`);
+    setRejectingId(null);
+    setRejectReason("");
     refetch();
   };
   const toggleFeatured = async (id: string, featured: boolean) => {
@@ -86,28 +97,60 @@ function AdminListings() {
 
   if (isLoading) return <Loader2 className="w-6 h-6 animate-spin mx-auto" />;
   return (
-    <div className="space-y-3">
-      {data?.map((l) => (
-        <Card key={l.id} className="p-4 flex flex-col sm:flex-row gap-4">
-          {l.images?.[0] && <img src={l.images[0]} className="w-full sm:w-28 aspect-[4/3] object-cover rounded-md" />}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <Link to="/listings/$id" params={{ id: l.id }} className="font-semibold hover:text-primary">{l.title}</Link>
-              <Badge variant={l.status === "active" ? "default" : l.status === "pending" ? "secondary" : "destructive"} className="capitalize">{l.status}</Badge>
-              {l.featured && <Badge className="bg-primary">Featured</Badge>}
+    <>
+      <div className="space-y-3">
+        {data?.map((l) => (
+          <Card key={l.id} className="p-4 flex flex-col sm:flex-row gap-4">
+            {l.images?.[0] && <img src={l.images[0]} className="w-full sm:w-28 aspect-[4/3] object-cover rounded-md" />}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <Link to="/listings/$id" params={{ id: l.id }} className="font-semibold hover:text-primary">{l.title}</Link>
+                <Badge variant={l.status === "active" ? "default" : l.status === "pending" ? "secondary" : "destructive"} className="capitalize">{l.status}</Badge>
+                {l.featured && <Badge className="bg-primary">Featured</Badge>}
+              </div>
+              <p className="text-sm text-primary font-bold">{formatNPR(l.price)}</p>
+              <p className="text-xs text-muted-foreground">{l.district} · {new Date(l.created_at).toLocaleDateString()}</p>
+              {l.rejection_reason && (
+                <p className="text-xs text-destructive mt-1">Reject reason: {l.rejection_reason}</p>
+              )}
             </div>
-            <p className="text-sm text-primary font-bold">{formatNPR(l.price)}</p>
-            <p className="text-xs text-muted-foreground">{l.district} · {new Date(l.created_at).toLocaleDateString()}</p>
+            <div className="flex gap-2 flex-wrap">
+              {l.status !== "active" && <Button size="sm" onClick={() => setStatus(l.id, "active")} className="gap-1"><Check className="w-3 h-3" />Approve</Button>}
+              {l.status !== "rejected" && <Button size="sm" variant="outline" onClick={() => setRejectingId(l.id)} className="gap-1"><X className="w-3 h-3" />Reject</Button>}
+              <Button size="sm" variant="ghost" onClick={() => toggleFeatured(l.id, l.featured)}>{l.featured ? "Unfeature" : "Feature"}</Button>
+              <Button size="sm" variant="ghost" onClick={() => remove(l.id)}><Trash2 className="w-4 h-4 text-destructive" /></Button>
+            </div>
+          </Card>
+        ))}
+      </div>
+      
+      {/* Rejection Dialog */}
+      <Dialog open={!!rejectingId} onOpenChange={(open) => { if (!open) { setRejectingId(null); setRejectReason(""); } }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reject listing</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Reason for rejection (optional)</Label>
+              <Textarea
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                placeholder="e.g., Images are unclear, missing information..."
+                rows={3}
+                className="mt-1.5"
+              />
+            </div>
+            <div className="flex gap-2 justify-end">
+              <Button variant="outline" onClick={() => { setRejectingId(null); setRejectReason(""); }}>Cancel</Button>
+              <Button variant="destructive" onClick={() => rejectingId && setStatus(rejectingId, "rejected", rejectReason)}>
+                Reject
+              </Button>
+            </div>
           </div>
-          <div className="flex gap-2 flex-wrap">
-            {l.status !== "active" && <Button size="sm" onClick={() => setStatus(l.id, "active")} className="gap-1"><Check className="w-3 h-3" />Approve</Button>}
-            {l.status !== "rejected" && <Button size="sm" variant="outline" onClick={() => setStatus(l.id, "rejected")} className="gap-1"><X className="w-3 h-3" />Reject</Button>}
-            <Button size="sm" variant="ghost" onClick={() => toggleFeatured(l.id, l.featured)}>{l.featured ? "Unfeature" : "Feature"}</Button>
-            <Button size="sm" variant="ghost" onClick={() => remove(l.id)}><Trash2 className="w-4 h-4 text-destructive" /></Button>
-          </div>
-        </Card>
-      ))}
-    </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 

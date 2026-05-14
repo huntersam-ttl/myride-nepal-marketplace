@@ -33,6 +33,12 @@ function EditListingPage() {
     supabase.from("listings").select("*").eq("id", id).maybeSingle().then(({ data }) => {
       if (!data) { toast.error("Not found"); navigate({ to: "/dashboard" }); return; }
       if (data.user_id !== user.id) { toast.error("Not allowed"); navigate({ to: "/dashboard" }); return; }
+      // Only allow editing pending or rejected listings
+      if (data.status !== "pending" && data.status !== "rejected") {
+        toast.error("Cannot edit listings that are active or sold");
+        navigate({ to: "/dashboard" });
+        return;
+      }
       setF(data);
     });
   }, [user, id]);
@@ -42,23 +48,45 @@ function EditListingPage() {
   const u = (k: string, v: any) => setF((p: any) => ({ ...p, [k]: v }));
 
   const save = async () => {
+    if (!f.title.trim()) { toast.error("Title is required"); return; }
+    if (!f.brand || !f.model) { toast.error("Brand and model are required"); return; }
+    if (!f.price || Number(f.price) <= 0) { toast.error("Valid price is required"); return; }
+    if (!f.phone.match(/^\+?977[-\s]?\d{10}$/)) { toast.error("Please enter a valid Nepali phone number"); return; }
+    
     setSaving(true);
-    const { error } = await supabase.from("listings").update({
-      title: f.title, brand: f.brand, model: f.model, year: Number(f.year),
+    const updates: any = {
+      title: f.title.trim(), brand: f.brand, model: f.model, year: Number(f.year),
       condition: f.condition, fuel_type: f.fuel_type, bike_type: f.bike_type,
       price: Number(f.price), mileage: Number(f.mileage), colour: f.colour,
-      district: f.district, description: f.description, phone: f.phone, whatsapp: f.whatsapp,
-    }).eq("id", id);
+      district: f.district, description: f.description.trim(), phone: f.phone, whatsapp: f.whatsapp,
+    };
+    
+    // If listing was rejected, reset to pending for re-review
+    if (f.status === "rejected") {
+      updates.status = "pending";
+      updates.rejection_reason = null;
+    }
+    
+    const { error } = await supabase.from("listings").update(updates).eq("id", id);
     setSaving(false);
     if (error) return toast.error(error.message);
-    toast.success("Listing updated");
-    navigate({ to: "/listings/$id", params: { id } });
+    toast.success(f.status === "rejected" ? "Listing resubmitted for review" : "Listing updated");
+    navigate({ to: "/dashboard" });
   };
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-2xl">
       <Link to="/dashboard" className="text-sm text-muted-foreground">← Dashboard</Link>
       <h1 className="text-3xl font-bold mt-2">Edit listing</h1>
+      {f.status === "rejected" && (
+        <div className="mt-4 p-3 rounded-lg bg-destructive/10 border border-destructive/20">
+          <p className="text-sm font-semibold text-destructive">This listing was rejected</p>
+          {f.rejection_reason && (
+            <p className="text-xs text-muted-foreground mt-1">Reason: {f.rejection_reason}</p>
+          )}
+          <p className="text-xs text-muted-foreground mt-1">Please review and update your listing before resubmitting</p>
+        </div>
+      )}
       <Card className="p-6 mt-6 space-y-4">
         <div><Label>Title</Label><Input value={f.title} onChange={e => u("title", e.target.value)} /></div>
         <div className="grid grid-cols-2 gap-3">

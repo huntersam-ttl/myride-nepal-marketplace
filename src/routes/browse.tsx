@@ -11,6 +11,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { POPULAR_BRANDS, NEPAL_DISTRICTS, BIKE_TYPES, CONDITIONS } from "@/lib/nepal";
 import { Filter, X } from "lucide-react";
 import { useSavedIds, useToggleSave } from "@/hooks/use-saved";
+import { motion } from "framer-motion";
 
 interface SearchParams {
   brand?: string; district?: string; type?: string; condition?: string;
@@ -140,10 +141,23 @@ function BrowsePage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-6 gap-3 flex-wrap">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="flex items-center justify-between mb-6 gap-3 flex-wrap"
+      >
         <div>
           <h1 className="text-2xl md:text-3xl font-bold">Browse bikes & scooters</h1>
-          <p className="text-sm text-muted-foreground mt-1">{data?.length ?? 0} listings</p>
+          <motion.p 
+            key={data?.length}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3 }}
+            className="text-sm text-muted-foreground mt-1"
+          >
+            {data?.length ?? 0} listings
+          </motion.p>
         </div>
         <div className="flex gap-2">
           <Sheet>
@@ -164,7 +178,7 @@ function BrowsePage() {
             </SelectContent>
           </Select>
         </div>
-      </div>
+      </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-8">
         <aside className="hidden lg:block sticky top-20 self-start">{filters}</aside>
@@ -172,20 +186,73 @@ function BrowsePage() {
           {isLoading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
               {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="aspect-[4/3] rounded-xl bg-muted animate-pulse" />
+                <motion.div 
+                  key={i}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.3, delay: i * 0.1 }}
+                  className="aspect-[4/3] rounded-xl bg-muted"
+                >
+                  <motion.div
+                    className="w-full h-full rounded-xl bg-gradient-to-r from-muted via-muted/50 to-muted"
+                    animate={{ 
+                      backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"]
+                    }}
+                    transition={{ 
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "linear"
+                    }}
+                    style={{
+                      backgroundSize: "200% 100%"
+                    }}
+                  />
+                </motion.div>
               ))}
             </div>
           ) : data?.length ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-              {data.map(l => <ListingCard key={l.id} listing={l as any} onSave={toggleSave} isSaved={savedIds?.has(l.id)} />)}
+              {data.map((l, index) => (
+                <motion.div
+                  key={l.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ 
+                    duration: 0.4, 
+                    delay: index * 0.05,
+                    type: "spring",
+                    stiffness: 100
+                  }}
+                  whileHover={{ y: -8, transition: { duration: 0.2 } }}
+                >
+                  <ListingCard listing={l as any} onSave={toggleSave} isSaved={savedIds?.has(l.id)} />
+                </motion.div>
+              ))}
             </div>
           ) : (
-            <div className="text-center py-20 border rounded-xl">
-              <p className="text-muted-foreground">No listings match your filters.</p>
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5 }}
+              className="text-center py-20 border rounded-xl"
+            >
+              <motion.p 
+                className="text-muted-foreground"
+                animate={{ 
+                  opacity: [0.5, 1, 0.5]
+                }}
+                transition={{ 
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              >
+                No listings match your filters.
+              </motion.p>
               <Button variant="link" onClick={() => navigate({ to: "/browse", search: {} as any })}>
                 Clear filters
               </Button>
-            </div>
+            </motion.div>
           )}
         </section>
       </div>

@@ -13,12 +13,24 @@ import { useNavigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/listings/$id")({
   component: ListingDetailPage,
-  loader: async ({ params }) => {
+  loader: async ({ params, context }) => {
     const { data, error } = await supabase
       .from("listings").select("*").eq("id", params.id).maybeSingle();
     if (error || !data) throw notFound();
-    // increment views (best effort)
-    supabase.from("listings").update({ views: (data.views ?? 0) + 1 }).eq("id", params.id).then(() => {});
+    
+    // Security: Only show active listings to public, or owned/admin
+    const { data: { user } } = await supabase.auth.getUser();
+    const isOwner = user?.id === data.user_id;
+    const isAdmin = user ? await supabase.from("user_roles").select("role").eq("user_id", user.id).eq("role", "admin").maybeSingle().then(r => !!r.data) : false;
+    
+    if (data.status !== "active" && !isOwner && !isAdmin) {
+      throw notFound();
+    }
+    
+    // increment views (best effort, only for active listings)
+    if (data.status === "active") {
+      supabase.from("listings").update({ views: (data.views ?? 0) + 1 }).eq("id", params.id).then(() => {});
+    }
     return { listing: data };
   },
   notFoundComponent: () => (

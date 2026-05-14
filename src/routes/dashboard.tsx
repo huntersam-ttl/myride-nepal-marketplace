@@ -74,9 +74,15 @@ function DashboardPage() {
                 <p className="text-primary font-bold mt-1">{formatNPR(l.price)}</p>
                 <p className="text-xs text-muted-foreground mt-1">{l.views} views · {new Date(l.created_at).toLocaleDateString()}</p>
               </div>
-              <Button asChild variant="outline" size="sm" className="gap-1">
-                <Link to="/listings/$id/edit" params={{ id: l.id }}><Pencil className="w-3 h-3" /> Edit</Link>
-              </Button>
+              {(l.status === "pending" || l.status === "rejected") ? (
+                <Button asChild variant="outline" size="sm" className="gap-1">
+                  <Link to="/listings/$id/edit" params={{ id: l.id }}><Pencil className="w-3 h-3" /> Edit</Link>
+                </Button>
+              ) : (
+                <Button variant="outline" size="sm" disabled className="gap-1">
+                  <Pencil className="w-3 h-3" /> Edit
+                </Button>
+              )}
               <Button variant="ghost" size="icon" onClick={() => remove(l.id)}>
                 <Trash2 className="w-4 h-4 text-destructive" />
               </Button>
@@ -87,6 +93,13 @@ function DashboardPage() {
         <Card className="p-10 text-center">
           <p className="text-muted-foreground mb-4">You haven't posted any listings yet.</p>
           <Button onClick={() => navigate({ to: "/sell" })}>Post your first listing</Button>
+        </Card>
+      )}
+      
+      {listings && listings.some(l => l.status === "rejected") && (
+        <Card className="p-4 mt-4 border-destructive bg-destructive/5">
+          <p className="text-sm font-semibold text-destructive">⚠️ You have rejected listings</p>
+          <p className="text-xs text-muted-foreground mt-1">Review and edit them to resubmit for approval</p>
         </Card>
       )}
     </div>

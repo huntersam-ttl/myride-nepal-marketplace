@@ -115,6 +115,7 @@ export type Database = {
           model: string
           phone: string
           price: number
+          rejection_reason: string | null
           status: Database["public"]["Enums"]["listing_status"]
           title: string
           user_id: string
@@ -138,6 +139,7 @@ export type Database = {
           model: string
           phone: string
           price: number
+          rejection_reason?: string | null
           status?: Database["public"]["Enums"]["listing_status"]
           title: string
           user_id: string
@@ -161,6 +163,7 @@ export type Database = {
           model?: string
           phone?: string
           price?: number
+          rejection_reason?: string | null
           status?: Database["public"]["Enums"]["listing_status"]
           title?: string
           user_id?: string
