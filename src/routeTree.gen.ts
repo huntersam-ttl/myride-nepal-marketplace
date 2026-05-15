@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsOfServiceRouteImport } from './routes/terms-of-service'
 import { Route as SellRouteImport } from './routes/sell'
 import { Route as SavedRouteImport } from './routes/saved'
 import { Route as SafetyTipsRouteImport } from './routes/safety-tips'
@@ -32,6 +33,11 @@ import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as ListingsIdEditRouteImport } from './routes/listings.$id.edit'
 
+const TermsOfServiceRoute = TermsOfServiceRouteImport.update({
+  id: '/terms-of-service',
+  path: '/terms-of-service',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SellRoute = SellRouteImport.update({
   id: '/sell',
   path: '/sell',
@@ -160,6 +166,7 @@ export interface FileRoutesByFullPath {
   '/safety-tips': typeof SafetyTipsRoute
   '/saved': typeof SavedRoute
   '/sell': typeof SellRoute
+  '/terms-of-service': typeof TermsOfServiceRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/dashboard/offers': typeof DashboardOffersRoute
@@ -184,6 +191,7 @@ export interface FileRoutesByTo {
   '/safety-tips': typeof SafetyTipsRoute
   '/saved': typeof SavedRoute
   '/sell': typeof SellRoute
+  '/terms-of-service': typeof TermsOfServiceRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/dashboard/offers': typeof DashboardOffersRoute
@@ -209,6 +217,7 @@ export interface FileRoutesById {
   '/safety-tips': typeof SafetyTipsRoute
   '/saved': typeof SavedRoute
   '/sell': typeof SellRoute
+  '/terms-of-service': typeof TermsOfServiceRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/dashboard/offers': typeof DashboardOffersRoute
@@ -235,6 +244,7 @@ export interface FileRouteTypes {
     | '/safety-tips'
     | '/saved'
     | '/sell'
+    | '/terms-of-service'
     | '/auth/callback'
     | '/blog/$slug'
     | '/dashboard/offers'
@@ -259,6 +269,7 @@ export interface FileRouteTypes {
     | '/safety-tips'
     | '/saved'
     | '/sell'
+    | '/terms-of-service'
     | '/auth/callback'
     | '/blog/$slug'
     | '/dashboard/offers'
@@ -283,6 +294,7 @@ export interface FileRouteTypes {
     | '/safety-tips'
     | '/saved'
     | '/sell'
+    | '/terms-of-service'
     | '/auth/callback'
     | '/blog/$slug'
     | '/dashboard/offers'
@@ -308,11 +320,19 @@ export interface RootRouteChildren {
   SafetyTipsRoute: typeof SafetyTipsRoute
   SavedRoute: typeof SavedRoute
   SellRoute: typeof SellRoute
+  TermsOfServiceRoute: typeof TermsOfServiceRoute
   ListingsIdRoute: typeof ListingsIdRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/terms-of-service': {
+      id: '/terms-of-service'
+      path: '/terms-of-service'
+      fullPath: '/terms-of-service'
+      preLoaderRoute: typeof TermsOfServiceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sell': {
       id: '/sell'
       path: '/sell'
@@ -542,6 +562,7 @@ const rootRouteChildren: RootRouteChildren = {
   SafetyTipsRoute: SafetyTipsRoute,
   SavedRoute: SavedRoute,
   SellRoute: SellRoute,
+  TermsOfServiceRoute: TermsOfServiceRoute,
   ListingsIdRoute: ListingsIdRouteWithChildren,
 }
 export const routeTree = rootRouteImport
