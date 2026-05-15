@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Logo } from "./Logo";
-import { Facebook, Instagram, Youtube, Mail } from "lucide-react";
+import { Instagram, Mail } from "lucide-react";
 
 const FOOTER_LINKS = {
   Marketplace: [
@@ -31,14 +31,8 @@ export function Footer() {
               Nepal's trusted marketplace for buying and selling bikes and scooters. Free to list, no commissions.
             </p>
             <div className="flex gap-3 pt-1">
-              <a href="#" aria-label="Facebook" className="w-9 h-9 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors">
-                <Facebook className="w-4 h-4" />
-              </a>
-              <a href="#" aria-label="Instagram" className="w-9 h-9 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors">
+              <a href="https://www.instagram.com/myridenepal/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="w-9 h-9 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors">
                 <Instagram className="w-4 h-4" />
-              </a>
-              <a href="#" aria-label="YouTube" className="w-9 h-9 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors">
-                <Youtube className="w-4 h-4" />
               </a>
               <a href="mailto:hello@myridenepal.com" aria-label="Email" className="w-9 h-9 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors">
                 <Mail className="w-4 h-4" />
@@ -87,8 +81,8 @@ export function Footer() {
         <div className="container mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs opacity-50">
           <span>© {new Date().getFullYear()} MyRideNepal. All rights reserved.</span>
           <div className="flex gap-4">
-            <a href="#" className="hover:opacity-100 transition-opacity">Privacy Policy</a>
-            <a href="#" className="hover:opacity-100 transition-opacity">Terms of Service</a>
+            <a href="/privacy-policy" className="hover:opacity-100 transition-opacity">Privacy Policy</a>
+            <a href="/terms-of-service" className="hover:opacity-100 transition-opacity">Terms of Service</a>
           </div>
         </div>
       </div>
