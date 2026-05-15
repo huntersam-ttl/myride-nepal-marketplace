@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Check, X, ShieldCheck, Trash2, Plus } from "lucide-react";
+import { Loader2, Check, X, ShieldCheck, Trash2, Plus, Flag, AlertTriangle } from "lucide-react";
 import { formatNPR } from "@/lib/nepal";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
@@ -47,10 +47,12 @@ function AdminPage() {
       <Tabs defaultValue="listings">
         <TabsList>
           <TabsTrigger value="listings">Listings</TabsTrigger>
+          <TabsTrigger value="reports">Reports</TabsTrigger>
           <TabsTrigger value="dealers">Dealers</TabsTrigger>
           <TabsTrigger value="blog">Blog</TabsTrigger>
         </TabsList>
         <TabsContent value="listings" className="mt-6"><AdminListings /></TabsContent>
+        <TabsContent value="reports" className="mt-6"><AdminReports /></TabsContent>
         <TabsContent value="dealers" className="mt-6"><AdminDealers /></TabsContent>
         <TabsContent value="blog" className="mt-6"><AdminBlog /></TabsContent>
       </Tabs>
@@ -59,98 +61,161 @@ function AdminPage() {
 }
 
 function AdminListings() {
-  const [rejectingId, setRejectingId] = useState<string | null>(null);
-  const [rejectReason, setRejectReason] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "active" | "rejected" | "sold">("all");
   
-  const { data, refetch, isLoading } = useQuery({
+  const { data, refetch, isLoading, error } = useQuery({
     queryKey: ["admin-listings"],
     queryFn: async () => {
-      const { data } = await supabase.from("listings").select("*").order("created_at", { ascending: false });
+      const { data, error } = await supabase
+        .from("listings")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw new Error(error.message);
       return data ?? [];
     },
   });
 
-  const setStatus = async (id: string, status: "active" | "rejected", reason?: string) => {
-    const updates: any = { status };
-    if (status === "rejected" && reason) {
-      updates.rejection_reason = reason;
-    } else if (status === "active") {
-      updates.rejection_reason = null; // Clear rejection reason when approving
-    }
-    const { error } = await supabase.from("listings").update(updates).eq("id", id);
+  const filteredData = data?.filter(l => statusFilter === "all" || l.status === statusFilter);
+
+  const setStatus = async (id: string, status: "active" | "rejected") => {
+    const { error } = await supabase.from("listings").update({ status }).eq("id", id);
     if (error) return toast.error(error.message);
-    toast.success(`Listing ${status}`);
-    setRejectingId(null);
-    setRejectReason("");
+    toast.success(`Listing ${status === "active" ? "approved" : "rejected"}`);
     refetch();
   };
   const toggleFeatured = async (id: string, featured: boolean) => {
-    await supabase.from("listings").update({ featured: !featured }).eq("id", id);
+    const { error } = await supabase.from("listings").update({ featured: !featured }).eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success(featured ? "Removed from featured" : "Marked as featured");
     refetch();
   };
   const remove = async (id: string) => {
-    if (!confirm("Delete listing?")) return;
-    await supabase.from("listings").delete().eq("id", id);
-    toast.success("Deleted");
+    const { error } = await supabase.from("listings").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success("Listing deleted");
     refetch();
   };
 
-  if (isLoading) return <Loader2 className="w-6 h-6 animate-spin mx-auto" />;
+  if (isLoading) return (
+    <div className="space-y-3">
+      {Array.from({ length: 3 }).map((_, i) => (
+        <div key={i} className="h-24 rounded-xl bg-muted animate-pulse" />
+      ))}
+    </div>
+  );
+
+  if (error) return (
+    <div className="rounded-xl border border-destructive/50 bg-destructive/5 p-6 text-center">
+      <p className="font-semibold text-destructive mb-1">Failed to load listings</p>
+      <p className="text-sm text-muted-foreground mb-3">{(error as Error).message}</p>
+      <Button variant="outline" size="sm" onClick={() => refetch()}>Retry</Button>
+    </div>
+  );
+
+  if (!data?.length) return (
+    <div className="rounded-xl border p-12 text-center text-muted-foreground">
+      No listings found.
+    </div>
+  );
+
   return (
-    <>
-      <div className="space-y-3">
-        {data?.map((l) => (
-          <Card key={l.id} className="p-4 flex flex-col sm:flex-row gap-4">
-            {l.images?.[0] && <img src={l.images[0]} className="w-full sm:w-28 aspect-[4/3] object-cover rounded-md" />}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap">
-                <Link to="/listings/$id" params={{ id: l.id }} className="font-semibold hover:text-primary">{l.title}</Link>
-                <Badge variant={l.status === "active" ? "default" : l.status === "pending" ? "secondary" : "destructive"} className="capitalize">{l.status}</Badge>
-                {l.featured && <Badge className="bg-primary">Featured</Badge>}
-              </div>
-              <p className="text-sm text-primary font-bold">{formatNPR(l.price)}</p>
-              <p className="text-xs text-muted-foreground">{l.district} · {new Date(l.created_at).toLocaleDateString()}</p>
-              {l.rejection_reason && (
-                <p className="text-xs text-destructive mt-1">Reject reason: {l.rejection_reason}</p>
-              )}
-            </div>
-            <div className="flex gap-2 flex-wrap">
-              {l.status !== "active" && <Button size="sm" onClick={() => setStatus(l.id, "active")} className="gap-1"><Check className="w-3 h-3" />Approve</Button>}
-              {l.status !== "rejected" && <Button size="sm" variant="outline" onClick={() => setRejectingId(l.id)} className="gap-1"><X className="w-3 h-3" />Reject</Button>}
-              <Button size="sm" variant="ghost" onClick={() => toggleFeatured(l.id, l.featured)}>{l.featured ? "Unfeature" : "Feature"}</Button>
-              <Button size="sm" variant="ghost" onClick={() => remove(l.id)}><Trash2 className="w-4 h-4 text-destructive" /></Button>
-            </div>
-          </Card>
+    <div className="space-y-3">
+      {/* Status filter buttons */}
+      <div className="flex gap-2 flex-wrap mb-4">
+        {(["all", "pending", "active", "rejected", "sold"] as const).map(status => (
+          <Button
+            key={status}
+            size="sm"
+            variant={statusFilter === status ? "default" : "outline"}
+            onClick={() => setStatusFilter(status)}
+            className="capitalize"
+          >
+            {status}
+            {status !== "all" && (
+              <Badge variant="secondary" className="ml-2">
+                {data.filter(l => l.status === status).length}
+              </Badge>
+            )}
+          </Button>
         ))}
       </div>
-      
-      {/* Rejection Dialog */}
-      <Dialog open={!!rejectingId} onOpenChange={(open) => { if (!open) { setRejectingId(null); setRejectReason(""); } }}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Reject listing</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label>Reason for rejection (optional)</Label>
-              <Textarea
-                value={rejectReason}
-                onChange={(e) => setRejectReason(e.target.value)}
-                placeholder="e.g., Images are unclear, missing information..."
-                rows={3}
-                className="mt-1.5"
-              />
+
+      {/* Status summary */}
+      <div className="flex gap-3 flex-wrap mb-4">
+        {(["pending", "active", "rejected", "sold"] as const).map(s => {
+          const count = data.filter(l => l.status === s).length;
+          return count > 0 ? (
+            <Badge 
+              key={s} 
+              variant={s === "active" ? "default" : s === "pending" ? "secondary" : s === "sold" ? "outline" : "destructive"} 
+              className="capitalize gap-1"
+            >
+              {s}: {count}
+            </Badge>
+          ) : null;
+        })}
+      </div>
+
+      {filteredData && filteredData.length > 0 ? (
+        filteredData.map((l) => (
+        <Card key={l.id} className="p-4 flex flex-col sm:flex-row gap-4">
+          {l.images?.[0]
+            ? <img src={l.images[0]} alt="" className="w-full sm:w-28 aspect-[4/3] object-cover rounded-md flex-shrink-0" />
+            : <div className="w-full sm:w-28 aspect-[4/3] rounded-md bg-muted flex-shrink-0 flex items-center justify-center text-xs text-muted-foreground">No photo</div>
+          }
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <Link to="/listings/$id" params={{ id: l.id }} className="font-semibold hover:text-primary">{l.title}</Link>
+              <Badge 
+                variant={
+                  l.status === "active" ? "default" : 
+                  l.status === "pending" ? "secondary" : 
+                  l.status === "sold" ? "outline" :
+                  "destructive"
+                } 
+                className="capitalize"
+              >
+                {l.status}
+              </Badge>
+              {l.featured && <Badge variant="outline" className="text-primary border-primary">Featured</Badge>}
+              {(l as any).report_count >= 3 && (
+                <Badge variant="destructive" className="gap-1">
+                  <AlertTriangle className="w-3 h-3" />
+                  Multiple Reports ({(l as any).report_count})
+                </Badge>
+              )}
             </div>
-            <div className="flex gap-2 justify-end">
-              <Button variant="outline" onClick={() => { setRejectingId(null); setRejectReason(""); }}>Cancel</Button>
-              <Button variant="destructive" onClick={() => rejectingId && setStatus(rejectingId, "rejected", rejectReason)}>
-                Reject
-              </Button>
-            </div>
+            <p className="text-sm text-primary font-bold mt-0.5">{formatNPR(l.price)}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{l.district} · {l.brand} {l.model} · {new Date(l.created_at).toLocaleDateString()}</p>
           </div>
-        </DialogContent>
-      </Dialog>
-    </>
+          <div className="flex gap-2 flex-wrap items-start">
+            {l.status !== "active" && l.status !== "sold" && (
+              <Button size="sm" onClick={() => setStatus(l.id, "active")} className="gap-1">
+                <Check className="w-3 h-3" /> Approve
+              </Button>
+            )}
+            {l.status !== "rejected" && l.status !== "sold" && (
+              <Button size="sm" variant="outline" onClick={() => setStatus(l.id, "rejected")} className="gap-1 text-destructive border-destructive/30 hover:bg-destructive/10">
+                <X className="w-3 h-3" /> Reject
+              </Button>
+            )}
+            {l.status !== "sold" && (
+              <Button size="sm" variant="ghost" onClick={() => toggleFeatured(l.id, l.featured)} className="text-xs">
+                {l.featured ? "Unfeature" : "Feature"}
+              </Button>
+            )}
+            <Button size="sm" variant="ghost" onClick={() => remove(l.id)} className="text-destructive hover:bg-destructive/10">
+              <Trash2 className="w-4 h-4" />
+            </Button>
+          </div>
+        </Card>
+        ))
+      ) : (
+        <div className="rounded-xl border p-12 text-center text-muted-foreground">
+          No listings found with status: {statusFilter}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -280,5 +345,179 @@ function AdminBlog() {
         </DialogContent>
       </Dialog>
     </>
+  );
+}
+
+function AdminReports() {
+  const [statusFilter, setStatusFilter] = useState<"pending" | "reviewed" | "dismissed">("pending");
+  
+  const { data, refetch, isLoading } = useQuery({
+    queryKey: ["admin-reports", statusFilter],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("listing_reports")
+        .select(`
+          *,
+          listing:listings(id, title, status),
+          reporter:profiles!listing_reports_reporter_id_fkey(name)
+        `)
+        .eq("status", statusFilter)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  // Get counts for all statuses
+  const { data: counts } = useQuery({
+    queryKey: ["admin-reports-counts"],
+    queryFn: async () => {
+      const [pending, reviewed, dismissed] = await Promise.all([
+        supabase.from("listing_reports").select("id", { count: "exact", head: true }).eq("status", "pending"),
+        supabase.from("listing_reports").select("id", { count: "exact", head: true }).eq("status", "reviewed"),
+        supabase.from("listing_reports").select("id", { count: "exact", head: true }).eq("status", "dismissed"),
+      ]);
+      return {
+        pending: pending.count ?? 0,
+        reviewed: reviewed.count ?? 0,
+        dismissed: dismissed.count ?? 0,
+      };
+    },
+  });
+
+  const updateStatus = async (reportId: string, newStatus: "reviewed" | "dismissed") => {
+    const { error } = await supabase
+      .from("listing_reports")
+      .update({ 
+        status: newStatus,
+        reviewed_at: new Date().toISOString(),
+        reviewed_by: (await supabase.auth.getUser()).data.user?.id,
+      })
+      .eq("id", reportId);
+    
+    if (error) {
+      toast.error("Failed to update report");
+      return;
+    }
+    
+    toast.success(`Report marked as ${newStatus}`);
+    refetch();
+  };
+
+  const formatTimeAgo = (date: string) => {
+    const seconds = Math.floor((new Date().getTime() - new Date(date).getTime()) / 1000);
+    if (seconds < 60) return `${seconds}s ago`;
+    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+    return `${Math.floor(seconds / 86400)}d ago`;
+  };
+
+  const formatReason = (reason: string) => {
+    return reason.split("_").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
+  };
+
+  if (isLoading) {
+    return <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin" /></div>;
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Count badges */}
+      <div className="flex gap-3 flex-wrap">
+        <Badge variant="destructive" className="text-sm py-1.5 px-3">
+          Pending: {counts?.pending ?? 0}
+        </Badge>
+        <Badge variant="default" className="text-sm py-1.5 px-3 bg-green-600">
+          Reviewed: {counts?.reviewed ?? 0}
+        </Badge>
+        <Badge variant="secondary" className="text-sm py-1.5 px-3">
+          Dismissed: {counts?.dismissed ?? 0}
+        </Badge>
+      </div>
+
+      {/* Filter tabs */}
+      <div className="flex gap-2">
+        {(["pending", "reviewed", "dismissed"] as const).map(status => (
+          <Button
+            key={status}
+            size="sm"
+            variant={statusFilter === status ? "default" : "outline"}
+            onClick={() => setStatusFilter(status)}
+            className="capitalize"
+          >
+            {status}
+          </Button>
+        ))}
+      </div>
+
+      {/* Reports list */}
+      {data && data.length > 0 ? (
+        <div className="space-y-3">
+          {data.map((report: any) => (
+            <Card key={report.id} className="p-4">
+              <div className="flex flex-col gap-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1">
+                    {report.listing ? (
+                      <Link 
+                        to="/listings/$id" 
+                        params={{ id: report.listing.id }} 
+                        className="font-semibold hover:text-primary"
+                      >
+                        {report.listing.title}
+                      </Link>
+                    ) : (
+                      <span className="text-muted-foreground italic">Listing deleted</span>
+                    )}
+                    <div className="flex items-center gap-2 mt-1 flex-wrap">
+                      <Badge variant="destructive" className="capitalize">
+                        {formatReason(report.reason)}
+                      </Badge>
+                      <span className="text-xs text-muted-foreground">
+                        {formatTimeAgo(report.created_at)}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        by {report.reporter?.name || "Anonymous"}
+                      </span>
+                    </div>
+                  </div>
+                  {statusFilter === "pending" && (
+                    <div className="flex gap-2">
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => updateStatus(report.id, "reviewed")}
+                        className="gap-1"
+                      >
+                        <Check className="w-3 h-3" />
+                        Mark Reviewed
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="ghost"
+                        onClick={() => updateStatus(report.id, "dismissed")}
+                        className="gap-1 text-muted-foreground"
+                      >
+                        <X className="w-3 h-3" />
+                        Dismiss
+                      </Button>
+                    </div>
+                  )}
+                </div>
+                {report.details && (
+                  <p className="text-sm text-muted-foreground border-l-2 border-muted pl-3">
+                    {report.details}
+                  </p>
+                )}
+              </div>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <div className="rounded-xl border p-12 text-center text-muted-foreground">
+          No {statusFilter} reports found.
+        </div>
+      )}
+    </div>
   );
 }

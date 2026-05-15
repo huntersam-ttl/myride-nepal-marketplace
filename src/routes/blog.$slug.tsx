@@ -33,12 +33,16 @@ function BlogPostPage() {
       <div className="mt-4">
         <Badge variant="secondary">{post.category}</Badge>
         <h1 className="text-3xl md:text-4xl font-bold mt-3 leading-tight">{post.title}</h1>
-        <p className="text-sm text-muted-foreground mt-2">By {post.author} · {new Date(post.created_at).toLocaleDateString()}</p>
+        <div className="flex items-center gap-3 text-sm text-muted-foreground mt-3">
+          <span>{new Date(post.published_at || post.created_at).toLocaleDateString()}</span>
+          {post.read_time && <span>· {post.read_time} min read</span>}
+        </div>
       </div>
       {post.cover_image && <img src={post.cover_image} alt={post.title} className="w-full aspect-[16/9] object-cover rounded-xl mt-6" />}
-      <div className="prose prose-neutral max-w-none mt-6 whitespace-pre-line text-base leading-relaxed">
-        {post.content}
-      </div>
+      <div 
+        className="prose prose-lg prose-neutral max-w-none mt-8"
+        dangerouslySetInnerHTML={{ __html: post.content }}
+      />
     </article>
   );
 }

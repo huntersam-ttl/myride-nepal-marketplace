@@ -32,12 +32,27 @@ function DealerProfilePage() {
   const { data: listings } = useQuery({
     queryKey: ["dealer-listings", dealer.user_id],
     queryFn: async () => {
-      const { data } = await supabase
+      const { data: listings } = await supabase
         .from("listings")
-        .select("id,title,brand,price,year,mileage,district,condition,images,featured")
+        .select("id,title,brand,price,year,mileage,district,condition,images,featured,accident_history,num_owners,user_id,has_bluebook,has_insurance,has_tax_clearance,has_registration")
         .eq("user_id", dealer.user_id).eq("status", "active")
         .order("created_at", { ascending: false });
-      return data ?? [];
+      
+      // Fetch verification level
+      if (listings && listings.length > 0) {
+        const { data: profiles } = await supabase
+          .from("profiles")
+          .select("id, verification_level")
+          .eq("id", dealer.user_id)
+          .maybeSingle();
+
+        return listings.map(listing => ({
+          ...listing,
+          verification_level: profiles?.verification_level || null,
+        }));
+      }
+
+      return listings ?? [];
     },
   });
 

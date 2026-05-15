@@ -20,7 +20,7 @@ export function useToggleSave() {
   const { user } = useAuth();
   const qc = useQueryClient();
   const navigate = useNavigate();
-  return async (listingId: string) => {
+  return async (listingId: string, listingPrice?: number) => {
     if (!user) {
       toast.info("Login to save listings");
       navigate({ to: "/auth" });
@@ -36,7 +36,18 @@ export function useToggleSave() {
       await supabase.from("saved_listings").delete().eq("id", existing.id);
       toast.success("Removed from saved");
     } else {
-      await supabase.from("saved_listings").insert({ user_id: user.id, listing_id: listingId });
+      const insertData: any = { 
+        user_id: user.id, 
+        listing_id: listingId,
+        notify_price_drop: true // Default to true
+      };
+      
+      // If price is provided, save it
+      if (listingPrice !== undefined) {
+        insertData.price_at_save = listingPrice;
+      }
+      
+      await supabase.from("saved_listings").insert(insertData);
       toast.success("Saved");
     }
     qc.invalidateQueries({ queryKey: ["saved", user.id] });

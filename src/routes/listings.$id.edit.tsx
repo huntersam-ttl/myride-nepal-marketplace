@@ -54,10 +54,14 @@ function EditListingPage() {
     if (!f.phone.match(/^\+?977[-\s]?\d{10}$/)) { toast.error("Please enter a valid Nepali phone number"); return; }
     
     setSaving(true);
+    
+    const oldPrice = f.price; // Store original price before changes
+    const newPrice = Number(f.price);
+    
     const updates: any = {
       title: f.title.trim(), brand: f.brand, model: f.model, year: Number(f.year),
       condition: f.condition, fuel_type: f.fuel_type, bike_type: f.bike_type,
-      price: Number(f.price), mileage: Number(f.mileage), colour: f.colour,
+      price: newPrice, mileage: Number(f.mileage), colour: f.colour,
       district: f.district, description: f.description.trim(), phone: f.phone, whatsapp: f.whatsapp,
     };
     
@@ -68,8 +72,38 @@ function EditListingPage() {
     }
     
     const { error } = await supabase.from("listings").update(updates).eq("id", id);
+    
+    if (error) {
+      setSaving(false);
+      return toast.error(error.message);
+    }
+    
+    // Check if price has dropped and notify saved users
+    const priceChanged = oldPrice !== newPrice;
+    if (priceChanged && newPrice < oldPrice) {
+      // Get all users who have saved this listing with notify_price_drop enabled
+      const { data: savedUsers } = await supabase
+        .from("saved_listings")
+        .select("user_id, price_at_save")
+        .eq("listing_id", id)
+        .eq("notify_price_drop", true);
+      
+      if (savedUsers && savedUsers.length > 0) {
+        // Create notifications for each user
+        const notifications = savedUsers.map(saved => ({
+          user_id: saved.user_id,
+          type: "offer",
+          title: "Price Drop Alert",
+          message: `${f.title} has dropped in price from NPR ${oldPrice.toLocaleString()} to NPR ${newPrice.toLocaleString()}`,
+          link: `/listings/${id}`,
+          read: false
+        }));
+        
+        await supabase.from("notifications").insert(notifications);
+      }
+    }
+    
     setSaving(false);
-    if (error) return toast.error(error.message);
     toast.success(f.status === "rejected" ? "Listing resubmitted for review" : "Listing updated");
     navigate({ to: "/dashboard" });
   };

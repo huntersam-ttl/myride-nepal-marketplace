@@ -16,7 +16,8 @@ export type Database = {
     Tables: {
       blog_posts: {
         Row: {
-          author: string
+          author: string | null
+          author_id: string | null
           category: string
           content: string
           cover_image: string | null
@@ -24,11 +25,15 @@ export type Database = {
           excerpt: string | null
           id: string
           published: boolean
+          published_at: string | null
+          read_time: number | null
           slug: string
           title: string
+          updated_at: string | null
         }
         Insert: {
-          author: string
+          author?: string | null
+          author_id?: string | null
           category: string
           content: string
           cover_image?: string | null
@@ -36,11 +41,15 @@ export type Database = {
           excerpt?: string | null
           id?: string
           published?: boolean
+          published_at?: string | null
+          read_time?: number | null
           slug: string
           title: string
+          updated_at?: string | null
         }
         Update: {
-          author?: string
+          author?: string | null
+          author_id?: string | null
           category?: string
           content?: string
           cover_image?: string | null
@@ -48,8 +57,11 @@ export type Database = {
           excerpt?: string | null
           id?: string
           published?: boolean
+          published_at?: string | null
+          read_time?: number | null
           slug?: string
           title?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -98,24 +110,82 @@ export type Database = {
         }
         Relationships: []
       }
+      listing_reports: {
+        Row: {
+          created_at: string | null
+          details: string | null
+          id: string
+          listing_id: string | null
+          reason: string
+          reporter_id: string | null
+          status: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          details?: string | null
+          id?: string
+          listing_id?: string | null
+          reason: string
+          reporter_id?: string | null
+          status?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          details?: string | null
+          id?: string
+          listing_id?: string | null
+          reason?: string
+          reporter_id?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_reports_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       listings: {
         Row: {
+          accident_details: string | null
+          accident_history: boolean | null
           bike_type: Database["public"]["Enums"]["bike_type"]
+          bluebook_name_match: boolean | null
           brand: string
           colour: string | null
           condition: Database["public"]["Enums"]["bike_condition"]
           created_at: string
           description: string | null
           district: string
+          document_notes: string | null
           featured: boolean
           fuel_type: Database["public"]["Enums"]["fuel_type"]
+          has_bluebook: boolean | null
+          has_insurance: boolean | null
+          has_registration: boolean | null
+          has_tax_clearance: boolean | null
           id: string
           images: string[]
+          insurance_valid: boolean | null
+          last_service_date: string | null
           mileage: number
           model: string
+          modifications: string | null
+          num_owners: number | null
+          original_parts: boolean | null
           phone: string
           price: number
+          registration_expiry: string | null
           rejection_reason: string | null
+          report_count: number | null
+          seller_role: string | null
+          service_history: boolean | null
+          shares: number | null
+          sold_at: string | null
+          sold_price: number | null
           status: Database["public"]["Enums"]["listing_status"]
           title: string
           user_id: string
@@ -124,22 +194,42 @@ export type Database = {
           year: number
         }
         Insert: {
+          accident_details?: string | null
+          accident_history?: boolean | null
           bike_type?: Database["public"]["Enums"]["bike_type"]
+          bluebook_name_match?: boolean | null
           brand: string
           colour?: string | null
           condition: Database["public"]["Enums"]["bike_condition"]
           created_at?: string
           description?: string | null
           district: string
+          document_notes?: string | null
           featured?: boolean
           fuel_type?: Database["public"]["Enums"]["fuel_type"]
+          has_bluebook?: boolean | null
+          has_insurance?: boolean | null
+          has_registration?: boolean | null
+          has_tax_clearance?: boolean | null
           id?: string
           images?: string[]
+          insurance_valid?: boolean | null
+          last_service_date?: string | null
           mileage?: number
           model: string
+          modifications?: string | null
+          num_owners?: number | null
+          original_parts?: boolean | null
           phone: string
           price: number
+          registration_expiry?: string | null
           rejection_reason?: string | null
+          report_count?: number | null
+          seller_role?: string | null
+          service_history?: boolean | null
+          shares?: number | null
+          sold_at?: string | null
+          sold_price?: number | null
           status?: Database["public"]["Enums"]["listing_status"]
           title: string
           user_id: string
@@ -148,22 +238,42 @@ export type Database = {
           year: number
         }
         Update: {
+          accident_details?: string | null
+          accident_history?: boolean | null
           bike_type?: Database["public"]["Enums"]["bike_type"]
+          bluebook_name_match?: boolean | null
           brand?: string
           colour?: string | null
           condition?: Database["public"]["Enums"]["bike_condition"]
           created_at?: string
           description?: string | null
           district?: string
+          document_notes?: string | null
           featured?: boolean
           fuel_type?: Database["public"]["Enums"]["fuel_type"]
+          has_bluebook?: boolean | null
+          has_insurance?: boolean | null
+          has_registration?: boolean | null
+          has_tax_clearance?: boolean | null
           id?: string
           images?: string[]
+          insurance_valid?: boolean | null
+          last_service_date?: string | null
           mileage?: number
           model?: string
+          modifications?: string | null
+          num_owners?: number | null
+          original_parts?: boolean | null
           phone?: string
           price?: number
+          registration_expiry?: string | null
           rejection_reason?: string | null
+          report_count?: number | null
+          seller_role?: string | null
+          service_history?: boolean | null
+          shares?: number | null
+          sold_at?: string | null
+          sold_price?: number | null
           status?: Database["public"]["Enums"]["listing_status"]
           title?: string
           user_id?: string
@@ -172,6 +282,89 @@ export type Database = {
           year?: number
         }
         Relationships: []
+      }
+      notifications: {
+        Row: {
+          created_at: string | null
+          id: string
+          link: string | null
+          message: string
+          read: boolean | null
+          title: string
+          type: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          link?: string | null
+          message: string
+          read?: boolean | null
+          title: string
+          type?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          link?: string | null
+          message?: string
+          read?: boolean | null
+          title?: string
+          type?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      offers: {
+        Row: {
+          buyer_id: string | null
+          counter_message: string | null
+          counter_price: number | null
+          created_at: string | null
+          id: string
+          listing_id: string | null
+          message: string | null
+          offer_price: number
+          seller_id: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          buyer_id?: string | null
+          counter_message?: string | null
+          counter_price?: number | null
+          created_at?: string | null
+          id?: string
+          listing_id?: string | null
+          message?: string | null
+          offer_price: number
+          seller_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          buyer_id?: string | null
+          counter_message?: string | null
+          counter_price?: number | null
+          created_at?: string | null
+          id?: string
+          listing_id?: string | null
+          message?: string | null
+          offer_price?: number
+          seller_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "offers_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       price_estimates: {
         Row: {
@@ -200,27 +393,60 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          average_rating: number | null
           created_at: string
           email: string | null
           id: string
+          id_document_url: string | null
+          id_verified: boolean | null
           name: string | null
           phone: string | null
+          phone_verified: boolean | null
+          total_reviews: number | null
+          total_sales: number | null
+          verification_approved_at: string | null
+          verification_level: string | null
+          verification_requested_at: string | null
+          verified_at: string | null
+          verified_by: string | null
         }
         Insert: {
           avatar_url?: string | null
+          average_rating?: number | null
           created_at?: string
           email?: string | null
           id: string
+          id_document_url?: string | null
+          id_verified?: boolean | null
           name?: string | null
           phone?: string | null
+          phone_verified?: boolean | null
+          total_reviews?: number | null
+          total_sales?: number | null
+          verification_approved_at?: string | null
+          verification_level?: string | null
+          verification_requested_at?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
         }
         Update: {
           avatar_url?: string | null
+          average_rating?: number | null
           created_at?: string
           email?: string | null
           id?: string
+          id_document_url?: string | null
+          id_verified?: boolean | null
           name?: string | null
           phone?: string | null
+          phone_verified?: boolean | null
+          total_reviews?: number | null
+          total_sales?: number | null
+          verification_approved_at?: string | null
+          verification_level?: string | null
+          verification_requested_at?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
         }
         Relationships: []
       }
@@ -229,23 +455,67 @@ export type Database = {
           created_at: string
           id: string
           listing_id: string
+          notify_price_drop: boolean | null
+          price_at_save: number | null
           user_id: string
         }
         Insert: {
           created_at?: string
           id?: string
           listing_id: string
+          notify_price_drop?: boolean | null
+          price_at_save?: number | null
           user_id: string
         }
         Update: {
           created_at?: string
           id?: string
           listing_id?: string
+          notify_price_drop?: boolean | null
+          price_at_save?: number | null
           user_id?: string
         }
         Relationships: [
           {
             foreignKeyName: "saved_listings_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seller_reviews: {
+        Row: {
+          buyer_id: string | null
+          created_at: string | null
+          id: string
+          listing_id: string | null
+          rating: number
+          review_text: string | null
+          seller_id: string | null
+        }
+        Insert: {
+          buyer_id?: string | null
+          created_at?: string | null
+          id?: string
+          listing_id?: string | null
+          rating: number
+          review_text?: string | null
+          seller_id?: string | null
+        }
+        Update: {
+          buyer_id?: string | null
+          created_at?: string | null
+          id?: string
+          listing_id?: string | null
+          rating?: number
+          review_text?: string | null
+          seller_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seller_reviews_listing_id_fkey"
             columns: ["listing_id"]
             isOneToOne: false
             referencedRelation: "listings"
@@ -285,6 +555,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      increment_listing_report_count: {
+        Args: { listing_id_param: string }
+        Returns: undefined
       }
     }
     Enums: {
