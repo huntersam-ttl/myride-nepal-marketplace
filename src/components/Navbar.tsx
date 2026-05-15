@@ -1,19 +1,17 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Menu, User as UserIcon, LogOut, Heart, Plus, Shield } from "lucide-react";
+import { Menu, User as UserIcon, LogOut, Heart, Plus, Shield, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { Logo } from "./Logo";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { useIsAdmin } from "@/hooks/use-saved";
-import { NotificationBell } from "@/components/NotificationBell";
 import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
-const links = [
+const NAV_LINKS = [
   { to: "/browse", label: "Browse" },
-  { to: "/sell", label: "Sell" },
   { to: "/dealers", label: "Dealers" },
   { to: "/compare", label: "Compare" },
   { to: "/price-estimator", label: "Price Estimator" },
@@ -29,68 +27,154 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/75">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <div className="flex items-center gap-8">
+
+        {/* Left: Logo + nav */}
+        <div className="flex items-center gap-6">
           <Logo />
-          <nav className="hidden lg:flex items-center gap-5 text-sm font-medium">
-            {links.map((l) => (
-              <Link key={l.to} to={l.to} className="text-muted-foreground hover:text-foreground transition-colors" activeProps={{ className: "text-primary" }}>
+          <nav className="hidden lg:flex items-center gap-0.5 text-sm font-medium">
+            {NAV_LINKS.map((l) => (
+              <Link
+                key={l.to}
+                to={l.to}
+                className="px-3 py-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+                activeProps={{ className: "text-primary font-semibold" }}
+              >
                 {l.label}
               </Link>
             ))}
           </nav>
         </div>
 
-        <div className="hidden md:flex items-center gap-2">
-          {user && <NotificationBell />}
-          {user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="gap-2"><UserIcon className="w-4 h-4" />Account</Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuItem onClick={() => navigate({ to: "/dashboard" })}><UserIcon className="w-4 h-4 mr-2" /> Dashboard</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate({ to: "/saved" })}><Heart className="w-4 h-4 mr-2" /> Saved</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate({ to: "/sell" })}><Plus className="w-4 h-4 mr-2" /> Post a listing</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate({ to: "/dealer-signup" })}>Become a dealer</DropdownMenuItem>
-                {isAdmin && <DropdownMenuItem onClick={() => navigate({ to: "/admin" })}><Shield className="w-4 h-4 mr-2" /> Admin</DropdownMenuItem>}
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={async () => { await signOut(); navigate({ to: "/" }); }}><LogOut className="w-4 h-4 mr-2" /> Sign out</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <>
-              <Button variant="ghost" size="sm" onClick={() => navigate({ to: "/auth" })}>Login</Button>
-              <Button size="sm" onClick={() => navigate({ to: "/auth", search: { mode: "signup" } as any })}>Sign up</Button>
-            </>
-          )}
-        </div>
+        {/* Right: actions */}
+        <div className="flex items-center gap-2">
+          {/* Sell CTA — visible on sm+ */}
+          <Button
+            size="sm"
+            onClick={() => navigate({ to: "/sell" })}
+            className="hidden sm:flex gap-1.5 font-semibold shadow-sm"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span className="hidden md:inline">Sell your bike</span>
+            <span className="md:hidden">Sell</span>
+          </Button>
 
-        <Sheet open={open} onOpenChange={setOpen}>
-          <SheetTrigger asChild className="lg:hidden">
-            <Button variant="ghost" size="icon"><Menu className="w-5 h-5" /></Button>
-          </SheetTrigger>
-          <SheetContent side="right" className="w-[280px]">
-            <nav className="flex flex-col gap-1 mt-8">
-              {links.map((l) => (
-                <Link key={l.to} to={l.to} onClick={() => setOpen(false)} className="px-3 py-3 rounded-md text-base font-medium hover:bg-accent">
-                  {l.label}
-                </Link>
-              ))}
-              <div className="border-t my-3" />
-              {user ? (
-                <>
-                  <Link to="/dashboard" onClick={() => setOpen(false)} className="px-3 py-3 rounded-md hover:bg-accent">Dashboard</Link>
-                  <Link to="/saved" onClick={() => setOpen(false)} className="px-3 py-3 rounded-md hover:bg-accent">Saved</Link>
-                  <Link to="/dealer-signup" onClick={() => setOpen(false)} className="px-3 py-3 rounded-md hover:bg-accent">Become a dealer</Link>
-                  {isAdmin && <Link to="/admin" onClick={() => setOpen(false)} className="px-3 py-3 rounded-md hover:bg-accent">Admin</Link>}
-                  <button onClick={async () => { await signOut(); setOpen(false); navigate({ to: "/" }); }} className="px-3 py-3 rounded-md hover:bg-accent text-left">Sign out</button>
-                </>
-              ) : (
-                <Button onClick={() => { setOpen(false); navigate({ to: "/auth" }); }} className="w-full">Login / Signup</Button>
-              )}
-            </nav>
-          </SheetContent>
-        </Sheet>
+          {/* Account — desktop only */}
+          <div className="hidden md:flex">
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="gap-1.5">
+                    <UserIcon className="w-4 h-4" />
+                    Account
+                    <ChevronDown className="w-3 h-3 opacity-50" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuItem onClick={() => navigate({ to: "/dashboard" })}>
+                    <UserIcon className="w-4 h-4 mr-2" /> Dashboard
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate({ to: "/saved" })}>
+                    <Heart className="w-4 h-4 mr-2" /> Saved listings
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate({ to: "/sell" })}>
+                    <Plus className="w-4 h-4 mr-2" /> Post a listing
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate({ to: "/dealer-signup" })}>
+                    Become a dealer
+                  </DropdownMenuItem>
+                  {isAdmin && (
+                    <DropdownMenuItem onClick={() => navigate({ to: "/admin" })}>
+                      <Shield className="w-4 h-4 mr-2" /> Admin panel
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={async () => { await signOut(); navigate({ to: "/" }); }}
+                    className="text-destructive focus:text-destructive"
+                  >
+                    <LogOut className="w-4 h-4 mr-2" /> Sign out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button variant="ghost" size="sm" onClick={() => navigate({ to: "/auth" })}>
+                Login
+              </Button>
+            )}
+          </div>
+
+          {/* Hamburger — mobile */}
+          <Sheet open={open} onOpenChange={setOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Open menu">
+                <Menu className="w-5 h-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[280px] flex flex-col p-0">
+              <div className="p-5 border-b">
+                <Logo />
+              </div>
+              <div className="p-4 flex-1 overflow-y-auto">
+                {/* Sell CTA in mobile sheet */}
+                <Button
+                  className="w-full gap-2 mb-5"
+                  onClick={() => { navigate({ to: "/sell" }); setOpen(false); }}
+                >
+                  <Plus className="w-4 h-4" /> Sell your bike — Free
+                </Button>
+
+                <nav className="flex flex-col gap-1">
+                  {NAV_LINKS.map((l) => (
+                    <Link
+                      key={l.to}
+                      to={l.to}
+                      onClick={() => setOpen(false)}
+                      className="px-3 py-2.5 rounded-md text-base font-medium hover:bg-accent transition-colors"
+                      activeProps={{ className: "text-primary bg-primary/5" }}
+                    >
+                      {l.label}
+                    </Link>
+                  ))}
+                </nav>
+
+                <div className="border-t my-4" />
+
+                {user ? (
+                  <nav className="flex flex-col gap-1">
+                    <Link to="/dashboard" onClick={() => setOpen(false)} className="px-3 py-2.5 rounded-md hover:bg-accent transition-colors text-base font-medium">
+                      Dashboard
+                    </Link>
+                    <Link to="/saved" onClick={() => setOpen(false)} className="px-3 py-2.5 rounded-md hover:bg-accent transition-colors text-base font-medium">
+                      Saved listings
+                    </Link>
+                    <Link to="/dealer-signup" onClick={() => setOpen(false)} className="px-3 py-2.5 rounded-md hover:bg-accent transition-colors text-base font-medium">
+                      Become a dealer
+                    </Link>
+                    {isAdmin && (
+                      <Link to="/admin" onClick={() => setOpen(false)} className="px-3 py-2.5 rounded-md hover:bg-accent transition-colors text-base font-medium">
+                        Admin panel
+                      </Link>
+                    )}
+                    <button
+                      onClick={async () => { await signOut(); setOpen(false); navigate({ to: "/" }); }}
+                      className="px-3 py-2.5 rounded-md hover:bg-destructive/10 text-left text-base font-medium text-destructive transition-colors"
+                    >
+                      Sign out
+                    </button>
+                  </nav>
+                ) : (
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => { setOpen(false); navigate({ to: "/auth" }); }}
+                  >
+                    Login / Sign up
+                  </Button>
+                )}
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
     </header>
   );

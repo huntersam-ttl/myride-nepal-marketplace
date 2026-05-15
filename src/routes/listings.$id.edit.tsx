@@ -30,7 +30,8 @@ function EditListingPage() {
 
   useEffect(() => {
     if (!user) return;
-    supabase.from("listings").select("*").eq("id", id).maybeSingle().then(({ data }) => {
+    supabase.from("listings").select("*").eq("id", id).maybeSingle().then(({ data, error }) => {
+      if (error) { toast.error("Failed to load listing"); navigate({ to: "/dashboard" }); return; }
       if (!data) { toast.error("Not found"); navigate({ to: "/dashboard" }); return; }
       if (data.user_id !== user.id) { toast.error("Not allowed"); navigate({ to: "/dashboard" }); return; }
       // Only allow editing pending or rejected listings
@@ -51,7 +52,7 @@ function EditListingPage() {
     if (!f.title.trim()) { toast.error("Title is required"); return; }
     if (!f.brand || !f.model) { toast.error("Brand and model are required"); return; }
     if (!f.price || Number(f.price) <= 0) { toast.error("Valid price is required"); return; }
-    if (!f.phone.match(/^\+?977[-\s]?\d{10}$/)) { toast.error("Please enter a valid Nepali phone number"); return; }
+    if (!f.phone.match(/^(\+?977[-\s]?)?\d{10}$/)) { toast.error("Please enter a valid phone number"); return; }
     
     setSaving(true);
     

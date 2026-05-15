@@ -34,7 +34,8 @@ function DealerSignupPage() {
 
   useEffect(() => {
     if (!user) return;
-    supabase.from("dealer_profiles").select("*").eq("user_id", user.id).maybeSingle().then(({ data }) => {
+    supabase.from("dealer_profiles").select("*").eq("user_id", user.id).maybeSingle().then(({ data, error }) => {
+      if (error) { toast.error("Failed to load your profile"); return; }
       if (data) {
         setExisting(data);
         setF({

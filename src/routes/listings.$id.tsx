@@ -563,6 +563,17 @@ function ListingDetailPage() {
     }
   };
 
+  // Non-active listings are only visible to their owner
+  if (listing.status !== "active" && listing.status !== "sold" && user?.id !== listing.user_id) {
+    return (
+      <div className="container mx-auto px-4 py-20 text-center">
+        <h1 className="text-2xl font-bold">Listing not available</h1>
+        <p className="text-muted-foreground mt-2 mb-4">This listing is pending review or has been removed.</p>
+        <Link to="/browse" className="text-primary hover:underline font-medium">Browse all listings →</Link>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto px-4 py-6 pb-28 lg:pb-8">
       {/* Breadcrumb */}

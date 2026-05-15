@@ -1,15 +1,13 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useToggleSave, useSavedIds } from "@/hooks/use-saved";
 import { ListingCard } from "@/components/ListingCard";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Loader2, Heart, ArrowRight, Bell } from "lucide-react";
-import { toast } from "sonner";
+import { Loader2, Heart, ArrowRight } from "lucide-react";
 
 export const Route = createFileRoute("/saved")({
   component: SavedPage,
@@ -21,40 +19,19 @@ function SavedPage() {
   const navigate = useNavigate();
   const { data: savedIds } = useSavedIds();
   const toggle = useToggleSave();
-  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (!loading && !user) navigate({ to: "/auth", search: { redirect: "/saved" } as any });
   }, [user, loading]);
 
   const ids = Array.from(savedIds ?? []);
-  
-  // Fetch full saved listings data including notify_price_drop
-  const { data: savedListings, isLoading: savedLoading } = useQuery({
-    queryKey: ["saved-full-data", user?.id],
-    enabled: !!user && ids.length > 0,
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("saved_listings")
-        .select("*, listings(id,title,brand,price,year,mileage,district,condition,images,featured)")
-        .eq("user_id", user!.id);
-      return data ?? [];
-    },
+  const { data: listings, isLoading: listingsLoading } = useQuery({
+    queryKey: ["saved-full", ids.join(",")],
+    enabled: ids.length > 0,
+    queryFn: async () => (await supabase.from("listings")
+      .select("id,title,brand,price,year,mileage,district,condition,images,featured")
+      .in("id", ids)).data ?? [],
   });
-
-  const toggleNotifyPriceDrop = async (savedListingId: string, currentValue: boolean) => {
-    const { error } = await supabase
-      .from("saved_listings")
-      .update({ notify_price_drop: !currentValue })
-      .eq("id", savedListingId);
-    
-    if (error) {
-      toast.error("Failed to update notification preference");
-    } else {
-      toast.success(currentValue ? "Price drop alerts disabled" : "Price drop alerts enabled");
-      queryClient.invalidateQueries({ queryKey: ["saved-full-data", user?.id] });
-    }
-  };
 
   if (loading || !user) {
     return (
@@ -99,7 +76,7 @@ function SavedPage() {
               </Link>
             </Button>
           </Card>
-        ) : savedLoading ? (
+        ) : listingsLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {Array.from({ length: Math.min(ids.length, 6) }).map((_, i) => (
               <div key={i} className="rounded-xl bg-card border overflow-hidden">
@@ -112,49 +89,10 @@ function SavedPage() {
               </div>
             ))}
           </div>
-        ) : savedListings?.length ? (
-          <div className="space-y-6">
-            {savedListings.map((saved: any) => (
-              <Card key={saved.id} className="p-4">
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Link 
-                    to="/listings/$id" 
-                    params={{ id: saved.listing_id }}
-                    className="w-full sm:w-48 aspect-[4/3] rounded-lg overflow-hidden bg-muted flex-shrink-0"
-                  >
-                    {saved.listings?.images?.[0] ? (
-                      <img src={saved.listings.images[0]} alt="" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
-                    ) : (
-                      <div className="w-full h-full bg-muted flex items-center justify-center text-muted-foreground text-xs">No photo</div>
-                    )}
-                  </Link>
-                  <div className="flex-1">
-                    <Link to="/listings/$id" params={{ id: saved.listing_id }} className="font-semibold text-lg hover:text-primary transition-colors">
-                      {saved.listings?.title}
-                    </Link>
-                    <p className="text-primary font-bold text-xl mt-1">NPR {saved.listings?.price?.toLocaleString()}</p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {saved.listings?.year} · {saved.listings?.mileage?.toLocaleString()} km · {saved.listings?.district}
-                    </p>
-                    <div className="flex items-center gap-2 mt-4">
-                      <Switch 
-                        checked={saved.notify_price_drop ?? true}
-                        onCheckedChange={() => toggleNotifyPriceDrop(saved.id, saved.notify_price_drop ?? true)}
-                      />
-                      <Bell className="w-4 h-4 text-muted-foreground" />
-                      <span className="text-sm text-muted-foreground">Notify me if price drops</span>
-                    </div>
-                  </div>
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => toggle(saved.listing_id, saved.listings?.price)}
-                    className="self-start"
-                  >
-                    <Heart className="w-4 h-4 fill-primary text-primary" />
-                  </Button>
-                </div>
-              </Card>
+        ) : listings?.length ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {listings.map(l => (
+              <ListingCard key={l.id} listing={l as any} onSave={toggle} isSaved={savedIds?.has(l.id)} />
             ))}
           </div>
         ) : (

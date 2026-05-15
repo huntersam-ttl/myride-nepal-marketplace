@@ -35,9 +35,13 @@ const CONDITION_LABEL: Record<string, { label: string; color: string }> = {
 const MILEAGE_PENALTY = 0.6 / 100000;
 
 function PriceEstimatorPage() {
-  const { data: estimates } = useQuery({
+  const { data: estimates, isLoading: estimatesLoading, isError: estimatesError } = useQuery({
     queryKey: ["price-estimates"],
-    queryFn: async () => (await supabase.from("price_estimates").select("*").order("brand")).data ?? [],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("price_estimates").select("*").order("brand");
+      if (error) throw error;
+      return data ?? [];
+    },
   });
 
   const [brand, setBrand] = useState("");
@@ -95,14 +99,18 @@ function PriceEstimatorPage() {
               {/* Brand */}
               <div className="space-y-1.5">
                 <Label className="text-sm font-medium">Brand</Label>
-                <Select value={brand} onValueChange={(v) => { setBrand(v); setModel(""); }}>
-                  <SelectTrigger className="h-11">
-                    <SelectValue placeholder="Select brand" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {brands.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}
-                  </SelectContent>
-                </Select>
+                {estimatesError ? (
+                  <p className="text-sm text-destructive">Failed to load price data. Please refresh.</p>
+                ) : (
+                  <Select value={brand} onValueChange={(v) => { setBrand(v); setModel(""); }} disabled={estimatesLoading}>
+                    <SelectTrigger className="h-11">
+                      <SelectValue placeholder={estimatesLoading ? "Loading…" : "Select brand"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {brands.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
 
               {/* Model */}

@@ -12,7 +12,6 @@ const FOOTER_LINKS = {
   ],
   Resources: [
     { to: "/blog", label: "Blog & guides" },
-    { to: "/safety-tips", label: "Buyer safety tips" },
     { to: "/auth", label: "Login / Sign up" },
     { to: "/dashboard", label: "My listings" },
     { to: "/saved", label: "Saved listings" },

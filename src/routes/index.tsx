@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { Search, ShieldCheck, Users, Zap, ArrowRight, TrendingUp, Clock } from "lucide-react";
+import { Search, ShieldCheck, Users, Zap, ArrowRight, TrendingUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ListingCard } from "@/components/ListingCard";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { POPULAR_BRANDS, NEPAL_DISTRICTS } from "@/lib/nepal";
 import { motion } from "framer-motion";
-import { getRecentlyViewed, clearRecentlyViewed } from "@/utils/recentlyViewed";
 
 export const Route = createFileRoute("/")({
   component: HomePage,
@@ -23,78 +22,21 @@ export const Route = createFileRoute("/")({
 
 function HomePage() {
   const navigate = useNavigate();
-  const [brand, setBrand] = useState<string>("all");
-  const [district, setDistrict] = useState<string>("all");
+  const [brand, setBrand] = useState<string>("");
+  const [district, setDistrict] = useState<string>("");
   const [maxPrice, setMaxPrice] = useState<string>("");
-  const [recentlyViewed, setRecentlyViewed] = useState(() => getRecentlyViewed());
 
   const { data: featured, isLoading: featuredLoading } = useQuery({
     queryKey: ["featured-listings"],
     queryFn: async () => {
-      const { data: listings, error } = await supabase
+      const { data, error } = await supabase
         .from("listings")
-        .select("id,title,brand,price,year,mileage,district,condition,images,featured,accident_history,num_owners,user_id,has_bluebook,has_insurance,has_tax_clearance,has_registration")
+        .select("id,title,brand,price,year,mileage,district,condition,images,featured")
         .eq("status", "active")
         .order("created_at", { ascending: false })
         .limit(6);
       if (error) throw error;
-
-      // Fetch verification levels
-      if (listings && listings.length > 0) {
-        const userIds = [...new Set(listings.map(l => l.user_id))];
-        const { data: profiles } = await supabase
-          .from("profiles")
-          .select("id, verification_level")
-          .in("id", userIds);
-
-        const verificationMap = new Map(profiles?.map(p => [p.id, p.verification_level]) || []);
-        
-        return listings.map(listing => ({
-          ...listing,
-          verification_level: verificationMap.get(listing.user_id) || null,
-        }));
-      }
-
-      return listings || [];
-    },
-  });
-
-  // Fetch "You Might Also Like" based on most recently viewed listing
-  const lastViewed = recentlyViewed[0];
-  const { data: mightLike, isLoading: mightLikeLoading } = useQuery({
-    queryKey: ["might-like", lastViewed?.brand, lastViewed?.price],
-    enabled: !!lastViewed,
-    queryFn: async () => {
-      if (!lastViewed) return [];
-
-      const minPrice = Math.floor(lastViewed.price * 0.7);
-      const maxPrice = Math.ceil(lastViewed.price * 1.3);
-
-      const { data: listings } = await supabase
-        .from("listings")
-        .select("id,title,brand,model,bike_type,price,year,mileage,district,condition,images,featured,user_id,status,created_at")
-        .eq("status", "active")
-        .or(`brand.eq.${lastViewed.brand},and(price.gte.${minPrice},price.lte.${maxPrice})`)
-        .neq("id", lastViewed.id)
-        .order("created_at", { ascending: false })
-        .limit(3);
-
-      if (listings && listings.length > 0) {
-        const userIds = [...new Set(listings.map(l => l.user_id))];
-        const { data: profiles } = await supabase
-          .from("profiles")
-          .select("id, verification_level")
-          .in("id", userIds);
-
-        const verificationMap = new Map(profiles?.map(p => [p.id, p.verification_level]) || []);
-        
-        return listings.map(listing => ({
-          ...listing,
-          verification_level: verificationMap.get(listing.user_id) || null,
-        }));
-      }
-
-      return listings || [];
+      return data;
     },
   });
 
@@ -112,15 +54,10 @@ function HomePage() {
 
   const doSearch = () => {
     const params: Record<string, string | number> = {};
-    if (brand && brand !== "all") params.brand = brand;
-    if (district && district !== "all") params.district = district;
+    if (brand) params.brand = brand;
+    if (district) params.district = district;
     if (maxPrice) params.maxPrice = Number(maxPrice);
     navigate({ to: "/browse", search: params as any });
-  };
-
-  const handleClearHistory = () => {
-    clearRecentlyViewed();
-    setRecentlyViewed([]);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -205,14 +142,14 @@ function HomePage() {
               <Select value={brand} onValueChange={setBrand}>
                 <SelectTrigger><SelectValue placeholder="All brands" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All brands</SelectItem>
+                  <SelectItem value="">All brands</SelectItem>
                   {POPULAR_BRANDS.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}
                 </SelectContent>
               </Select>
               <Select value={district} onValueChange={setDistrict}>
                 <SelectTrigger><SelectValue placeholder="All districts" /></SelectTrigger>
                 <SelectContent className="max-h-72">
-                  <SelectItem value="all">All districts</SelectItem>
+                  <SelectItem value="">All districts</SelectItem>
                   {NEPAL_DISTRICTS.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}
                 </SelectContent>
               </Select>
@@ -291,51 +228,7 @@ function HomePage() {
             <Button onClick={() => navigate({ to: "/sell" })}>Post your bike for free</Button>
           </div>
         )}
-
-        {/* You Might Also Like - based on recently viewed */}
-        {lastViewed && !mightLikeLoading && mightLike && mightLike.length > 0 && (
-          <div className="mt-12">
-            <h3 className="text-lg font-semibold mb-4">You Might Also Like</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {mightLike.map(l => <ListingCard key={l.id} listing={l as any} />)}
-            </div>
-          </div>
-        )}
       </section>
-
-      {/* Recently Viewed */}
-      {recentlyViewed.length > 0 && (
-        <section className="container mx-auto px-4 py-12 pt-0">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-2">
-              <Clock className="w-5 h-5 text-muted-foreground" />
-              <h2 className="text-2xl md:text-3xl font-bold">Recently Viewed</h2>
-            </div>
-            <button
-              onClick={handleClearHistory}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Clear History
-            </button>
-          </div>
-          <div className="overflow-x-auto -mx-4 px-4 lg:mx-0 lg:px-0">
-            <div className="flex lg:grid lg:grid-cols-4 gap-5 pb-4 lg:pb-0" style={{ minWidth: 'min-content' }}>
-              {recentlyViewed.slice(0, 4).map((listing) => (
-                <div key={listing.id} className="flex-shrink-0 w-72 lg:w-auto relative">
-                  <ListingCard listing={listing as any} />
-                  {listing.status !== "active" && (
-                    <div className="absolute inset-0 bg-black/60 rounded-xl flex items-center justify-center">
-                      <div className="bg-white px-4 py-2 rounded-lg font-semibold text-sm">
-                        {listing.status === "sold" ? "Sold" : "Unavailable"}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* How it works */}
       <section className="bg-muted/40 py-16">

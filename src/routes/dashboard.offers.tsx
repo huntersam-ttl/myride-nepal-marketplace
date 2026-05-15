@@ -1,132 +1,273 @@
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { formatNPR } from "@/lib/nepal";
-import { Loader2, Tag, ArrowRight } from "lucide-react";
+import { Loader2, CheckCircle, XCircle, Reply } from "lucide-react";
 import { toast } from "sonner";
-import { useState } from "react";
+import { formatDistanceToNow } from "date-fns";
 
 export const Route = createFileRoute("/dashboard/offers")({
   component: OffersPage,
   head: () => ({ meta: [{ title: "My Offers — MyRideNepal" }] }),
 });
 
+type Offer = {
+  id: string;
+  listing_id: string;
+  buyer_id: string;
+  seller_id: string;
+  offer_price: number;
+  message: string | null;
+  status: string;
+  counter_price: number | null;
+  counter_message: string | null;
+  created_at: string;
+  buyer_email?: string;
+  buyer_name?: string;
+  listing_title?: string;
+  listing_image?: string;
+  listing_price?: number;
+};
+
 function OffersPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [counterDialogOpen, setCounterDialogOpen] = useState(false);
-  const [selectedOffer, setSelectedOffer] = useState<any>(null);
+  const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
   const [counterPrice, setCounterPrice] = useState("");
   const [counterMessage, setCounterMessage] = useState("");
-  const [submitting, setSubmitting] = useState(false);
 
-  if (!loading && !user) {
-    navigate({ to: "/auth", search: { redirect: "/dashboard/offers" } as any });
-  }
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate({ to: "/auth", search: { redirect: "/dashboard/offers" } as any });
+    }
+  }, [user, loading]);
 
-  const { data: receivedOffers, isLoading: receivedLoading } = useQuery({
+  const { data: receivedOffers, isLoading: loadingReceived } = useQuery({
     queryKey: ["received-offers", user?.id],
     enabled: !!user,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("offers")
-        .select("*, listing:listings(id, title, price, images), buyer:profiles!offers_buyer_id_fkey(name, email)")
+        .select(`
+          *,
+          buyer:buyer_id(email, raw_user_meta_data),
+          listing:listing_id(title, images, price)
+        `)
         .eq("seller_id", user!.id)
         .order("created_at", { ascending: false });
+
       if (error) throw error;
-      return data || [];
+
+      return data.map((offer: any) => ({
+        id: offer.id,
+        listing_id: offer.listing_id,
+        buyer_id: offer.buyer_id,
+        seller_id: offer.seller_id,
+        offer_price: offer.offer_price,
+        message: offer.message,
+        status: offer.status,
+        counter_price: offer.counter_price,
+        counter_message: offer.counter_message,
+        created_at: offer.created_at,
+        buyer_email: offer.buyer?.email,
+        buyer_name: offer.buyer?.raw_user_meta_data?.full_name || offer.buyer?.email?.split('@')[0] || "Buyer",
+        listing_title: offer.listing?.title,
+        listing_image: offer.listing?.images?.[0],
+        listing_price: offer.listing?.price,
+      })) as Offer[];
     },
   });
 
-  const { data: sentOffers, isLoading: sentLoading } = useQuery({
+  const { data: sentOffers, isLoading: loadingSent } = useQuery({
     queryKey: ["sent-offers", user?.id],
     enabled: !!user,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("offers")
-        .select("*, listing:listings(id, title, price, images, user_id), seller:profiles!offers_seller_id_fkey(name, email)")
+        .select(`
+          *,
+          listing:listing_id(title, images, price, user_id)
+        `)
         .eq("buyer_id", user!.id)
         .order("created_at", { ascending: false });
+
       if (error) throw error;
-      return data || [];
+
+      return data.map((offer: any) => ({
+        id: offer.id,
+        listing_id: offer.listing_id,
+        buyer_id: offer.buyer_id,
+        seller_id: offer.seller_id,
+        offer_price: offer.offer_price,
+        message: offer.message,
+        status: offer.status,
+        counter_price: offer.counter_price,
+        counter_message: offer.counter_message,
+        created_at: offer.created_at,
+        listing_title: offer.listing?.title,
+        listing_image: offer.listing?.images?.[0],
+        listing_price: offer.listing?.price,
+      })) as Offer[];
     },
   });
 
   const acceptOfferMutation = useMutation({
-    mutationFn: async (offerId: string) => {
-      const { error } = await supabase.from("offers").update({ status: "accepted" }).eq("id", offerId);
+    mutationFn: async (offer: Offer) => {
+      const { error } = await supabase
+        .from("offers")
+        .update({ status: "accepted" })
+        .eq("id", offer.id);
+
       if (error) throw error;
+
+      await supabase.from("notifications").insert({
+        user_id: offer.buyer_id,
+        type: "offer_accepted",
+        title: "Your Offer was Accepted",
+        message: `Your offer of ${formatNPR(offer.offer_price)} for ${offer.listing_title} has been accepted. Contact the seller on WhatsApp to arrange the sale.`,
+        link: `/listings/${offer.listing_id}`,
+        read: false,
+      });
     },
     onSuccess: () => {
-      toast.success("Offer accepted!");
-      queryClient.invalidateQueries({ queryKey: ["received-offers", user?.id] });
+      queryClient.invalidateQueries({ queryKey: ["received-offers"] });
+      toast.success("Offer accepted successfully!");
     },
-    onError: (error) => {
-      console.error("Error accepting offer:", error);
+    onError: () => {
       toast.error("Failed to accept offer");
     },
   });
 
   const declineOfferMutation = useMutation({
-    mutationFn: async (offerId: string) => {
-      const { error } = await supabase.from("offers").update({ status: "declined" }).eq("id", offerId);
+    mutationFn: async (offer: Offer) => {
+      const { error } = await supabase
+        .from("offers")
+        .update({ status: "declined" })
+        .eq("id", offer.id);
+
       if (error) throw error;
+
+      await supabase.from("notifications").insert({
+        user_id: offer.buyer_id,
+        type: "offer_declined",
+        title: "Offer Declined",
+        message: `Your offer of ${formatNPR(offer.offer_price)} for ${offer.listing_title} was declined by the seller.`,
+        link: `/listings/${offer.listing_id}`,
+        read: false,
+      });
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["received-offers"] });
       toast.success("Offer declined");
-      queryClient.invalidateQueries({ queryKey: ["received-offers", user?.id] });
     },
-    onError: (error) => {
-      console.error("Error declining offer:", error);
+    onError: () => {
       toast.error("Failed to decline offer");
     },
   });
 
   const counterOfferMutation = useMutation({
-    mutationFn: async ({ offerId, price, message }: { offerId: string; price: number; message: string }) => {
+    mutationFn: async () => {
+      if (!selectedOffer) return;
+
       const { error } = await supabase
         .from("offers")
-        .update({ status: "countered", counter_price: price, counter_message: message || null })
-        .eq("id", offerId);
+        .update({
+          status: "countered",
+          counter_price: Number(counterPrice),
+          counter_message: counterMessage || null,
+        })
+        .eq("id", selectedOffer.id);
+
       if (error) throw error;
+
+      await supabase.from("notifications").insert({
+        user_id: selectedOffer.buyer_id,
+        type: "offer_countered",
+        title: "Seller Made a Counter Offer",
+        message: `The seller countered your offer of ${formatNPR(selectedOffer.offer_price)} with ${formatNPR(Number(counterPrice))} for ${selectedOffer.listing_title}.`,
+        link: `/listings/${selectedOffer.listing_id}`,
+        read: false,
+      });
     },
     onSuccess: () => {
-      toast.success("Counter offer sent!");
+      queryClient.invalidateQueries({ queryKey: ["received-offers"] });
       setCounterDialogOpen(false);
-      setSelectedOffer(null);
       setCounterPrice("");
       setCounterMessage("");
-      queryClient.invalidateQueries({ queryKey: ["received-offers", user?.id] });
+      setSelectedOffer(null);
+      toast.success("Counter offer sent!");
     },
-    onError: (error) => {
-      console.error("Error sending counter offer:", error);
+    onError: () => {
       toast.error("Failed to send counter offer");
     },
   });
 
-  const handleCounterOffer = () => {
-    if (!selectedOffer || !counterPrice) return;
-    const price = Number(counterPrice);
-    if (price <= 0 || isNaN(price)) {
-      toast.error("Please enter a valid price");
-      return;
-    }
-    setSubmitting(true);
-    counterOfferMutation.mutate(
-      { offerId: selectedOffer.id, price, message: counterMessage },
-      { onSettled: () => setSubmitting(false) }
-    );
-  };
+  const acceptCounterMutation = useMutation({
+    mutationFn: async (offer: Offer) => {
+      const { error } = await supabase
+        .from("offers")
+        .update({ status: "accepted" })
+        .eq("id", offer.id);
+
+      if (error) throw error;
+
+      await supabase.from("notifications").insert({
+        user_id: offer.seller_id,
+        type: "offer_accepted",
+        title: "Buyer Accepted Your Counter Offer",
+        message: `The buyer accepted your counter offer of ${formatNPR(offer.counter_price!)} for ${offer.listing_title}.`,
+        link: `/listings/${offer.listing_id}`,
+        read: false,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["sent-offers"] });
+      toast.success("Counter offer accepted!");
+    },
+    onError: () => {
+      toast.error("Failed to accept counter offer");
+    },
+  });
+
+  const declineCounterMutation = useMutation({
+    mutationFn: async (offer: Offer) => {
+      const { error } = await supabase
+        .from("offers")
+        .update({ status: "declined" })
+        .eq("id", offer.id);
+
+      if (error) throw error;
+
+      await supabase.from("notifications").insert({
+        user_id: offer.seller_id,
+        type: "offer_declined",
+        title: "Buyer Declined Your Counter Offer",
+        message: `The buyer declined your counter offer of ${formatNPR(offer.counter_price!)} for ${offer.listing_title}.`,
+        link: `/listings/${offer.listing_id}`,
+        read: false,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["sent-offers"] });
+      toast.success("Counter offer declined");
+    },
+    onError: () => {
+      toast.error("Failed to decline counter offer");
+    },
+  });
 
   if (loading || !user) {
     return (
@@ -136,173 +277,135 @@ function OffersPage() {
     );
   }
 
-  const pendingReceived = receivedOffers?.filter(o => o.status === "pending") || [];
-  const pendingSent = sentOffers?.filter(o => o.status === "pending") || [];
+  const getStatusBadge = (status: string) => {
+    const variants: Record<string, { color: string; label: string }> = {
+      pending: { color: "bg-yellow-100 text-yellow-800 border-yellow-200", label: "Pending" },
+      accepted: { color: "bg-green-100 text-green-800 border-green-200", label: "Accepted" },
+      declined: { color: "bg-red-100 text-red-800 border-red-200", label: "Declined" },
+      countered: { color: "bg-blue-100 text-blue-800 border-blue-200", label: "Countered" },
+    };
+    const variant = variants[status] || variants.pending;
+    return (
+      <Badge className={`${variant.color} border`} variant="outline">
+        {variant.label}
+      </Badge>
+    );
+  };
 
-  return (
-    <div className="container mx-auto px-4 py-8 max-w-5xl">
-      <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold">My Offers</h1>
-          <p className="text-sm text-muted-foreground mt-1">Manage offers for your listings</p>
+  const OfferCard = ({ offer, showActions }: { offer: Offer; showActions: boolean }) => (
+    <Card className="p-6">
+      <div className="flex gap-4">
+        <div className="flex-shrink-0">
+          {offer.listing_image ? (
+            <img
+              src={offer.listing_image}
+              alt={offer.listing_title}
+              className="w-20 h-20 rounded-lg object-cover"
+            />
+          ) : (
+            <Avatar className="w-20 h-20">
+              <AvatarFallback className="text-2xl font-semibold bg-primary/10 text-primary">
+                {offer.buyer_name?.charAt(0).toUpperCase() || "B"}
+              </AvatarFallback>
+            </Avatar>
+          )}
         </div>
-        <Button asChild variant="outline">
-          <Link to="/dashboard">Back to Dashboard</Link>
-        </Button>
-      </div>
 
-      <Tabs defaultValue="received" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 mb-6">
-          <TabsTrigger value="received">
-            Received
-            {pendingReceived.length > 0 && (
-              <Badge variant="secondary" className="ml-2">{pendingReceived.length}</Badge>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="sent">
-            Sent
-            {pendingSent.length > 0 && (
-              <Badge variant="secondary" className="ml-2">{pendingSent.length}</Badge>
-            )}
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="received">
-          {receivedLoading ? (
-            <div className="flex justify-center py-12">
-              <Loader2 className="w-6 h-6 animate-spin" />
+        <div className="flex-1">
+          <div className="flex items-start justify-between mb-2">
+            <div>
+              <h3 className="font-semibold text-lg">{offer.listing_title}</h3>
+              <p className="text-sm text-muted-foreground">
+                {showActions ? `From ${offer.buyer_name}` : `Asking price: ${formatNPR(offer.listing_price || 0)}`}
+              </p>
             </div>
-          ) : receivedOffers && receivedOffers.length > 0 ? (
-            <div className="space-y-4">
-              {receivedOffers.map((offer) => (
-                <OfferCard key={offer.id} offer={offer} type="received" onAccept={acceptOfferMutation.mutate} onDecline={declineOfferMutation.mutate} onCounter={(offer: any) => { setSelectedOffer(offer); setCounterDialogOpen(true); }} />
-              ))}
-            </div>
-          ) : (
-            <EmptyState message="No offers received yet" description="When buyers make offers on your listings, they'll appear here." />
-          )}
-        </TabsContent>
-
-        <TabsContent value="sent">
-          {sentLoading ? (
-            <div className="flex justify-center py-12">
-              <Loader2 className="w-6 h-6 animate-spin" />
-            </div>
-          ) : sentOffers && sentOffers.length > 0 ? (
-            <div className="space-y-4">
-              {sentOffers.map((offer) => (
-                <OfferCard key={offer.id} offer={offer} type="sent" />
-              ))}
-            </div>
-          ) : (
-            <EmptyState message="No sent offers yet" description="Browse listings and make offers to start negotiating." showBrowseButton />
-          )}
-        </TabsContent>
-      </Tabs>
-
-      <Dialog open={counterDialogOpen} onOpenChange={setCounterDialogOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Make a Counter Offer</DialogTitle>
-          </DialogHeader>
-          {selectedOffer && (
-            <div className="space-y-4 py-4">
-              <div className="text-sm space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Your asking price:</span>
-                  <span className="font-semibold">{formatNPR(selectedOffer.listing.price)}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Their offer:</span>
-                  <span className="font-semibold">{formatNPR(selectedOffer.offer_price)}</span>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="counter-price">Your Counter Offer *</Label>
-                <Input id="counter-price" type="number" placeholder="Enter your counter offer" value={counterPrice} onChange={(e) => setCounterPrice(e.target.value)} min="0" step="1000" />
-                {counterPrice && Number(counterPrice) > 0 && (
-                  <div className="text-xs text-muted-foreground">
-                    Difference: {formatNPR(Math.abs(Number(counterPrice) - selectedOffer.offer_price))}
-                  </div>
-                )}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="counter-message">Message (Optional)</Label>
-                <Textarea id="counter-message" placeholder="Explain your counter offer..." value={counterMessage} onChange={(e) => { if (e.target.value.length <= 300) setCounterMessage(e.target.value); }} rows={3} maxLength={300} />
-                <p className="text-xs text-muted-foreground text-right">{counterMessage.length}/300 characters</p>
-              </div>
-              <div className="flex gap-2 pt-2">
-                <Button variant="outline" className="flex-1" onClick={() => setCounterDialogOpen(false)} disabled={submitting}>Cancel</Button>
-                <Button className="flex-1" disabled={!counterPrice || Number(counterPrice) <= 0 || submitting} onClick={handleCounterOffer}>
-                  {submitting ? "Sending..." : "Send Counter Offer"}
-                </Button>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
-}
-
-function OfferCard({ offer, type, onAccept, onDecline, onCounter }: any) {
-  return (
-    <Card className="p-4">
-      <div className="flex flex-col sm:flex-row gap-4">
-        <Link to="/listings/$id" params={{ id: offer.listing.id }} className="w-full sm:w-28 aspect-[4/3] rounded-lg overflow-hidden bg-muted flex-shrink-0">
-          {offer.listing.images?.[0] ? (
-            <img src={offer.listing.images[0]} alt="" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
-          ) : (
-            <div className="w-full h-full bg-muted flex items-center justify-center text-muted-foreground text-xs">No photo</div>
-          )}
-        </Link>
-        <div className="flex-1 space-y-2">
-          <div className="flex items-center gap-2 flex-wrap">
-            <Link to="/listings/$id" params={{ id: offer.listing.id }} className="font-semibold hover:text-primary transition-colors">
-              {offer.listing.title}
-            </Link>
-            <Badge variant={offer.status === "pending" ? "secondary" : offer.status === "accepted" ? "default" : offer.status === "countered" ? "outline" : "destructive"} className="capitalize">
-              {offer.status}
-            </Badge>
+            {getStatusBadge(offer.status)}
           </div>
-          <div className="text-sm space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="text-muted-foreground">{type === "received" ? "Your asking price:" : "Asking price:"}</span>
-              <span className="font-semibold">{formatNPR(offer.listing.price)}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-muted-foreground">{type === "received" ? "Offer price:" : "Your offer:"}</span>
-              <span className="font-semibold text-primary">{formatNPR(offer.offer_price)}</span>
+
+          <div className="grid grid-cols-2 gap-4 mb-3">
+            <div>
+              <p className="text-xs text-muted-foreground">Offer Amount</p>
+              <p className="text-xl font-bold text-primary">{formatNPR(offer.offer_price)}</p>
             </div>
             {offer.counter_price && (
-              <div className="flex items-center gap-2">
-                <span className="text-muted-foreground">{type === "received" ? "Your counter:" : "Seller's counter:"}</span>
-                <span className="font-semibold text-blue-600">{formatNPR(offer.counter_price)}</span>
+              <div>
+                <p className="text-xs text-muted-foreground">Counter Offer</p>
+                <p className="text-xl font-bold text-blue-600">{formatNPR(offer.counter_price)}</p>
               </div>
             )}
           </div>
-          {offer.message && <p className="text-sm text-muted-foreground italic">"{offer.message}"</p>}
-          <div className="text-xs text-muted-foreground">
-            {type === "received" ? `From: ${offer.buyer?.name || offer.buyer?.email || "Unknown"}` : `To: ${offer.seller?.name || offer.seller?.email || "Unknown"}`} •{" "}
-            {new Date(offer.created_at).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" })}
-          </div>
-          {type === "received" && offer.status === "pending" && (
-            <div className="flex gap-2 pt-2">
-              <Button size="sm" onClick={() => onAccept(offer.id)} className="bg-green-600 hover:bg-green-700">Accept</Button>
-              <Button size="sm" variant="outline" onClick={() => onCounter(offer)}>Counter</Button>
-              <Button size="sm" variant="outline" onClick={() => onDecline(offer.id)} className="text-destructive">Decline</Button>
+
+          {offer.message && (
+            <div className="mb-3 p-3 bg-muted rounded-lg">
+              <p className="text-xs text-muted-foreground mb-1">Message</p>
+              <p className="text-sm">{offer.message}</p>
             </div>
           )}
-          {type === "sent" && offer.status === "accepted" && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-3 mt-2">
-              <p className="text-sm text-green-700 font-medium">✓ Your offer was accepted! Contact the seller to complete the purchase.</p>
+
+          {offer.counter_message && (
+            <div className="mb-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+              <p className="text-xs text-blue-600 mb-1">Counter Offer Message</p>
+              <p className="text-sm">{offer.counter_message}</p>
             </div>
           )}
-          {type === "sent" && offer.status === "countered" && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-2">
-              <p className="text-sm text-blue-700 font-medium">The seller has made a counter offer. View the listing to accept or decline.</p>
-              <Button asChild size="sm" className="mt-2 gap-1">
-                <Link to="/listings/$id" params={{ id: offer.listing.id }}>View Listing <ArrowRight className="w-3 h-3" /></Link>
+
+          <p className="text-xs text-muted-foreground mb-3">
+            {formatDistanceToNow(new Date(offer.created_at), { addSuffix: true })}
+          </p>
+
+          {showActions && offer.status === "pending" && (
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                className="bg-green-600 hover:bg-green-700"
+                onClick={() => acceptOfferMutation.mutate(offer)}
+                disabled={acceptOfferMutation.isPending}
+              >
+                <CheckCircle className="w-4 h-4 mr-1" />
+                Accept Offer
+              </Button>
+              <Button
+                size="sm"
+                variant="destructive"
+                onClick={() => declineOfferMutation.mutate(offer)}
+                disabled={declineOfferMutation.isPending}
+              >
+                <XCircle className="w-4 h-4 mr-1" />
+                Decline
+              </Button>
+              <Button
+                size="sm"
+                className="bg-[#1e3a8a] hover:bg-[#1e3a8a]/90"
+                onClick={() => {
+                  setSelectedOffer(offer);
+                  setCounterDialogOpen(true);
+                }}
+              >
+                <Reply className="w-4 h-4 mr-1" />
+                Counter Offer
+              </Button>
+            </div>
+          )}
+
+          {!showActions && offer.status === "countered" && (
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                className="bg-green-600 hover:bg-green-700"
+                onClick={() => acceptCounterMutation.mutate(offer)}
+                disabled={acceptCounterMutation.isPending}
+              >
+                <CheckCircle className="w-4 h-4 mr-1" />
+                Accept Counter
+              </Button>
+              <Button
+                size="sm"
+                variant="destructive"
+                onClick={() => declineCounterMutation.mutate(offer)}
+                disabled={declineCounterMutation.isPending}
+              >
+                <XCircle className="w-4 h-4 mr-1" />
+                Decline Counter
               </Button>
             </div>
           )}
@@ -310,21 +413,98 @@ function OfferCard({ offer, type, onAccept, onDecline, onCounter }: any) {
       </div>
     </Card>
   );
-}
 
-function EmptyState({ message, description, showBrowseButton }: any) {
   return (
-    <Card className="p-12 text-center">
-      <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
-        <Tag className="w-7 h-7 text-muted-foreground" />
-      </div>
-      <h3 className="font-semibold text-lg mb-2">{message}</h3>
-      <p className="text-muted-foreground mb-6">{description}</p>
-      {showBrowseButton && (
-        <Button asChild>
-          <Link to="/browse">Browse Listings</Link>
-        </Button>
-      )}
-    </Card>
+    <div className="container mx-auto py-8 px-4 max-w-6xl">
+      <h1 className="text-3xl font-bold mb-6">My Offers</h1>
+
+      <Tabs defaultValue="received" className="w-full">
+        <TabsList className="grid w-full max-w-md grid-cols-2">
+          <TabsTrigger value="received">Received Offers</TabsTrigger>
+          <TabsTrigger value="sent">Sent Offers</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="received" className="mt-6">
+          {loadingReceived ? (
+            <div className="text-center py-12">
+              <Loader2 className="w-6 h-6 animate-spin mx-auto" />
+            </div>
+          ) : receivedOffers && receivedOffers.length > 0 ? (
+            <div className="space-y-4">
+              {receivedOffers.map((offer) => (
+                <OfferCard key={offer.id} offer={offer} showActions={true} />
+              ))}
+            </div>
+          ) : (
+            <Card className="p-12 text-center">
+              <p className="text-muted-foreground">No offers received yet</p>
+            </Card>
+          )}
+        </TabsContent>
+
+        <TabsContent value="sent" className="mt-6">
+          {loadingSent ? (
+            <div className="text-center py-12">
+              <Loader2 className="w-6 h-6 animate-spin mx-auto" />
+            </div>
+          ) : sentOffers && sentOffers.length > 0 ? (
+            <div className="space-y-4">
+              {sentOffers.map((offer) => (
+                <OfferCard key={offer.id} offer={offer} showActions={false} />
+              ))}
+            </div>
+          ) : (
+            <Card className="p-12 text-center">
+              <p className="text-muted-foreground">You haven't made any offers yet</p>
+            </Card>
+          )}
+        </TabsContent>
+      </Tabs>
+
+      <Dialog open={counterDialogOpen} onOpenChange={setCounterDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Make a Counter Offer</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Counter Price (NPR)</Label>
+              <Input
+                type="number"
+                value={counterPrice}
+                onChange={(e) => setCounterPrice(e.target.value)}
+                placeholder="Enter your counter offer amount"
+              />
+              {selectedOffer && counterPrice && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Original offer: {formatNPR(selectedOffer.offer_price)} · Difference:{" "}
+                  {formatNPR(Math.abs(Number(counterPrice) - selectedOffer.offer_price))}
+                </p>
+              )}
+            </div>
+            <div>
+              <Label>Message (optional)</Label>
+              <Textarea
+                value={counterMessage}
+                onChange={(e) => setCounterMessage(e.target.value)}
+                placeholder="Explain your counter offer..."
+                rows={3}
+              />
+            </div>
+            <div className="flex gap-2 justify-end">
+              <Button variant="outline" onClick={() => setCounterDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                onClick={() => counterOfferMutation.mutate()}
+                disabled={!counterPrice || Number(counterPrice) <= 0 || counterOfferMutation.isPending}
+              >
+                {counterOfferMutation.isPending ? "Sending..." : "Send Counter Offer"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }
