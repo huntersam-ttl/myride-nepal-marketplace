@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SellRouteImport } from './routes/sell'
 import { Route as SavedRouteImport } from './routes/saved'
 import { Route as SafetyTipsRouteImport } from './routes/safety-tips'
+import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
 import { Route as PriceEstimatorRouteImport } from './routes/price-estimator'
 import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as DealersRouteImport } from './routes/dealers'
@@ -44,6 +45,11 @@ const SavedRoute = SavedRouteImport.update({
 const SafetyTipsRoute = SafetyTipsRouteImport.update({
   id: '/safety-tips',
   path: '/safety-tips',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyPolicyRoute = PrivacyPolicyRouteImport.update({
+  id: '/privacy-policy',
+  path: '/privacy-policy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PriceEstimatorRoute = PriceEstimatorRouteImport.update({
@@ -150,6 +156,7 @@ export interface FileRoutesByFullPath {
   '/dealers': typeof DealersRouteWithChildren
   '/notifications': typeof NotificationsRoute
   '/price-estimator': typeof PriceEstimatorRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/safety-tips': typeof SafetyTipsRoute
   '/saved': typeof SavedRoute
   '/sell': typeof SellRoute
@@ -173,6 +180,7 @@ export interface FileRoutesByTo {
   '/dealers': typeof DealersRouteWithChildren
   '/notifications': typeof NotificationsRoute
   '/price-estimator': typeof PriceEstimatorRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/safety-tips': typeof SafetyTipsRoute
   '/saved': typeof SavedRoute
   '/sell': typeof SellRoute
@@ -197,6 +205,7 @@ export interface FileRoutesById {
   '/dealers': typeof DealersRouteWithChildren
   '/notifications': typeof NotificationsRoute
   '/price-estimator': typeof PriceEstimatorRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/safety-tips': typeof SafetyTipsRoute
   '/saved': typeof SavedRoute
   '/sell': typeof SellRoute
@@ -222,6 +231,7 @@ export interface FileRouteTypes {
     | '/dealers'
     | '/notifications'
     | '/price-estimator'
+    | '/privacy-policy'
     | '/safety-tips'
     | '/saved'
     | '/sell'
@@ -245,6 +255,7 @@ export interface FileRouteTypes {
     | '/dealers'
     | '/notifications'
     | '/price-estimator'
+    | '/privacy-policy'
     | '/safety-tips'
     | '/saved'
     | '/sell'
@@ -268,6 +279,7 @@ export interface FileRouteTypes {
     | '/dealers'
     | '/notifications'
     | '/price-estimator'
+    | '/privacy-policy'
     | '/safety-tips'
     | '/saved'
     | '/sell'
@@ -292,6 +304,7 @@ export interface RootRouteChildren {
   DealersRoute: typeof DealersRouteWithChildren
   NotificationsRoute: typeof NotificationsRoute
   PriceEstimatorRoute: typeof PriceEstimatorRoute
+  PrivacyPolicyRoute: typeof PrivacyPolicyRoute
   SafetyTipsRoute: typeof SafetyTipsRoute
   SavedRoute: typeof SavedRoute
   SellRoute: typeof SellRoute
@@ -319,6 +332,13 @@ declare module '@tanstack/react-router' {
       path: '/safety-tips'
       fullPath: '/safety-tips'
       preLoaderRoute: typeof SafetyTipsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy-policy': {
+      id: '/privacy-policy'
+      path: '/privacy-policy'
+      fullPath: '/privacy-policy'
+      preLoaderRoute: typeof PrivacyPolicyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/price-estimator': {
@@ -518,6 +538,7 @@ const rootRouteChildren: RootRouteChildren = {
   DealersRoute: DealersRouteWithChildren,
   NotificationsRoute: NotificationsRoute,
   PriceEstimatorRoute: PriceEstimatorRoute,
+  PrivacyPolicyRoute: PrivacyPolicyRoute,
   SafetyTipsRoute: SafetyTipsRoute,
   SavedRoute: SavedRoute,
   SellRoute: SellRoute,
