@@ -9,36 +9,33 @@ export async function getSellerResponseTime(
   userId: string
 ): Promise<"fast" | "moderate" | "slow" | null> {
   try {
-    // Fetch seller's most recent listing to estimate activity
-    // (last_active column doesn't exist in profiles table yet)
-    const { data: listing, error } = await supabase
-      .from("listings")
-      .select("created_at")
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false })
-      .limit(1)
+    // Fetch seller's last active time from profiles
+    const { data: profile, error } = await supabase
+      .from("profiles")
+      .select("last_active")
+      .eq("id", userId)
       .maybeSingle();
 
-    if (error || !listing || !listing.created_at) {
+    if (error || !profile || !profile.last_active) {
       return null;
     }
 
-    const lastActive = new Date(listing.created_at);
+    const lastActive = new Date(profile.last_active);
     const now = new Date();
     const hoursSinceActive = (now.getTime() - lastActive.getTime()) / (1000 * 60 * 60);
 
     // Categorize response time based on last activity
-    if (hoursSinceActive < 48) {
-      // Active within last 48 hours
+    if (hoursSinceActive < 2) {
+      // Active within last 2 hours
       return "fast";
+    } else if (hoursSinceActive < 24) {
+      // Active within last 24 hours
+      return "moderate";
     } else if (hoursSinceActive < 168) {
       // Active within last week
-      return "moderate";
-    } else if (hoursSinceActive < 720) {
-      // Active within last 30 days
       return "slow";
     } else {
-      // Not active for over a month
+      // Not active for over a week
       return null;
     }
   } catch (error) {

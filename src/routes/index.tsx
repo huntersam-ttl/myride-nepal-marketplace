@@ -78,7 +78,7 @@ function HomePage() {
       {/* Hero */}
       <section className="relative overflow-hidden" style={{ background: "var(--gradient-hero)" }}>
         <div
-          className="absolute inset-0 opacity-20 pointer-events-none"
+          className="absolute inset-0 opacity-20"
           style={{
             backgroundImage:
               "radial-gradient(circle at 20% 30%, rgba(232,75,26,0.4), transparent 50%), radial-gradient(circle at 80% 70%, rgba(232,75,26,0.25), transparent 50%)",
@@ -139,17 +139,17 @@ function HomePage() {
           >
             {/* 2×2 on mobile, 4-col on md+ */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-              <Select value={brand || "all"} onValueChange={v => setBrand(v === "all" ? "" : v)}>
+              <Select value={brand} onValueChange={setBrand}>
                 <SelectTrigger><SelectValue placeholder="All brands" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All brands</SelectItem>
+                  <SelectItem value="">All brands</SelectItem>
                   {POPULAR_BRANDS.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}
                 </SelectContent>
               </Select>
-              <Select value={district || "all"} onValueChange={v => setDistrict(v === "all" ? "" : v)}>
+              <Select value={district} onValueChange={setDistrict}>
                 <SelectTrigger><SelectValue placeholder="All districts" /></SelectTrigger>
                 <SelectContent className="max-h-72">
-                  <SelectItem value="all">All districts</SelectItem>
+                  <SelectItem value="">All districts</SelectItem>
                   {NEPAL_DISTRICTS.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}
                 </SelectContent>
               </Select>
