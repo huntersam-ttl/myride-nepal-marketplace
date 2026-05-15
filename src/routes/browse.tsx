@@ -409,7 +409,7 @@ function BrowsePage() {
                   <ListingCard
                     key={l.id}
                     listing={l as any}
-                    onSave={(id, price) => toggleSave(id, price)}
+                    onSave={(id: string) => toggleSave(id, l.price)}
                     isSaved={savedIds?.has(l.id)}
                   />
                 ))}
@@ -438,7 +438,7 @@ function BrowsePage() {
                         <ListingCard
                           key={l.id}
                           listing={l as any}
-                          onSave={(id, price) => toggleSave(id, price)}
+                          onSave={(id: string) => toggleSave(id, l.price)}
                           isSaved={savedIds?.has(l.id)}
                         />
                       ))}
