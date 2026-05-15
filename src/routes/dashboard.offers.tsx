@@ -175,7 +175,7 @@ function OffersPage() {
           ) : receivedOffers && receivedOffers.length > 0 ? (
             <div className="space-y-4">
               {receivedOffers.map((offer) => (
-                <OfferCard key={offer.id} offer={offer} type="received" onAccept={acceptOfferMutation.mutate} onDecline={declineOfferMutation.mutate} onCounter={(offer) => { setSelectedOffer(offer); setCounterDialogOpen(true); }} />
+                <OfferCard key={offer.id} offer={offer} type="received" onAccept={acceptOfferMutation.mutate} onDecline={declineOfferMutation.mutate} onCounter={(offer: any) => { setSelectedOffer(offer); setCounterDialogOpen(true); }} />
               ))}
             </div>
           ) : (
