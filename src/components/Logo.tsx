@@ -11,7 +11,7 @@ export function Logo({ className = "" }: { className?: string }) {
         </svg>
       </span>
       <span className="tracking-tight">
-        <span className="text-secondary">MyRide</span>
+        <span className="text-foreground">MyRide</span>
         <span className="text-primary">Nepal</span>
       </span>
     </Link>
