@@ -139,17 +139,17 @@ function HomePage() {
           >
             {/* 2×2 on mobile, 4-col on md+ */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-              <Select value={brand} onValueChange={setBrand}>
+              <Select value={brand || "all"} onValueChange={v => setBrand(v === "all" ? "" : v)}>
                 <SelectTrigger><SelectValue placeholder="All brands" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All brands</SelectItem>
+                  <SelectItem value="all">All brands</SelectItem>
                   {POPULAR_BRANDS.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}
                 </SelectContent>
               </Select>
-              <Select value={district} onValueChange={setDistrict}>
+              <Select value={district || "all"} onValueChange={v => setDistrict(v === "all" ? "" : v)}>
                 <SelectTrigger><SelectValue placeholder="All districts" /></SelectTrigger>
                 <SelectContent className="max-h-72">
-                  <SelectItem value="">All districts</SelectItem>
+                  <SelectItem value="all">All districts</SelectItem>
                   {NEPAL_DISTRICTS.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}
                 </SelectContent>
               </Select>
