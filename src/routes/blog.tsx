@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { BookOpen, Search, ArrowRight, Calendar, User } from "lucide-react";
+import { BookOpen, Search, ArrowRight, Calendar, User, Newspaper } from "lucide-react";
 import { useState } from "react";
 
 export const Route = createFileRoute("/blog")({
@@ -80,11 +80,15 @@ function BlogIndex() {
         ) : posts.length === 0 ? (
           <Card className="p-16 text-center shadow-[var(--shadow-card)]">
             <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
-              <BookOpen className="w-8 h-8 text-muted-foreground opacity-40" />
+              <Newspaper className="w-8 h-8 text-muted-foreground opacity-40" />
             </div>
-            <h2 className="font-semibold text-lg mb-1">{q ? "No articles found" : "No articles yet"}</h2>
-            <p className="text-muted-foreground text-sm">
-              {q ? `Try a different search term.` : "Articles and guides are coming soon."}
+            <h2 className="font-semibold text-lg mb-1">
+              {q ? "No articles found" : "Coming Soon"}
+            </h2>
+            <p className="text-muted-foreground text-sm max-w-md mx-auto">
+              {q 
+                ? "Try a different search term." 
+                : "We are working on articles about bikes, buying guides, and Nepal's two-wheeler market. Check back soon."}
             </p>
           </Card>
         ) : (
