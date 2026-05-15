@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { POPULAR_BRANDS, NEPAL_DISTRICTS, BIKE_TYPES, CONDITIONS, FUEL_TYPES, formatNPR } from "@/lib/nepal";
-import { Upload, X, Loader2, CheckCircle2, ChevronRight, Camera, Tag, Wrench, Phone } from "lucide-react";
+import { Upload, X, Loader2, CheckCircle2, ChevronRight, Camera, Tag, Wrench, Phone, User, FileText, Image, Zap, DollarSign, Clock } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/sell")({
@@ -123,9 +123,69 @@ function SellPage() {
     <div className="min-h-screen bg-muted/30">
       {/* Page header */}
       <div className="bg-card border-b">
-        <div className="container mx-auto px-4 py-8 max-w-2xl">
-          <h1 className="text-2xl md:text-3xl font-bold">Sell your bike</h1>
-          <p className="text-muted-foreground mt-1">Free to list · Reach buyers across Nepal · No commission</p>
+        <div className="container mx-auto px-4 py-8 max-w-4xl">
+          <h1 className="text-2xl md:text-3xl font-bold text-center mb-6">Sell your bike</h1>
+          
+          {/* Overview Steps - Horizontal on desktop, vertical on mobile */}
+          <div className="mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-2">
+              {[
+                { icon: User, label: "Create account or log in", step: 1 },
+                { icon: FileText, label: "Fill bike details", step: 2 },
+                { icon: Image, label: "Add photos", step: 3 },
+                { icon: Zap, label: "Go live", step: 4 }
+              ].map((item, idx) => {
+                const Icon = item.icon;
+                return (
+                  <div key={idx} className="flex md:flex-col items-center gap-3 md:gap-2">
+                    <div className="flex items-center gap-3 md:flex-col md:gap-2 flex-1">
+                      <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <Icon className="w-6 h-6 md:w-7 md:h-7 text-primary" />
+                      </div>
+                      <div className="text-left md:text-center">
+                        <div className="text-xs font-semibold text-muted-foreground mb-0.5">Step {item.step}</div>
+                        <div className="text-sm font-medium">{item.label}</div>
+                      </div>
+                    </div>
+                    {idx < 3 && (
+                      <ChevronRight className="w-5 h-5 text-muted-foreground hidden md:block absolute md:relative -right-1/2 md:right-0 transform md:transform-none md:rotate-0 rotate-90" />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Trust Bar */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8 pt-6 border-t">
+            <div className="flex items-center gap-3 text-center sm:text-left justify-center sm:justify-start">
+              <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center flex-shrink-0">
+                <DollarSign className="w-5 h-5 text-green-600" />
+              </div>
+              <div>
+                <div className="font-semibold text-sm">Free to list</div>
+                <div className="text-xs text-muted-foreground">No upfront fees</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 text-center sm:text-left justify-center sm:justify-start">
+              <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center flex-shrink-0">
+                <CheckCircle2 className="w-5 h-5 text-blue-600" />
+              </div>
+              <div>
+                <div className="font-semibold text-sm">No commission taken</div>
+                <div className="text-xs text-muted-foreground">Keep 100% of sale</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 text-center sm:text-left justify-center sm:justify-start">
+              <div className="w-10 h-10 rounded-full bg-orange-500/10 flex items-center justify-center flex-shrink-0">
+                <Clock className="w-5 h-5 text-orange-600" />
+              </div>
+              <div>
+                <div className="font-semibold text-sm">Live within 24 hours</div>
+                <div className="text-xs text-muted-foreground">After admin review</div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
