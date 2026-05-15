@@ -12,6 +12,7 @@ const FOOTER_LINKS = {
   ],
   Resources: [
     { to: "/blog", label: "Blog & guides" },
+    { to: "/about", label: "About us" },
     { to: "/auth", label: "Login / Sign up" },
     { to: "/dashboard", label: "My listings" },
     { to: "/saved", label: "Saved listings" },
