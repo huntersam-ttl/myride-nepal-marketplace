@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ShieldCheck, MapPin, Store, ArrowRight } from "lucide-react";
+import { ShieldCheck, MapPin, Store, ArrowRight, UserPlus, ListChecks, Phone, CheckCircle } from "lucide-react";
 
 export const Route = createFileRoute("/dealers")({
   component: DealersPage,
@@ -63,6 +63,120 @@ function DealersPage() {
               </div>
             </div>
           )}
+        </div>
+      </div>
+
+      {/* How It Works Section */}
+      <div className="bg-background py-16">
+        <div className="container mx-auto px-4 max-w-5xl">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-3">How It Works for Dealers</h2>
+            <p className="text-muted-foreground">Get started in three simple steps</p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            <Card className="p-6 text-center">
+              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                <UserPlus className="w-8 h-8 text-primary" />
+              </div>
+              <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground font-bold flex items-center justify-center mx-auto mb-4 text-sm">
+                1
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Create Your Dealer Profile</h3>
+              <p className="text-muted-foreground">
+                Sign up and create your dealer profile with your business details and branding
+              </p>
+            </Card>
+            
+            <Card className="p-6 text-center">
+              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                <ListChecks className="w-8 h-8 text-primary" />
+              </div>
+              <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground font-bold flex items-center justify-center mx-auto mb-4 text-sm">
+                2
+              </div>
+              <h3 className="text-xl font-semibold mb-2">List All Your Inventory</h3>
+              <p className="text-muted-foreground">
+                Add unlimited bike listings completely free with no commission fees
+              </p>
+            </Card>
+            
+            <Card className="p-6 text-center">
+              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                <Phone className="w-8 h-8 text-primary" />
+              </div>
+              <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground font-bold flex items-center justify-center mx-auto mb-4 text-sm">
+                3
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Get Contacted by Buyers</h3>
+              <p className="text-muted-foreground">
+                Buyers reach you directly via phone and WhatsApp for instant connections
+              </p>
+            </Card>
+          </div>
+        </div>
+      </div>
+
+      {/* Benefits Section */}
+      <div className="bg-muted/30 py-16">
+        <div className="container mx-auto px-4 max-w-6xl">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-3">Benefits for Dealers</h2>
+            <p className="text-muted-foreground">Everything you need to grow your business</p>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Card className="p-6">
+              <CheckCircle className="w-10 h-10 text-primary mb-4" />
+              <h3 className="font-semibold mb-2">Unlimited Listings</h3>
+              <p className="text-sm text-muted-foreground">
+                Verified dealers can list unlimited bikes with no commission fees
+              </p>
+            </Card>
+            
+            <Card className="p-6">
+              <Store className="w-10 h-10 text-primary mb-4" />
+              <h3 className="font-semibold mb-2">Dedicated Profile Page</h3>
+              <p className="text-sm text-muted-foreground">
+                Get your own dealer profile page with your branding and all your listings
+              </p>
+            </Card>
+            
+            <Card className="p-6">
+              <ShieldCheck className="w-10 h-10 text-primary mb-4" />
+              <h3 className="font-semibold mb-2">Verified Badge</h3>
+              <p className="text-sm text-muted-foreground">
+                Stand out with a verified dealer badge on all your listings
+              </p>
+            </Card>
+            
+            <Card className="p-6">
+              <Phone className="w-10 h-10 text-primary mb-4" />
+              <h3 className="font-semibold mb-2">Direct Contact</h3>
+              <p className="text-sm text-muted-foreground">
+                Buyers contact you directly via WhatsApp and phone for faster sales
+              </p>
+            </Card>
+          </div>
+        </div>
+      </div>
+
+      {/* Districts We Cover Section */}
+      <div className="bg-background py-16">
+        <div className="container mx-auto px-4 max-w-5xl">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-3">Districts We Cover</h2>
+            <p className="text-muted-foreground">Serving dealers across Nepal's major cities</p>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+            {["Kathmandu", "Pokhara", "Lalitpur", "Bhaktapur", "Chitwan", "Butwal", "Biratnagar", "Dharan", "Hetauda", "Birgunj"].map((city) => (
+              <Card key={city} className="p-4 text-center hover:shadow-md transition-shadow">
+                <MapPin className="w-5 h-5 text-primary mx-auto mb-2" />
+                <p className="font-medium text-sm">{city}</p>
+              </Card>
+            ))}
+          </div>
+          <div className="text-center mt-8">
+            <p className="text-sm text-muted-foreground">...and all 77 districts of Nepal</p>
+          </div>
         </div>
       </div>
 
