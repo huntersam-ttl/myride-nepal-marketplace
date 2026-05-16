@@ -117,7 +117,7 @@ export function Navbar() {
               <div className="p-4 flex-1 overflow-y-auto">
                 {/* Sell CTA in mobile sheet */}
                 <Button
-                  className="w-full gap-2 mb-5"
+                  className="w-full gap-2 mb-5 min-h-[44px]"
                   onClick={() => { navigate({ to: "/sell" }); setOpen(false); }}
                 >
                   <Plus className="w-4 h-4" /> Sell your bike — Free
@@ -129,7 +129,7 @@ export function Navbar() {
                       key={l.to}
                       to={l.to}
                       onClick={() => setOpen(false)}
-                      className="px-3 py-2.5 rounded-md text-base font-medium hover:bg-accent transition-colors"
+                      className="px-3 py-3 rounded-md text-base font-medium hover:bg-accent transition-colors min-h-[44px] flex items-center"
                       activeProps={{ className: "text-primary bg-primary/5" }}
                     >
                       {l.label}
@@ -141,23 +141,23 @@ export function Navbar() {
 
                 {user ? (
                   <nav className="flex flex-col gap-1">
-                    <Link to="/dashboard" onClick={() => setOpen(false)} className="px-3 py-2.5 rounded-md hover:bg-accent transition-colors text-base font-medium">
+                    <Link to="/dashboard" onClick={() => setOpen(false)} className="px-3 py-3 rounded-md hover:bg-accent transition-colors text-base font-medium min-h-[44px] flex items-center">
                       Dashboard
                     </Link>
-                    <Link to="/saved" onClick={() => setOpen(false)} className="px-3 py-2.5 rounded-md hover:bg-accent transition-colors text-base font-medium">
+                    <Link to="/saved" onClick={() => setOpen(false)} className="px-3 py-3 rounded-md hover:bg-accent transition-colors text-base font-medium min-h-[44px] flex items-center">
                       Saved listings
                     </Link>
-                    <Link to="/dealer-signup" onClick={() => setOpen(false)} className="px-3 py-2.5 rounded-md hover:bg-accent transition-colors text-base font-medium">
+                    <Link to="/dealer-signup" onClick={() => setOpen(false)} className="px-3 py-3 rounded-md hover:bg-accent transition-colors text-base font-medium min-h-[44px] flex items-center">
                       Become a dealer
                     </Link>
                     {isAdmin && (
-                      <Link to="/admin" onClick={() => setOpen(false)} className="px-3 py-2.5 rounded-md hover:bg-accent transition-colors text-base font-medium">
+                      <Link to="/admin" onClick={() => setOpen(false)} className="px-3 py-3 rounded-md hover:bg-accent transition-colors text-base font-medium min-h-[44px] flex items-center">
                         Admin panel
                       </Link>
                     )}
                     <button
                       onClick={async () => { await signOut(); setOpen(false); navigate({ to: "/" }); }}
-                      className="px-3 py-2.5 rounded-md hover:bg-destructive/10 text-left text-base font-medium text-destructive transition-colors"
+                      className="px-3 py-3 rounded-md hover:bg-destructive/10 text-left text-base font-medium text-destructive transition-colors min-h-[44px] flex items-center"
                     >
                       Sign out
                     </button>
@@ -165,7 +165,7 @@ export function Navbar() {
                 ) : (
                   <Button
                     variant="outline"
-                    className="w-full"
+                    className="w-full min-h-[44px]"
                     onClick={() => { setOpen(false); navigate({ to: "/auth" }); }}
                   >
                     Login / Sign up
