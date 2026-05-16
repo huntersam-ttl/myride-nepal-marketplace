@@ -1,4 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Suspense } from "react";
 import {
   Outlet,
   Link,
@@ -98,7 +99,17 @@ function RootComponent() {
         <div className="flex min-h-screen flex-col">
           <Navbar />
           <main className="flex-1">
-            <Outlet />
+            <Suspense
+              fallback={
+                <div className="container mx-auto px-4 py-16">
+                  <div className="mx-auto max-w-xl rounded-xl border bg-card p-6 text-center shadow-[var(--shadow-card)]">
+                    <p className="text-sm text-muted-foreground">Loading page content…</p>
+                  </div>
+                </div>
+              }
+            >
+              <Outlet />
+            </Suspense>
           </main>
           <Footer />
         </div>

@@ -35,26 +35,24 @@ function HomePage() {
     retry: 2,
     retryDelay: 1000,
     queryFn: async ({ signal }) => {
-      const timeout = setTimeout(() => signal?.dispatchEvent(new Event("abort")), 10_000);
-      try {
-        const { data, error } = await supabase
-          .from("listings")
-          .select("id,title,brand,price,year,mileage,district,condition,images,featured")
-          .eq("status", "active")
-          .order("created_at", { ascending: false })
-          .limit(6)
-          .abortSignal(signal as AbortSignal);
-        if (error) throw error;
-        return data ?? [];
-      } finally {
-        clearTimeout(timeout);
-      }
+      const { data, error } = await supabase
+        .from("listings")
+        .select("id,title,brand,price,year,mileage,district,condition,images,featured")
+        .eq("status", "active")
+        .order("created_at", { ascending: false })
+        .limit(6)
+        .abortSignal(signal as AbortSignal);
+      if (error) throw error;
+      return data ?? [];
     },
   });
 
   // Hard 8-second timeout — never leave users on a blank screen
   useEffect(() => {
-    if (!featuredLoading) return;
+    if (!featuredLoading) {
+      setTimedOut(false);
+      return;
+    }
     const t = setTimeout(() => setTimedOut(true), 8_000);
     return () => clearTimeout(t);
   }, [featuredLoading]);
@@ -108,6 +106,7 @@ function HomePage() {
         />
         <div className="container mx-auto px-4 py-14 md:py-24 relative">
           <motion.div
+            initial={false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             className="max-w-3xl text-center mx-auto"
@@ -138,6 +137,7 @@ function HomePage() {
 
           {/* Stats bar — real data */}
           <motion.div
+            initial={false}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.3 }}
             className="mt-8 flex flex-wrap items-center justify-center gap-6 md:gap-10 text-white/60 text-sm"
@@ -152,6 +152,7 @@ function HomePage() {
 
           {/* Search */}
           <motion.div
+            initial={false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.15 }}
             className="mt-8 max-w-4xl mx-auto p-4 rounded-2xl bg-card shadow-2xl"
