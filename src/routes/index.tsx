@@ -86,7 +86,7 @@ function HomePage() {
         />
         <div className="container mx-auto px-4 py-14 md:py-24 relative">
           <motion.div
-            initial={{ opacity: 0, y: 24 }}
+            initial={false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             className="max-w-3xl text-center mx-auto"
@@ -117,7 +117,7 @@ function HomePage() {
 
           {/* Stats bar — real data */}
           <motion.div
-            initial={{ opacity: 0 }}
+            initial={false}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.3 }}
             className="mt-8 flex flex-wrap items-center justify-center gap-6 md:gap-10 text-white/60 text-sm"
@@ -132,7 +132,7 @@ function HomePage() {
 
           {/* Search */}
           <motion.div
-            initial={{ opacity: 0, y: 24 }}
+            initial={false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.15 }}
             className="mt-8 max-w-4xl mx-auto p-4 rounded-2xl bg-card shadow-2xl"
