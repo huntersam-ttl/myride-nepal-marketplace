@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -36,6 +36,7 @@ function SellPage() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
   const currentYear = new Date().getFullYear();
@@ -108,7 +109,7 @@ function SellPage() {
       });
       if (error) throw error;
       toast.success("Listing submitted! It'll go live after admin review.");
-      navigate({ to: "/dashboard" });
+      setSubmitted(true);
     } catch (e: any) {
       toast.error(e.message || "Failed to submit listing");
     } finally {
@@ -118,6 +119,29 @@ function SellPage() {
 
   const next = () => setStep(s => Math.min(4, s + 1));
   const back = () => setStep(s => Math.max(1, s - 1));
+
+  // Success state
+  if (submitted) {
+    return (
+      <div className="min-h-screen bg-muted/30 flex items-center justify-center px-4 py-12">
+        <Card className="max-w-2xl w-full p-8 md:p-12 text-center">
+          <CheckCircle2 className="w-20 h-20 md:w-24 md:h-24 text-green-500 mx-auto mb-6" />
+          <h1 className="text-2xl md:text-3xl font-bold mb-4">Your listing has been submitted</h1>
+          <p className="text-muted-foreground text-base md:text-lg mb-8 max-w-xl mx-auto">
+            Our team will review and approve it within 24 hours. Once approved it will be visible to buyers across Nepal.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button size="lg" asChild>
+              <Link to="/dashboard">View my listings</Link>
+            </Button>
+            <Button size="lg" variant="outline" asChild>
+              <Link to="/browse">Browse bikes</Link>
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-muted/30">
