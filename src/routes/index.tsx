@@ -1,12 +1,13 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import { Search, ShieldCheck, Users, Zap, ArrowRight, TrendingUp } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Search, ShieldCheck, Users, Zap, ArrowRight, TrendingUp, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ListingCard } from "@/components/ListingCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import { POPULAR_BRANDS, NEPAL_DISTRICTS } from "@/lib/nepal";
 import { motion } from "framer-motion";
 
@@ -26,23 +27,44 @@ function HomePage() {
   const [district, setDistrict] = useState<string>("");
   const [maxPrice, setMaxPrice] = useState<string>("");
 
-  const { data: featured, isLoading: featuredLoading } = useQuery({
+  const [timedOut, setTimedOut] = useState(false);
+
+  const { data: featured, isLoading: featuredLoading, isError: featuredError } = useQuery({
     queryKey: ["featured-listings"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("listings")
-        .select("id,title,brand,price,year,mileage,district,condition,images,featured")
-        .eq("status", "active")
-        .order("created_at", { ascending: false })
-        .limit(6);
-      if (error) throw error;
-      return data;
+    staleTime: 30_000,
+    retry: 2,
+    retryDelay: 1000,
+    queryFn: async ({ signal }) => {
+      const timeout = setTimeout(() => signal?.dispatchEvent(new Event("abort")), 10_000);
+      try {
+        const { data, error } = await supabase
+          .from("listings")
+          .select("id,title,brand,price,year,mileage,district,condition,images,featured")
+          .eq("status", "active")
+          .order("created_at", { ascending: false })
+          .limit(6)
+          .abortSignal(signal as AbortSignal);
+        if (error) throw error;
+        return data ?? [];
+      } finally {
+        clearTimeout(timeout);
+      }
     },
   });
+
+  // Hard 8-second timeout — never leave users on a blank screen
+  useEffect(() => {
+    if (!featuredLoading) return;
+    const t = setTimeout(() => setTimedOut(true), 8_000);
+    return () => clearTimeout(t);
+  }, [featuredLoading]);
 
   // Real listing count for stats bar
   const { data: listingCount } = useQuery({
     queryKey: ["listing-count"],
+    staleTime: 30_000,
+    retry: 2,
+    retryDelay: 1000,
     queryFn: async () => {
       const { count } = await supabase
         .from("listings")
@@ -204,15 +226,25 @@ function HomePage() {
             View all <ArrowRight className="w-3 h-3" />
           </Link>
         </div>
-        {featuredLoading ? (
+        {featuredError || timedOut ? (
+          <div className="text-center py-16 border rounded-xl bg-card">
+            <TrendingUp className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+            <p className="font-semibold mb-1">Unable to load listings right now</p>
+            <p className="text-sm text-muted-foreground mb-5">Check your connection or try refreshing.</p>
+            <Button variant="outline" onClick={() => window.location.reload()} className="gap-2">
+              <RefreshCw className="w-4 h-4" /> Refresh
+            </Button>
+          </div>
+        ) : featuredLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="rounded-xl bg-card border overflow-hidden">
-                <div className="aspect-[4/3] bg-muted animate-pulse" />
+                <Skeleton className="aspect-[4/3] w-full rounded-none" />
                 <div className="p-4 space-y-3">
-                  <div className="h-4 bg-muted animate-pulse rounded w-3/4" />
-                  <div className="h-5 bg-muted animate-pulse rounded w-1/2" />
-                  <div className="h-3 bg-muted animate-pulse rounded" />
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-5 w-1/2" />
+                  <Skeleton className="h-3 w-full" />
+                  <Skeleton className="h-3 w-2/3" />
                 </div>
               </div>
             ))}
