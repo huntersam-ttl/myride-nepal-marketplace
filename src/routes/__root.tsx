@@ -7,6 +7,7 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
+import { Suspense } from "react";
 
 import appCss from "../styles.css?url";
 import { Navbar } from "@/components/Navbar";
@@ -98,7 +99,13 @@ function RootComponent() {
         <div className="flex min-h-screen flex-col">
           <Navbar />
           <main className="flex-1">
-            <Outlet />
+            <Suspense fallback={
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "60vh" }}>
+                <div style={{ width: 40, height: 40, border: "4px solid #f3f3f3", borderTop: "4px solid #E84B1A", borderRadius: "50%", animation: "mrn-spin 0.8s linear infinite" }} />
+              </div>
+            }>
+              <Outlet />
+            </Suspense>
           </main>
           <Footer />
         </div>
