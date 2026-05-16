@@ -13,6 +13,7 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { AuthProvider } from "@/hooks/use-auth";
 import { Toaster } from "@/components/ui/sonner";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 
 function NotFoundComponent() {
   return (
@@ -102,6 +103,7 @@ function RootComponent() {
           <Footer />
         </div>
         <Toaster richColors position="top-center" />
+        <SpeedInsights />
       </AuthProvider>
     </QueryClientProvider>
   );
