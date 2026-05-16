@@ -43,7 +43,7 @@ export function ListingCard({ listing, onSave, isSaved }: {
           }}
         />
         {/* Gradient overlay — improves badge/button legibility over any photo */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none" />
 
         {/* Badges — text-xs (12px) meets WCAG minimum */}
         <div className="absolute top-2.5 left-2.5 flex gap-1.5">

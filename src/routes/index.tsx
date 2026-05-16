@@ -100,7 +100,7 @@ function HomePage() {
       {/* Hero */}
       <section className="relative overflow-hidden" style={{ background: "var(--gradient-hero)" }}>
         <div
-          className="absolute inset-0 opacity-20"
+          className="absolute inset-0 opacity-20 pointer-events-none"
           style={{
             backgroundImage:
               "radial-gradient(circle at 20% 30%, rgba(232,75,26,0.4), transparent 50%), radial-gradient(circle at 80% 70%, rgba(232,75,26,0.25), transparent 50%)",
