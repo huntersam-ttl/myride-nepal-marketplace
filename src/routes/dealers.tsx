@@ -32,6 +32,7 @@ function DealersPage() {
 
   const verified = (data ?? []).filter(d => d.verified);
   const unverified = (data ?? []).filter(d => !d.verified);
+  const dealerCount = data?.length ?? 0;
 
   return (
     <div className="min-h-screen bg-muted/30">
@@ -40,8 +41,14 @@ function DealersPage() {
         <div className="container mx-auto px-4 py-8 max-w-5xl">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold">Verified dealers</h1>
-              <p className="text-muted-foreground mt-1">Established showrooms and trusted sellers across Nepal.</p>
+              <h1 className="text-3xl font-bold">
+                {!isLoading && dealerCount === 0 ? "Become a Dealer" : "Verified dealers"}
+              </h1>
+              <p className="text-muted-foreground mt-1">
+                {!isLoading && dealerCount === 0 
+                  ? "Be our first verified dealer in Kathmandu"
+                  : "Established showrooms and trusted sellers across Nepal."}
+              </p>
             </div>
             <Button asChild variant="outline" className="gap-2">
               <Link to="/dealer-signup">
@@ -51,14 +58,14 @@ function DealersPage() {
           </div>
 
           {/* Stats row */}
-          {!isLoading && data && data.length > 0 && (
+          {!isLoading && dealerCount > 0 && (
             <div className="flex gap-6 mt-6 text-sm">
               <div>
                 <span className="font-bold text-xl">{verified.length}</span>
                 <span className="text-muted-foreground ml-2">Verified dealers</span>
               </div>
               <div>
-                <span className="font-bold text-xl">{data.length}</span>
+                <span className="font-bold text-xl">{dealerCount}</span>
                 <span className="text-muted-foreground ml-2">Total dealers</span>
               </div>
             </div>
@@ -180,27 +187,9 @@ function DealersPage() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8 max-w-5xl">
-        {isLoading ? (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="rounded-xl bg-card border overflow-hidden animate-pulse">
-                <div className="h-28 bg-muted" />
-                <div className="p-5 space-y-3">
-                  <div className="flex gap-3">
-                    <div className="w-12 h-12 rounded-lg bg-muted flex-shrink-0" />
-                    <div className="flex-1 space-y-2">
-                      <div className="h-4 bg-muted rounded w-3/4" />
-                      <div className="h-3 bg-muted rounded w-1/2" />
-                    </div>
-                  </div>
-                  <div className="h-3 bg-muted rounded" />
-                  <div className="h-3 bg-muted rounded w-2/3" />
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : data && data.length > 0 ? (
+      {/* Only show dealer listings section if dealers exist */}
+      {!isLoading && dealerCount > 0 && (
+        <div className="container mx-auto px-4 py-8 max-w-5xl">
           <div className="space-y-8">
             {verified.length > 0 && (
               <div>
@@ -227,19 +216,32 @@ function DealersPage() {
               </div>
             )}
           </div>
-        ) : (
-          <Card className="p-16 text-center shadow-[var(--shadow-card)]">
-            <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
-              <Store className="w-8 h-8 text-muted-foreground opacity-40" />
-            </div>
-            <h2 className="font-semibold text-lg mb-1">No dealers yet</h2>
-            <p className="text-muted-foreground text-sm mb-6">Be the first verified dealer on MyRideNepal.</p>
-            <Button asChild>
-              <Link to="/dealer-signup">Register as a dealer</Link>
-            </Button>
-          </Card>
-        )}
-      </div>
+        </div>
+      )}
+
+      {/* Loading state */}
+      {isLoading && (
+        <div className="container mx-auto px-4 py-8 max-w-5xl">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="rounded-xl bg-card border overflow-hidden animate-pulse">
+                <div className="h-28 bg-muted" />
+                <div className="p-5 space-y-3">
+                  <div className="flex gap-3">
+                    <div className="w-12 h-12 rounded-lg bg-muted flex-shrink-0" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-4 bg-muted rounded w-3/4" />
+                      <div className="h-3 bg-muted rounded w-1/2" />
+                    </div>
+                  </div>
+                  <div className="h-3 bg-muted rounded" />
+                  <div className="h-3 bg-muted rounded w-2/3" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
