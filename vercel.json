@@ -1,6 +1,8 @@
 {
+  "version": 2,
   "buildCommand": "npm run build:vercel",
   "outputDirectory": "dist/vercel",
+  "crons": [],
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ],
