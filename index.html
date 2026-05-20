@@ -11,6 +11,39 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      // Unregister any service worker from the previous (Lovable) deployment.
+      // Without this, visitors who used the old site still have its SW installed,
+      // and it intercepts all requests — serving stale 5-month-old cached HTML
+      // and breaking the new site. Run this before anything else loads.
+      (function () {
+        try {
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function (regs) {
+              if (!regs || regs.length === 0) return;
+              var shouldReload = false;
+              var pending = regs.length;
+              regs.forEach(function (reg) {
+                reg.unregister().then(function (ok) {
+                  if (ok) shouldReload = true;
+                  if (--pending === 0 && shouldReload) {
+                    // Also nuke caches so the SW's cached responses go away
+                    if (window.caches && caches.keys) {
+                      caches.keys().then(function (names) {
+                        Promise.all(names.map(function (n) { return caches.delete(n); }))
+                          .finally(function () { location.reload(); });
+                      });
+                    } else {
+                      location.reload();
+                    }
+                  }
+                }).catch(function () { /* ignore */ });
+              });
+            }).catch(function () { /* ignore */ });
+          }
+        } catch (e) { /* never block boot */ }
+      })();
+    </script>
     <script type="module" src="/src/entry.client.tsx"></script>
   </body>
 </html>
