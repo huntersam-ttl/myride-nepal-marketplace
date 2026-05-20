@@ -12,6 +12,55 @@
   <body>
     <div id="root"></div>
     <script>
+      // Visible runtime error catcher. If anything goes wrong loading React
+      // or any chunk, paint the error directly into the page so we can see it
+      // without DevTools. Runs before any other JS.
+      (function () {
+        var bootStart = Date.now();
+        function paintError(title, detail) {
+          var root = document.getElementById('root');
+          if (!root) return;
+          // Don't overwrite content if React already rendered something
+          if (root.children.length > 0 && !root.querySelector('[data-mrn-error]')) return;
+          root.innerHTML =
+            '<div data-mrn-error style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:20px;background:#F8F8F8;font-family:Inter,system-ui,-apple-system,sans-serif;">' +
+              '<div style="max-width:560px;width:100%;background:white;padding:24px 28px;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.08);text-align:center;">' +
+                '<div style="font-size:24px;font-weight:700;margin-bottom:6px;color:#0F1F3D;">MyRide<span style="color:#E84B1A;">Nepal</span></div>' +
+                '<div style="font-size:15px;font-weight:600;color:#E84B1A;margin:14px 0 6px;">' + title + '</div>' +
+                '<div style="font-size:12px;color:#666;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;text-align:left;background:#f5f5f5;padding:12px;border-radius:6px;white-space:pre-wrap;word-break:break-word;max-height:240px;overflow:auto;">' + detail + '</div>' +
+                '<button style="margin-top:18px;background:#E84B1A;color:white;border:0;padding:10px 22px;border-radius:8px;font-weight:600;cursor:pointer;font-size:14px;" onclick="(function(){try{localStorage.clear();sessionStorage.clear();if(window.caches&&caches.keys){caches.keys().then(function(n){Promise.all(n.map(function(k){return caches.delete(k);})).finally(function(){location.reload();})}); }else{location.reload();}}catch(e){location.reload();}})()">Clear cache &amp; reload</button>' +
+              '</div>' +
+            '</div>';
+        }
+        function fmt(err) {
+          if (!err) return 'Unknown error';
+          if (typeof err === 'string') return err;
+          var parts = [];
+          if (err.message) parts.push(err.message);
+          if (err.filename) parts.push('at ' + err.filename + ':' + (err.lineno || '?') + ':' + (err.colno || '?'));
+          if (err.stack) parts.push(err.stack);
+          if (err.error && err.error.stack) parts.push(err.error.stack);
+          return parts.join('\n') || JSON.stringify(err);
+        }
+        window.addEventListener('error', function (e) {
+          console.error('[mrn:error]', e.error || e.message);
+          paintError('JavaScript error', fmt(e));
+        });
+        window.addEventListener('unhandledrejection', function (e) {
+          console.error('[mrn:rejection]', e.reason);
+          paintError('Unhandled promise rejection', fmt(e.reason));
+        });
+        // After 10s, if React still hasn't put anything in #root, show a stuck-loading message
+        setTimeout(function () {
+          var root = document.getElementById('root');
+          if (root && root.children.length === 0) {
+            paintError('App did not start (10s timeout)', 'Boot took longer than 10 seconds with no React render and no error fired. This usually means a module dependency failed to load. Check the Network tab for any 404 / failed requests.');
+          }
+        }, 10000);
+        window.__mrnBootStart = bootStart;
+      })();
+    </script>
+    <script>
       // Unregister any service worker from the previous (Lovable) deployment.
       // Without this, visitors who used the old site still have its SW installed,
       // and it intercepts all requests — serving stale 5-month-old cached HTML
