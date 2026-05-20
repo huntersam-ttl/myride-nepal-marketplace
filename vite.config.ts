@@ -1,22 +1,31 @@
-import { defineConfig } from "@tanstack/react-start/config";
-import react from "@vitejs/plugin-react";
-import tailwindcss from "@tailwindcss/vite";
-import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
-import tsconfigPaths from "vite-tsconfig-paths";
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
+import tailwindcss from '@tailwindcss/vite'
+import path from 'path'
 
 export default defineConfig({
-  server: {
-    preset: "cloudflare-pages",
-  },
-  vite: {
-    plugins: [
-      TanStackRouterVite({ target: "react", autoCodeSplitting: true }),
-      react(),
-      tailwindcss(),
-      tsconfigPaths(),
-    ],
-    build: {
-      chunkSizeWarningLimit: 1000,
+  plugins: [
+    TanStackRouterVite({ autoCodeSplitting: true }),
+    react(),
+    tailwindcss(),
+  ],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
     },
   },
-});
+  build: {
+    outDir: 'dist',
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          supabase: ['@supabase/supabase-js'],
+          router: ['@tanstack/react-router', '@tanstack/react-query'],
+        },
+      },
+    },
+  },
+})

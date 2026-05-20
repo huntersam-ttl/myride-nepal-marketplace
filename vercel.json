@@ -1,31 +1,7 @@
 {
-  "version": 2,
-  "buildCommand": "npm run build:vercel",
-  "outputDirectory": "dist/vercel",
-  "crons": [],
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, s-maxage=0, must-revalidate"
-        },
-        {
-          "key": "Pragma",
-          "value": "no-cache"
-        },
-        {
-          "key": "X-Vercel-Cache",
-          "value": "BYPASS"
-        }
-      ]
-    }
-  ],
-  "github": {
-    "silent": false
-  }
+  ]
 }
