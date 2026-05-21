@@ -4,7 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ShieldCheck, MapPin, Store, ArrowRight, UserPlus, ListChecks, Phone, CheckCircle } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ShieldCheck, MapPin, Store, ArrowRight, UserPlus, ListChecks, Phone, CheckCircle, Search, Package } from "lucide-react";
+import { NEPAL_DISTRICTS, POPULAR_BRANDS } from "@/lib/nepal";
+import { useState } from "react";
 
 export const Route = createFileRoute("/dealers")({
   component: DealersPage,
@@ -17,12 +21,17 @@ export const Route = createFileRoute("/dealers")({
 });
 
 function DealersPage() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [districtFilter, setDistrictFilter] = useState<string>("all");
+  const [verifiedOnly, setVerifiedOnly] = useState(false);
+  
   const { data, isLoading } = useQuery({
     queryKey: ["dealers"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("dealer_profiles")
         .select("*")
+        .eq("flagged" as any, false)
         .order("verified", { ascending: false })
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -30,8 +39,31 @@ function DealersPage() {
     },
   });
 
-  const verified = (data ?? []).filter(d => d.verified);
-  const unverified = (data ?? []).filter(d => !d.verified);
+  // Filter dealers based on search and filters
+  const filteredData = (data ?? []).filter(d => {
+    // Type assertion for Phase 1 fields
+    const dealer = d as any;
+    
+    // Verified filter
+    if (verifiedOnly && !dealer.verified) return false;
+    
+    // District filter
+    if (districtFilter !== "all" && dealer.district !== districtFilter) return false;
+    
+    // Search query - search in business name, brands, district
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      const matchesName = dealer.business_name?.toLowerCase().includes(query);
+      const matchesBrands = dealer.brands?.some((b: string) => b.toLowerCase().includes(query));
+      const matchesDistrict = dealer.district?.toLowerCase().includes(query);
+      if (!matchesName && !matchesBrands && !matchesDistrict) return false;
+    }
+    
+    return true;
+  });
+
+  const verified = filteredData.filter(d => d.verified);
+  const unverified = filteredData.filter(d => !d.verified);
 
   return (
     <div className="min-h-screen bg-muted/30">
@@ -63,6 +95,38 @@ function DealersPage() {
               </div>
             </div>
           )}
+          
+          {/* Search and Filters */}
+          <div className="grid sm:grid-cols-3 gap-3 mt-6">
+            <div className="sm:col-span-1 relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input 
+                placeholder="Search dealers, brands..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+            <Select value={districtFilter} onValueChange={setDistrictFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="All districts" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All districts</SelectItem>
+                {NEPAL_DISTRICTS.map(d => (
+                  <SelectItem key={d} value={d}>{d}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button 
+              variant={verifiedOnly ? "default" : "outline"}
+              onClick={() => setVerifiedOnly(!verifiedOnly)}
+              className="gap-2"
+            >
+              <ShieldCheck className="w-4 h-4" />
+              {verifiedOnly ? "Verified only" : "All dealers"}
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -200,7 +264,7 @@ function DealersPage() {
               </div>
             ))}
           </div>
-        ) : data && data.length > 0 ? (
+        ) : filteredData && filteredData.length > 0 ? (
           <div className="space-y-8">
             {verified.length > 0 && (
               <div>
@@ -232,11 +296,21 @@ function DealersPage() {
             <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
               <Store className="w-8 h-8 text-muted-foreground opacity-40" />
             </div>
-            <h2 className="font-semibold text-lg mb-1">No dealers yet</h2>
-            <p className="text-muted-foreground text-sm mb-6">Be the first verified dealer on MyRideNepal.</p>
-            <Button asChild>
-              <Link to="/dealer-signup">Register as a dealer</Link>
-            </Button>
+            <h2 className="font-semibold text-lg mb-1">
+              {searchQuery || districtFilter !== "all" || verifiedOnly 
+                ? "No dealers found" 
+                : "No dealers yet"}
+            </h2>
+            <p className="text-muted-foreground text-sm mb-6">
+              {searchQuery || districtFilter !== "all" || verifiedOnly
+                ? "Try adjusting your search or filters."
+                : "Be the first verified dealer on MyRideNepal."}
+            </p>
+            {!searchQuery && districtFilter === "all" && !verifiedOnly && (
+              <Button asChild>
+                <Link to="/dealer-signup">Register as a dealer</Link>
+              </Button>
+            )}
           </Card>
         )}
       </div>
@@ -273,26 +347,33 @@ function DealerCard({ dealer: d }: { dealer: any }) {
             </div>
             <div className="min-w-0 pt-8">
               <h3 className="font-semibold truncate group-hover:text-primary transition-colors">{d.business_name}</h3>
-              {d.location && (
+              {(d.district || d.location) && (
                 <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-                  <MapPin className="w-3 h-3 flex-shrink-0" />{d.location}
+                  <MapPin className="w-3 h-3 flex-shrink-0" />{d.district || d.location}
                 </p>
               )}
             </div>
           </div>
 
           {d.description && (
-            <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">{d.description}</p>
+            <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed mb-3">{d.description}</p>
           )}
 
           {d.brands && d.brands.length > 0 && (
-            <div className="flex flex-wrap gap-1 mt-3">
+            <div className="flex flex-wrap gap-1 mb-3">
               {d.brands.slice(0, 4).map((b: string) => (
                 <Badge key={b} variant="secondary" className="text-xs">{b}</Badge>
               ))}
               {d.brands.length > 4 && (
                 <Badge variant="secondary" className="text-xs">+{d.brands.length - 4}</Badge>
               )}
+            </div>
+          )}
+          
+          {d.active_listings_count > 0 && (
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground pt-2 border-t">
+              <Package className="w-3.5 h-3.5" />
+              <span>{d.active_listings_count} active listing{d.active_listings_count !== 1 ? 's' : ''}</span>
             </div>
           )}
         </div>

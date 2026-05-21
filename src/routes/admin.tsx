@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Check, X, ShieldCheck, Trash2, Plus } from "lucide-react";
+import { Loader2, Check, X, ShieldCheck, Trash2, Plus, AlertTriangle, Store } from "lucide-react";
 import { formatNPR } from "@/lib/nepal";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
@@ -169,31 +169,227 @@ function AdminListings() {
 }
 
 function AdminDealers() {
-  const { data, refetch } = useQuery({
+  const { data, refetch, isLoading } = useQuery({
     queryKey: ["admin-dealers"],
-    queryFn: async () => (await supabase.from("dealer_profiles").select("*").order("created_at", { ascending: false })).data ?? [],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("dealer_profiles")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    },
   });
+
   const toggleVerified = async (id: string, v: boolean) => {
-    await supabase.from("dealer_profiles").update({ verified: !v }).eq("id", id);
-    toast.success(!v ? "Verified" : "Unverified");
+    const { error } = await supabase
+      .from("dealer_profiles")
+      .update({ verified: !v })
+      .eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success(!v ? "Dealer verified" : "Dealer unverified");
     refetch();
   };
+
+  const toggleFlagged = async (id: string, f: boolean) => {
+    const { error } = await supabase
+      .from("dealer_profiles")
+      .update({ flagged: !f } as any)
+      .eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success(!f ? "Dealer flagged" : "Flag removed");
+    refetch();
+  };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-3">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="h-20 rounded-xl bg-muted animate-pulse" />
+        ))}
+      </div>
+    );
+  }
+
+  if (!data?.length) {
+    return (
+      <div className="rounded-xl border p-12 text-center text-muted-foreground">
+        No dealer profiles yet.
+      </div>
+    );
+  }
+
+  // Type assertion for Phase 1 fields
+  const dealers = data as any[];
+  const verified = dealers.filter(d => d.verified);
+  const unverified = dealers.filter(d => !d.verified && !d.flagged);
+  const flagged = dealers.filter(d => d.flagged);
+
   return (
-    <div className="space-y-3">
-      {data?.map((d) => (
-        <Card key={d.id} className="p-4 flex items-center gap-3 flex-wrap">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <Link to="/dealers/$slug" params={{ slug: d.slug }} className="font-semibold hover:text-primary">{d.business_name}</Link>
-              {d.verified && <Badge className="gap-1" variant="outline"><ShieldCheck className="w-3 h-3" /> Verified</Badge>}
-            </div>
-            <p className="text-xs text-muted-foreground">{d.location}</p>
+    <div className="space-y-6">
+      {/* Stats */}
+      <div className="flex gap-3 flex-wrap">
+        <Badge variant="default" className="gap-1">
+          Verified: {verified.length}
+        </Badge>
+        <Badge variant="secondary" className="gap-1">
+          Unverified: {unverified.length}
+        </Badge>
+        {flagged.length > 0 && (
+          <Badge variant="destructive" className="gap-1">
+            Flagged: {flagged.length}
+          </Badge>
+        )}
+      </div>
+
+      {/* Flagged dealers (show first if any) */}
+      {flagged.length > 0 && (
+        <div>
+          <h3 className="font-semibold text-destructive mb-3 flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4" /> Flagged Dealers
+          </h3>
+          <div className="space-y-3">
+            {flagged.map((d) => (
+              <Card key={d.id} className="p-4 border-destructive/30 bg-destructive/5">
+                <div className="flex items-center gap-3 flex-wrap">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Link
+                        to="/dealers/$slug"
+                        params={{ slug: d.slug }}
+                        className="font-semibold hover:text-primary"
+                      >
+                        {d.business_name}
+                      </Link>
+                      <Badge variant="destructive" className="gap-1 text-xs">
+                        <X className="w-3 h-3" /> Flagged
+                      </Badge>
+                      {d.verified && (
+                        <Badge className="gap-1 text-xs">
+                          <ShieldCheck className="w-3 h-3" /> Verified
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {d.district || d.location} · {d.active_listings_count || 0} listings
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => toggleFlagged(d.id, d.flagged)}
+                  >
+                    Remove Flag
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => toggleVerified(d.id, d.verified)}
+                  >
+                    {d.verified ? "Unverify" : "Verify"}
+                  </Button>
+                </div>
+              </Card>
+            ))}
           </div>
-          <Button size="sm" variant="outline" onClick={() => toggleVerified(d.id, d.verified)}>
-            {d.verified ? "Unverify" : "Verify"}
-          </Button>
-        </Card>
-      ))}
+        </div>
+      )}
+
+      {/* Verified dealers */}
+      {verified.length > 0 && (
+        <div>
+          <h3 className="font-semibold mb-3 flex items-center gap-2">
+            <ShieldCheck className="w-4 h-4 text-primary" /> Verified Dealers
+          </h3>
+          <div className="space-y-3">
+            {verified.map((d) => (
+              <Card key={d.id} className="p-4">
+                <div className="flex items-center gap-3 flex-wrap">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Link
+                        to="/dealers/$slug"
+                        params={{ slug: d.slug }}
+                        className="font-semibold hover:text-primary"
+                      >
+                        {d.business_name}
+                      </Link>
+                      <Badge variant="outline" className="gap-1 text-xs">
+                        <ShieldCheck className="w-3 h-3" /> Verified
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {d.district || d.location} · {d.active_listings_count || 0} listings
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => toggleVerified(d.id, d.verified)}
+                  >
+                    Unverify
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="text-destructive"
+                    onClick={() => toggleFlagged(d.id, d.flagged)}
+                  >
+                    Flag
+                  </Button>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Unverified dealers */}
+      {unverified.length > 0 && (
+        <div>
+          <h3 className="font-semibold text-muted-foreground mb-3 flex items-center gap-2">
+            <Store className="w-4 h-4" /> Unverified Dealers
+          </h3>
+          <div className="space-y-3">
+            {unverified.map((d) => (
+              <Card key={d.id} className="p-4">
+                <div className="flex items-center gap-3 flex-wrap">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Link
+                        to="/dealers/$slug"
+                        params={{ slug: d.slug }}
+                        className="font-semibold hover:text-primary"
+                      >
+                        {d.business_name}
+                      </Link>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {d.district || d.location} · {d.active_listings_count || 0} listings
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="default"
+                    onClick={() => toggleVerified(d.id, d.verified)}
+                    className="gap-1"
+                  >
+                    <ShieldCheck className="w-3 h-3" /> Verify
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="text-destructive"
+                    onClick={() => toggleFlagged(d.id, d.flagged)}
+                  >
+                    Flag
+                  </Button>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
