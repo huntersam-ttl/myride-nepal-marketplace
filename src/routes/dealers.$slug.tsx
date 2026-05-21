@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ShieldCheck, MapPin, Store, Phone, MessageCircle, Clock, Facebook, Youtube, Instagram, CheckCircle, Wrench, MapPinned, AlertTriangle, Calendar } from "lucide-react";
-import { whatsappLink, telLink } from "@/lib/nepal";
+import { whatsappLink, telLink, formatNPR } from "@/lib/nepal";
 
 // TikTok icon (Lucide doesn't have it)
 const TikTokIcon = ({ className }: { className?: string }) => (
@@ -83,6 +83,64 @@ function DealerProfilePage() {
       return listings ?? [];
     },
   });
+
+  // Fetch recently sold listings
+  const { data: soldListings } = useQuery({
+    queryKey: ["dealer-sold-listings", dealer.user_id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("listings")
+        .select("id,title,price,sold_at,images")
+        .eq("user_id", dealer.user_id)
+        .eq("status", "sold")
+        .not("sold_at", "is", null)
+        .order("sold_at", { ascending: false })
+        .limit(10);
+      
+      return data ?? [];
+    },
+  });
+
+  // Track analytics event
+  const trackEvent = async (eventType: string, listingId?: string) => {
+    try {
+      await supabase.from("dealer_analytics_events").insert({
+        dealer_id: dealer.id,
+        listing_id: listingId || null,
+        event_type: eventType,
+        source: "profile_page",
+      });
+    } catch (error) {
+      // Silently fail - don't block user action
+      console.error("Failed to track event:", error);
+    }
+  };
+
+  // Create lead on contact click
+  const createLead = async (clickType: "whatsapp" | "phone") => {
+    try {
+      await supabase.from("dealer_leads").insert({
+        dealer_id: dealer.id,
+        source: "profile_contact",
+        stage: "new",
+        whatsapp_click: clickType === "whatsapp",
+        phone_click: clickType === "phone",
+      });
+    } catch (error) {
+      // Silently fail
+      console.error("Failed to create lead:", error);
+    }
+  };
+
+  const handleWhatsAppClick = async () => {
+    await trackEvent("whatsapp_click");
+    await createLead("whatsapp");
+  };
+
+  const handlePhoneClick = async () => {
+    await trackEvent("phone_click");
+    await createLead("phone");
+  };
 
   const whatsappMessage = `Hi ${dealer.business_name}, I found your showroom on MyRideNepal and I'm interested in your bikes. Can you help me?`;
   const whatsappUrl = dealer.whatsapp ? whatsappLink(dealer.whatsapp, whatsappMessage) : null;
@@ -223,6 +281,44 @@ function DealerProfilePage() {
               )}
             </div>
 
+            {/* Recently Sold */}
+            {soldListings && soldListings.length > 0 && (
+              <div>
+                <h2 className="text-xl font-bold mb-4">Recently Sold</h2>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  {soldListings.map((listing: any) => (
+                    <Card key={listing.id} className="overflow-hidden opacity-75">
+                      <div className="relative">
+                        {listing.images?.[0] && (
+                          <img
+                            src={listing.images[0]}
+                            alt={listing.title}
+                            className="w-full h-48 object-cover"
+                          />
+                        )}
+                        <div className="absolute top-2 right-2">
+                          <Badge className="bg-blue-500">Sold</Badge>
+                        </div>
+                      </div>
+                      <div className="p-4">
+                        <h3 className="font-semibold mb-1">{listing.title}</h3>
+                        <p className="text-sm text-muted-foreground mb-2">
+                          {formatNPR(listing.price)}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Sold {new Date(listing.sold_at).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })}
+                        </p>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Buyer Protection Tips */}
             <Card className="p-5 bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-900">
               <h3 className="font-bold mb-3 flex items-center gap-2 text-amber-900 dark:text-amber-100">
@@ -257,7 +353,7 @@ function DealerProfilePage() {
               
               <div className="space-y-2">
                 {phoneUrl && (
-                  <Button asChild className="w-full gap-2" size="lg">
+                  <Button asChild className="w-full gap-2" size="lg" onClick={handlePhoneClick}>
                     <a href={phoneUrl}>
                       <Phone className="w-4 h-4" /> Call Now
                     </a>
@@ -265,7 +361,7 @@ function DealerProfilePage() {
                 )}
                 
                 {whatsappUrl && (
-                  <Button asChild variant="outline" className="w-full gap-2" size="lg">
+                  <Button asChild variant="outline" className="w-full gap-2" size="lg" onClick={handleWhatsAppClick}>
                     <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
                       <MessageCircle className="w-4 h-4" /> WhatsApp
                     </a>

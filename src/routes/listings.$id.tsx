@@ -26,6 +26,27 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { calculateListingScore } from "@/utils/listingScore";
 import { addRecentlyViewed } from "@/utils/recentlyViewed";
 
+// Helper function to extract YouTube video ID and create embed URL
+function getYouTubeEmbedUrl(url: string): string {
+  try {
+    const urlObj = new URL(url);
+    let videoId = "";
+
+    if (urlObj.hostname === "youtu.be") {
+      videoId = urlObj.pathname.slice(1);
+    } else if (urlObj.hostname.includes("youtube.com")) {
+      videoId = urlObj.searchParams.get("v") || "";
+    }
+
+    if (videoId) {
+      return `https://www.youtube.com/embed/${videoId}`;
+    }
+  } catch (error) {
+    console.error("Invalid YouTube URL:", error);
+  }
+  return "";
+}
+
 export const Route = createFileRoute("/listings/$id")({
   component: ListingDetailPage,
   loader: async ({ params }) => {
@@ -682,6 +703,23 @@ function ListingDetailPage() {
             <Card className="mt-4 p-5">
               <h2 className="font-semibold mb-3 text-base">Description</h2>
               <p className="text-sm whitespace-pre-line text-muted-foreground leading-relaxed">{listing.description}</p>
+            </Card>
+          )}
+
+          {/* YouTube Video */}
+          {(listing as any).youtube_url && (
+            <Card className="mt-4 p-5">
+              <h2 className="font-semibold mb-3 text-base">Video</h2>
+              <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
+                <iframe
+                  className="absolute top-0 left-0 w-full h-full rounded-lg"
+                  src={getYouTubeEmbedUrl((listing as any).youtube_url)}
+                  title="Bike Video"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
             </Card>
           )}
         </div>
