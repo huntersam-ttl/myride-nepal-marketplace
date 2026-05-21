@@ -12,6 +12,31 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       blog_posts: {
@@ -67,46 +92,97 @@ export type Database = {
       }
       dealer_profiles: {
         Row: {
+          active_listings_count: number
+          average_rating: number | null
           banner_url: string | null
           brands: string[] | null
           business_name: string
           created_at: string
           description: string | null
+          district: string | null
+          exchange_accepted: boolean
+          facebook_url: string | null
+          financing_available: boolean
+          flagged: boolean
+          full_address: string | null
           id: string
+          instagram_url: string | null
           location: string | null
           logo_url: string | null
+          opening_hours: Json | null
+          phone: string | null
           service_area: string[] | null
+          service_centre: boolean
           slug: string
+          tiktok_url: string | null
+          total_reviews: number
           user_id: string
           verified: boolean
+          whatsapp: string | null
+          years_in_business: number | null
+          youtube_url: string | null
         }
         Insert: {
+          active_listings_count?: number
+          average_rating?: number | null
           banner_url?: string | null
           brands?: string[] | null
           business_name: string
           created_at?: string
           description?: string | null
+          district?: string | null
+          exchange_accepted?: boolean
+          facebook_url?: string | null
+          financing_available?: boolean
+          flagged?: boolean
+          full_address?: string | null
           id?: string
+          instagram_url?: string | null
           location?: string | null
           logo_url?: string | null
+          opening_hours?: Json | null
+          phone?: string | null
           service_area?: string[] | null
+          service_centre?: boolean
           slug: string
+          tiktok_url?: string | null
+          total_reviews?: number
           user_id: string
           verified?: boolean
+          whatsapp?: string | null
+          years_in_business?: number | null
+          youtube_url?: string | null
         }
         Update: {
+          active_listings_count?: number
+          average_rating?: number | null
           banner_url?: string | null
           brands?: string[] | null
           business_name?: string
           created_at?: string
           description?: string | null
+          district?: string | null
+          exchange_accepted?: boolean
+          facebook_url?: string | null
+          financing_available?: boolean
+          flagged?: boolean
+          full_address?: string | null
           id?: string
+          instagram_url?: string | null
           location?: string | null
           logo_url?: string | null
+          opening_hours?: Json | null
+          phone?: string | null
           service_area?: string[] | null
+          service_centre?: boolean
           slug?: string
+          tiktok_url?: string | null
+          total_reviews?: number
           user_id?: string
           verified?: boolean
+          whatsapp?: string | null
+          years_in_business?: number | null
+          youtube_url?: string | null
         }
         Relationships: []
       }
@@ -698,6 +774,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       app_role: ["user", "dealer", "admin"],
