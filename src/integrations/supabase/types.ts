@@ -90,6 +90,108 @@ export type Database = {
         }
         Relationships: []
       }
+      dealer_analytics_events: {
+        Row: {
+          created_at: string
+          dealer_id: string
+          event_type: string
+          id: string
+          listing_id: string | null
+          source: string | null
+        }
+        Insert: {
+          created_at?: string
+          dealer_id: string
+          event_type: string
+          id?: string
+          listing_id?: string | null
+          source?: string | null
+        }
+        Update: {
+          created_at?: string
+          dealer_id?: string
+          event_type?: string
+          id?: string
+          listing_id?: string | null
+          source?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dealer_analytics_events_dealer_id_fkey"
+            columns: ["dealer_id"]
+            isOneToOne: false
+            referencedRelation: "dealer_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dealer_analytics_events_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dealer_leads: {
+        Row: {
+          buyer_contact: string | null
+          buyer_name: string | null
+          created_at: string
+          dealer_id: string
+          id: string
+          listing_id: string | null
+          notes: string | null
+          phone_click: boolean
+          source: string
+          stage: string
+          updated_at: string
+          whatsapp_click: boolean
+        }
+        Insert: {
+          buyer_contact?: string | null
+          buyer_name?: string | null
+          created_at?: string
+          dealer_id: string
+          id?: string
+          listing_id?: string | null
+          notes?: string | null
+          phone_click?: boolean
+          source?: string
+          stage?: string
+          updated_at?: string
+          whatsapp_click?: boolean
+        }
+        Update: {
+          buyer_contact?: string | null
+          buyer_name?: string | null
+          created_at?: string
+          dealer_id?: string
+          id?: string
+          listing_id?: string | null
+          notes?: string | null
+          phone_click?: boolean
+          source?: string
+          stage?: string
+          updated_at?: string
+          whatsapp_click?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dealer_leads_dealer_id_fkey"
+            columns: ["dealer_id"]
+            isOneToOne: false
+            referencedRelation: "dealer_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dealer_leads_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dealer_profiles: {
         Row: {
           active_listings_count: number
@@ -247,6 +349,7 @@ export type Database = {
           images: string[]
           insurance_valid: boolean | null
           last_service_date: string | null
+          leads_count: number
           mileage: number
           model: string
           modifications: string | null
@@ -266,8 +369,10 @@ export type Database = {
           title: string
           user_id: string
           views: number
+          views_count: number
           whatsapp: string | null
           year: number
+          youtube_url: string | null
         }
         Insert: {
           accident_details?: string | null
@@ -291,6 +396,7 @@ export type Database = {
           images?: string[]
           insurance_valid?: boolean | null
           last_service_date?: string | null
+          leads_count?: number
           mileage?: number
           model: string
           modifications?: string | null
@@ -310,8 +416,10 @@ export type Database = {
           title: string
           user_id: string
           views?: number
+          views_count?: number
           whatsapp?: string | null
           year: number
+          youtube_url?: string | null
         }
         Update: {
           accident_details?: string | null
@@ -335,6 +443,7 @@ export type Database = {
           images?: string[]
           insurance_valid?: boolean | null
           last_service_date?: string | null
+          leads_count?: number
           mileage?: number
           model?: string
           modifications?: string | null
@@ -354,8 +463,10 @@ export type Database = {
           title?: string
           user_id?: string
           views?: number
+          views_count?: number
           whatsapp?: string | null
           year?: number
+          youtube_url?: string | null
         }
         Relationships: []
       }
@@ -648,7 +759,13 @@ export type Database = {
         | "off-road"
         | "touring"
       fuel_type: "petrol" | "electric" | "hybrid"
-      listing_status: "pending" | "active" | "sold" | "rejected"
+      listing_status:
+        | "pending"
+        | "active"
+        | "sold"
+        | "rejected"
+        | "reserved"
+        | "draft"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -790,7 +907,14 @@ export const Constants = {
         "touring",
       ],
       fuel_type: ["petrol", "electric", "hybrid"],
-      listing_status: ["pending", "active", "sold", "rejected"],
+      listing_status: [
+        "pending",
+        "active",
+        "sold",
+        "rejected",
+        "reserved",
+        "draft",
+      ],
     },
   },
 } as const
