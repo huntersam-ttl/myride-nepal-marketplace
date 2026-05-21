@@ -303,7 +303,7 @@ function SellPage() {
                     <div key={i} className="relative aspect-square group">
                       <img src={src} alt="" className="w-full h-full object-cover rounded-lg" />
                       {i === 0 && (
-                        <span className="absolute top-1.5 left-1.5 text-[10px] font-semibold bg-primary text-primary-foreground px-1.5 py-0.5 rounded">
+                        <span className="absolute top-1.5 left-1.5 text-[10px] font-semibold bg-primary text-primary-foreground px-1.5 py-0.5 rounded pointer-events-none">
                           Cover
                         </span>
                       )}

@@ -19,11 +19,45 @@ export const Route = createFileRoute("/blog")({
 
 function BlogIndex() {
   const [q, setQ] = useState("");
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["blog-posts"],
-    queryFn: async () => (await supabase.from("blog_posts").select("*").eq("published", true).order("created_at", { ascending: false })).data ?? [],
+    queryFn: async () => {
+      console.log('[Blog] Fetching posts from Supabase...');
+      const { data, error } = await supabase
+        .from("blog_posts")
+        .select("*")
+        .eq("published", true)
+        .order("created_at", { ascending: false });
+      
+      if (error) {
+        console.error("[Blog] Failed to fetch posts:", error);
+        throw error;
+      }
+      console.log('[Blog] Fetched from Supabase:', data?.length, 'posts');
+      return data ?? [];
+    },
+    staleTime: 0, // Always refetch on mount
   });
-  const posts = (data ?? []).filter(p => !q || p.title.toLowerCase().includes(q.toLowerCase()) || (p.excerpt ?? "").toLowerCase().includes(q.toLowerCase()));
+  
+  // Debug logging
+  console.log('[Blog] Raw data from query:', data?.length, 'posts');
+  console.log('[Blog] First post:', data?.[0]?.title, 'slug:', data?.[0]?.slug);
+  
+  // Filter out posts with invalid slugs (URLs, special characters)
+  const validPosts = (data ?? []).filter(p => {
+    if (!p.slug) return false;
+    // Slug should not contain :// (URLs) or special URL characters
+    if (p.slug.includes('://') || p.slug.includes('?') || p.slug.includes('&')) {
+      console.warn(`[Blog] Skipping post "${p.title}" - invalid slug: ${p.slug}`);
+      return false;
+    }
+    return true;
+  });
+  
+  console.log('[Blog] Valid posts after filtering:', validPosts.length);
+  console.log('[Blog] Valid posts:', validPosts.map(p => ({ title: p.title, slug: p.slug })));
+  
+  const posts = validPosts.filter(p => !q || p.title.toLowerCase().includes(q.toLowerCase()) || (p.excerpt ?? "").toLowerCase().includes(q.toLowerCase()));
   const featured = posts[0];
   const rest = posts.slice(1);
 
@@ -77,24 +111,42 @@ function BlogIndex() {
               ))}
             </div>
           </div>
+        ) : error ? (
+          <Card className="p-16 text-center shadow-[var(--shadow-card)]">
+            <div className="w-16 h-16 rounded-2xl bg-destructive/10 flex items-center justify-center mx-auto mb-4">
+              <Newspaper className="w-8 h-8 text-destructive opacity-60" />
+            </div>
+            <h2 className="font-semibold text-lg mb-1 text-destructive">Failed to load articles</h2>
+            <p className="text-muted-foreground text-sm max-w-md mx-auto mb-4">
+              {error instanceof Error ? error.message : "An error occurred while fetching blog posts."}
+            </p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="text-sm text-primary hover:underline"
+            >
+              Reload page
+            </button>
+          </Card>
         ) : posts.length === 0 ? (
           <Card className="p-16 text-center shadow-[var(--shadow-card)]">
             <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
               <Newspaper className="w-8 h-8 text-muted-foreground opacity-40" />
             </div>
             <h2 className="font-semibold text-lg mb-1">
-              {q ? "No articles found" : "Coming Soon"}
+              {q ? "No articles found" : data && data.length > 0 ? "No valid articles" : "Coming Soon"}
             </h2>
             <p className="text-muted-foreground text-sm max-w-md mx-auto">
               {q 
                 ? "Try a different search term." 
+                : data && data.length > 0
+                ? "Articles exist but have invalid slugs. Please contact admin to fix article slugs."
                 : "We are working on articles about bikes, buying guides, and Nepal's two-wheeler market. Check back soon."}
             </p>
           </Card>
         ) : (
           <div className="space-y-6">
             {/* Featured post — full-width hero */}
-            {featured && !q && (
+            {featured && !q && featured.slug && (
               <Link to="/blog/$slug" params={{ slug: featured.slug }}>
                 <Card className="overflow-hidden group hover:shadow-[var(--shadow-elegant)] transition-shadow shadow-[var(--shadow-card)]">
                   <div className="grid md:grid-cols-2">
@@ -141,7 +193,7 @@ function BlogIndex() {
             {/* Rest of posts grid */}
             {rest.length > 0 && (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {(q ? posts : rest).map(p => (
+                {(q ? posts : rest).filter(p => p.slug).map(p => (
                   <Link key={p.id} to="/blog/$slug" params={{ slug: p.slug }}>
                     <Card className="overflow-hidden h-full group hover:shadow-[var(--shadow-elegant)] transition-shadow shadow-[var(--shadow-card)]">
                       <div className="relative overflow-hidden aspect-[16/9] bg-muted">

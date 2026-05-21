@@ -10,7 +10,7 @@ export interface ListingCardData {
   brand: string;
   price: number;
   year: number;
-  mileage: number;
+  mileage?: number;
   district: string;
   condition: string;
   images: string[];
@@ -87,9 +87,11 @@ export function ListingCard({ listing, onSave, isSaved }: {
           <span className="flex items-center gap-1">
             <Calendar className="w-3 h-3 flex-shrink-0" /> {listing.year}
           </span>
-          <span className="flex items-center gap-1">
-            <Gauge className="w-3 h-3 flex-shrink-0" /> {listing.mileage.toLocaleString()} km
-          </span>
+          {listing.mileage != null && (
+            <span className="flex items-center gap-1">
+              <Gauge className="w-3 h-3 flex-shrink-0" /> {listing.mileage.toLocaleString()} km
+            </span>
+          )}
           <span className="flex items-center gap-1">
             <MapPin className="w-3 h-3 flex-shrink-0" /> {listing.district}
           </span>

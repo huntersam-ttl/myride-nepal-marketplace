@@ -1,7 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -9,8 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { formatNPR, CONDITIONS } from "@/lib/nepal";
-import { Calculator, TrendingDown, ArrowRight, Info, ChevronRight } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { getBrandNames, getModelsForBrand, getBasePrice } from "@/data/vehicleBrands";
+import { Calculator, ArrowRight, Info, ChevronRight } from "lucide-react";
 
 export const Route = createFileRoute("/price-estimator")({
   component: PriceEstimatorPage,
@@ -35,24 +33,23 @@ const CONDITION_LABEL: Record<string, { label: string; color: string }> = {
 const MILEAGE_PENALTY = 0.6 / 100000;
 
 function PriceEstimatorPage() {
-  const { data: estimates, isLoading: estimatesLoading, isError: estimatesError } = useQuery({
-    queryKey: ["price-estimates"],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("price_estimates").select("*").order("brand");
-      if (error) throw error;
-      return data ?? [];
-    },
-  });
-
-  const [brand, setBrand] = useState("");
-  const [model, setModel] = useState("");
+  const [brand, setBrand] = useState<string | undefined>(undefined);
+  const [model, setModel] = useState<string | undefined>(undefined);
   const [year, setYear] = useState(String(new Date().getFullYear() - 2));
   const [condition, setCondition] = useState("good");
   const [mileage, setMileage] = useState("20000");
 
-  const brands = useMemo(() => Array.from(new Set((estimates ?? []).map(e => e.brand))).sort(), [estimates]);
-  const models = useMemo(() => (estimates ?? []).filter(e => e.brand === brand), [estimates, brand]);
-  const base = useMemo(() => models.find(m => m.model === model)?.base_price, [models, model]);
+  // Get brands and models from static data
+  const brands = useMemo(() => getBrandNames(), []);
+  const models = useMemo(() => {
+    if (!brand) return [];
+    return getModelsForBrand(brand);
+  }, [brand]);
+  
+  const base = useMemo(() => {
+    if (!brand || !model) return null;
+    return getBasePrice(brand, model);
+  }, [brand, model]);
 
   const calc = useMemo(() => {
     if (!base) return null;
@@ -99,29 +96,39 @@ function PriceEstimatorPage() {
               {/* Brand */}
               <div className="space-y-1.5">
                 <Label className="text-sm font-medium">Brand</Label>
-                {estimatesError ? (
-                  <p className="text-sm text-destructive">Failed to load price data. Please refresh.</p>
-                ) : (
-                  <Select value={brand} onValueChange={(v) => { setBrand(v); setModel(""); }} disabled={estimatesLoading}>
-                    <SelectTrigger className="h-11">
-                      <SelectValue placeholder={estimatesLoading ? "Loading…" : "Select brand"} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {brands.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                )}
+                <Select 
+                  value={brand ?? "_none"} 
+                  onValueChange={(v) => { 
+                    if (v !== "_none") { 
+                      setBrand(v); 
+                      setModel(undefined); 
+                    } 
+                  }}
+                >
+                  <SelectTrigger className="h-11">
+                    <SelectValue placeholder="Select brand" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-80">
+                    <SelectItem value="_none">Select brand</SelectItem>
+                    {brands.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Model */}
               <div className="space-y-1.5">
                 <Label className="text-sm font-medium">Model</Label>
-                <Select value={model} onValueChange={setModel} disabled={!brand}>
+                <Select 
+                  value={model ?? "_none"} 
+                  onValueChange={(v) => { if (v !== "_none") setModel(v); }} 
+                  disabled={!brand}
+                >
                   <SelectTrigger className="h-11">
                     <SelectValue placeholder={brand ? "Select model" : "Pick a brand first"} />
                   </SelectTrigger>
-                  <SelectContent>
-                    {models.map(m => <SelectItem key={m.id} value={m.model}>{m.model}</SelectItem>)}
+                  <SelectContent className="max-h-80">
+                    <SelectItem value="_none">Select model</SelectItem>
+                    {models.map(m => <SelectItem key={m.name} value={m.name}>{m.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
@@ -193,42 +200,28 @@ function PriceEstimatorPage() {
 
           {/* ── Result card ── */}
           <div className="space-y-4 lg:sticky lg:top-6">
-            <AnimatePresence mode="wait">
-              {!calc ? (
-                <motion.div
-                  key="empty"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                >
-                  <Card className="p-8 shadow-[var(--shadow-card)]">
-                    <div className="flex flex-col items-center text-center text-muted-foreground py-6">
-                      <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mb-4">
-                        <Calculator className="w-8 h-8 opacity-40" />
+            {!calc ? (
+              <Card className="p-8 shadow-[var(--shadow-card)]">
+                <div className="flex flex-col items-center text-center text-muted-foreground py-6">
+                  <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mb-4">
+                    <Calculator className="w-8 h-8 opacity-40" />
+                  </div>
+                  <p className="font-medium text-foreground mb-1">Ready to estimate</p>
+                  <p className="text-sm">Select your bike's brand and model to see the estimated resale value.</p>
+                  <div className="mt-6 w-full space-y-2">
+                    {["Brand", "Model", "Year & Mileage", "Condition"].map((step, i) => (
+                      <div key={step} className="flex items-center gap-2 text-xs">
+                        <span className="w-5 h-5 rounded-full bg-muted flex items-center justify-center font-semibold text-muted-foreground flex-shrink-0">
+                          {i + 1}
+                        </span>
+                        <span>{step}</span>
                       </div>
-                      <p className="font-medium text-foreground mb-1">Ready to estimate</p>
-                      <p className="text-sm">Select your bike's brand and model to see the estimated resale value.</p>
-                      <div className="mt-6 w-full space-y-2">
-                        {["Brand", "Model", "Year & Mileage", "Condition"].map((step, i) => (
-                          <div key={step} className="flex items-center gap-2 text-xs">
-                            <span className="w-5 h-5 rounded-full bg-muted flex items-center justify-center font-semibold text-muted-foreground flex-shrink-0">
-                              {i + 1}
-                            </span>
-                            <span>{step}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </Card>
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="result"
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  className="space-y-4"
-                >
+                    ))}
+                  </div>
+                </div>
+              </Card>
+            ) : (
+              <div className="space-y-4">
                   {/* Main estimate */}
                   <Card className="overflow-hidden shadow-[var(--shadow-card)]">
                     {/* Top accent */}
@@ -257,11 +250,9 @@ function PriceEstimatorPage() {
                           <span>{calc.retentionPct}%</span>
                         </div>
                         <div className="h-2 rounded-full bg-muted overflow-hidden">
-                          <motion.div
-                            className={`h-full rounded-full ${calc.retentionPct >= 60 ? "bg-green-500" : calc.retentionPct >= 40 ? "bg-yellow-500" : "bg-red-500"}`}
-                            initial={{ width: 0 }}
-                            animate={{ width: `${calc.retentionPct}%` }}
-                            transition={{ duration: 0.6, ease: "easeOut" }}
+                          <div
+                            className={`h-full rounded-full transition-all duration-500 ${calc.retentionPct >= 60 ? "bg-green-500" : calc.retentionPct >= 40 ? "bg-yellow-500" : "bg-red-500"}`}
+                            style={{ width: `${calc.retentionPct}%` }}
                           />
                         </div>
                       </div>
@@ -314,9 +305,8 @@ function PriceEstimatorPage() {
                       </Button>
                     </div>
                   </Card>
-                </motion.div>
+                </div>
               )}
-            </AnimatePresence>
           </div>
         </div>
 
