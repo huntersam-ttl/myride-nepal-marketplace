@@ -26,6 +26,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as ListingsIdRouteImport } from './routes/listings.$id'
 import { Route as DealersSlugRouteImport } from './routes/dealers.$slug'
 import { Route as DashboardOffersRouteImport } from './routes/dashboard.offers'
@@ -118,6 +119,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => BlogRoute,
+} as any)
 const ListingsIdRoute = ListingsIdRouteImport.update({
   id: '/listings/$id',
   path: '/listings/$id',
@@ -172,6 +178,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/offers': typeof DashboardOffersRoute
   '/dealers/$slug': typeof DealersSlugRoute
   '/listings/$id': typeof ListingsIdRouteWithChildren
+  '/blog/': typeof BlogIndexRoute
   '/listings/$id/edit': typeof ListingsIdEditRoute
 }
 export interface FileRoutesByTo {
@@ -179,7 +186,6 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRouteWithChildren
-  '/blog': typeof BlogRouteWithChildren
   '/browse': typeof BrowseRoute
   '/compare': typeof CompareRoute
   '/dashboard': typeof DashboardRouteWithChildren
@@ -197,6 +203,7 @@ export interface FileRoutesByTo {
   '/dashboard/offers': typeof DashboardOffersRoute
   '/dealers/$slug': typeof DealersSlugRoute
   '/listings/$id': typeof ListingsIdRouteWithChildren
+  '/blog': typeof BlogIndexRoute
   '/listings/$id/edit': typeof ListingsIdEditRoute
 }
 export interface FileRoutesById {
@@ -223,6 +230,7 @@ export interface FileRoutesById {
   '/dashboard/offers': typeof DashboardOffersRoute
   '/dealers/$slug': typeof DealersSlugRoute
   '/listings/$id': typeof ListingsIdRouteWithChildren
+  '/blog/': typeof BlogIndexRoute
   '/listings/$id/edit': typeof ListingsIdEditRoute
 }
 export interface FileRouteTypes {
@@ -250,6 +258,7 @@ export interface FileRouteTypes {
     | '/dashboard/offers'
     | '/dealers/$slug'
     | '/listings/$id'
+    | '/blog/'
     | '/listings/$id/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -257,7 +266,6 @@ export interface FileRouteTypes {
     | '/about'
     | '/admin'
     | '/auth'
-    | '/blog'
     | '/browse'
     | '/compare'
     | '/dashboard'
@@ -275,6 +283,7 @@ export interface FileRouteTypes {
     | '/dashboard/offers'
     | '/dealers/$slug'
     | '/listings/$id'
+    | '/blog'
     | '/listings/$id/edit'
   id:
     | '__root__'
@@ -300,6 +309,7 @@ export interface FileRouteTypes {
     | '/dashboard/offers'
     | '/dealers/$slug'
     | '/listings/$id'
+    | '/blog/'
     | '/listings/$id/edit'
   fileRoutesById: FileRoutesById
 }
@@ -445,6 +455,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/blog/': {
+      id: '/blog/'
+      path: '/'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof BlogIndexRouteImport
+      parentRoute: typeof BlogRoute
+    }
     '/listings/$id': {
       id: '/listings/$id'
       path: '/listings/$id'
@@ -502,10 +519,12 @@ const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
 interface BlogRouteChildren {
   BlogSlugRoute: typeof BlogSlugRoute
+  BlogIndexRoute: typeof BlogIndexRoute
 }
 
 const BlogRouteChildren: BlogRouteChildren = {
   BlogSlugRoute: BlogSlugRoute,
+  BlogIndexRoute: BlogIndexRoute,
 }
 
 const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
