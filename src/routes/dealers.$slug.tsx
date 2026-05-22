@@ -1,12 +1,21 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ListingCard } from "@/components/ListingCard";
+import { DealerReviews } from "@/components/DealerReviews";
+import { ShowroomGallery } from "@/components/ShowroomGallery";
+import { FollowDealerButton } from "@/components/FollowDealerButton";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ShieldCheck, MapPin, Store, Phone, MessageCircle, Clock, Facebook, Youtube, Instagram, CheckCircle, Wrench, MapPinned, AlertTriangle, Calendar } from "lucide-react";
+import { ShieldCheck, MapPin, Store, Phone, MessageCircle, Clock, Facebook, Youtube, Instagram, CheckCircle, Wrench, MapPinned, AlertTriangle, Calendar, Flag } from "lucide-react";
 import { whatsappLink, telLink, formatNPR } from "@/lib/nepal";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import { useState } from "react";
 
 // TikTok icon (Lucide doesn't have it)
 const TikTokIcon = ({ className }: { className?: string }) => (
@@ -343,6 +352,22 @@ function DealerProfilePage() {
                 </li>
               </ul>
             </Card>
+
+            {/* Showroom Gallery */}
+            {dealer.showroom_photos && dealer.showroom_photos.length > 0 && (
+              <ShowroomGallery photos={dealer.showroom_photos} dealerName={dealer.business_name} />
+            )}
+
+            {/* Dealer Reviews */}
+            <div>
+              <h2 className="text-2xl font-bold mb-4">Reviews & Ratings</h2>
+              <DealerReviews
+                dealerId={dealer.id}
+                dealerUserId={dealer.user_id}
+                averageRating={dealer.average_rating}
+                totalReviews={dealer.total_reviews}
+              />
+            </div>
           </div>
 
           {/* Sidebar */}
@@ -443,10 +468,115 @@ function DealerProfilePage() {
                   </div>
                 </div>
               )}
+
+              {/* Follow Dealer */}
+              <div className="mt-6 pt-6 border-t">
+                <FollowDealerButton dealerId={dealer.id} followerCount={dealer.follower_count || 0} />
+              </div>
+
+              {/* Report Dealer */}
+              <div className="mt-6 pt-6 border-t">
+                <ReportDealerDialog dealerId={dealer.id} dealerName={dealer.business_name} />
+              </div>
             </Card>
           </div>
         </div>
       </div>
     </div>
+  );
+}
+
+function ReportDealerDialog({ dealerId, dealerName }: { dealerId: string; dealerName: string }) {
+  const [open, setOpen] = useState(false);
+  const [reason, setReason] = useState<string>("");
+  const [details, setDetails] = useState("");
+
+  const reportMutation = useMutation({
+    mutationFn: async () => {
+      const reportData = {
+        dealer_id: dealerId,
+        reason: reason,
+        details: details || null,
+      };
+      
+      // Type assertion needed until dealer_reports table is in generated types
+      const { error } = await (supabase as any).from("dealer_reports").insert(reportData);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Thank you. Our team will review this report.");
+      setOpen(false);
+      setReason("");
+      setDetails("");
+    },
+    onError: (error: any) => {
+      toast.error("Failed to submit report. Please try again.");
+      console.error("Report error:", error);
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reason) {
+      toast.error("Please select a reason");
+      return;
+    }
+    reportMutation.mutate();
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="ghost" size="sm" className="w-full gap-2 text-muted-foreground hover:text-destructive">
+          <Flag className="w-4 h-4" /> Report this dealer
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Report {dealerName}</DialogTitle>
+          <DialogDescription>
+            Help us maintain quality by reporting issues with this dealer.
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="reason">Reason *</Label>
+            <Select value={reason} onValueChange={setReason}>
+              <SelectTrigger id="reason">
+                <SelectValue placeholder="Select a reason" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="fake_listing">Fake listing</SelectItem>
+                <SelectItem value="wrong_price">Wrong price</SelectItem>
+                <SelectItem value="scam">Scam attempt</SelectItem>
+                <SelectItem value="unresponsive">Unresponsive</SelectItem>
+                <SelectItem value="other">Other</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="details">Additional details (optional)</Label>
+            <Textarea
+              id="details"
+              value={details}
+              onChange={(e) => setDetails(e.target.value)}
+              placeholder="Provide more information about the issue..."
+              rows={4}
+            />
+          </div>
+
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={!reason || reportMutation.isPending}>
+              {reportMutation.isPending ? "Submitting..." : "Submit Report"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }

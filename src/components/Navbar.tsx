@@ -9,6 +9,7 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { NotificationBell } from "./NotificationBell";
 
 const NAV_LINKS = [
   { to: "/browse", label: "Browse" },
@@ -47,6 +48,9 @@ export function Navbar() {
 
         {/* Right: actions */}
         <div className="flex items-center gap-2">
+          {/* Notification Bell — logged in users only */}
+          {user && <NotificationBell />}
+
           {/* Sell CTA — visible on sm+ */}
           <Button
             size="sm"

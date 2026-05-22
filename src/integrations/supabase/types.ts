@@ -12,31 +12,6 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
       blog_posts: {
@@ -132,6 +107,35 @@ export type Database = {
           },
         ]
       }
+      dealer_followers: {
+        Row: {
+          created_at: string
+          dealer_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          dealer_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          dealer_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dealer_followers_dealer_id_fkey"
+            columns: ["dealer_id"]
+            isOneToOne: false
+            referencedRelation: "dealer_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dealer_leads: {
         Row: {
           buyer_contact: string | null
@@ -192,11 +196,66 @@ export type Database = {
           },
         ]
       }
+      dealer_notification_preferences: {
+        Row: {
+          app_new_leads: boolean
+          app_reports: boolean
+          app_reviews: boolean
+          created_at: string
+          dealer_id: string
+          email_new_leads: boolean
+          email_reports: boolean
+          email_reviews: boolean
+          id: string
+          marketing_emails: boolean
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          app_new_leads?: boolean
+          app_reports?: boolean
+          app_reviews?: boolean
+          created_at?: string
+          dealer_id: string
+          email_new_leads?: boolean
+          email_reports?: boolean
+          email_reviews?: boolean
+          id?: string
+          marketing_emails?: boolean
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          app_new_leads?: boolean
+          app_reports?: boolean
+          app_reviews?: boolean
+          created_at?: string
+          dealer_id?: string
+          email_new_leads?: boolean
+          email_reports?: boolean
+          email_reviews?: boolean
+          id?: string
+          marketing_emails?: boolean
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dealer_notification_preferences_dealer_id_fkey"
+            columns: ["dealer_id"]
+            isOneToOne: false
+            referencedRelation: "dealer_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dealer_profiles: {
         Row: {
           active_listings_count: number
           average_rating: number | null
           banner_url: string | null
+          beta_ends_at: string | null
+          beta_started_at: string | null
           brands: string[] | null
           business_name: string
           created_at: string
@@ -205,20 +264,31 @@ export type Database = {
           exchange_accepted: boolean
           facebook_url: string | null
           financing_available: boolean
+          flag_count: number
           flagged: boolean
+          followers_count: number
           full_address: string | null
           id: string
           instagram_url: string | null
           location: string | null
           logo_url: string | null
+          onboarding_completed: boolean
+          onboarding_progress: Json
+          onboarding_stage: string
           opening_hours: Json | null
+          owner_id: string | null
           phone: string | null
+          profile_completion_percentage: number
           service_area: string[] | null
           service_centre: boolean
+          showroom_photos: string[]
           slug: string
+          team_size: number
           tiktok_url: string | null
           total_reviews: number
           user_id: string
+          verification_note: string | null
+          verification_requested_at: string | null
           verified: boolean
           whatsapp: string | null
           years_in_business: number | null
@@ -228,6 +298,8 @@ export type Database = {
           active_listings_count?: number
           average_rating?: number | null
           banner_url?: string | null
+          beta_ends_at?: string | null
+          beta_started_at?: string | null
           brands?: string[] | null
           business_name: string
           created_at?: string
@@ -236,20 +308,31 @@ export type Database = {
           exchange_accepted?: boolean
           facebook_url?: string | null
           financing_available?: boolean
+          flag_count?: number
           flagged?: boolean
+          followers_count?: number
           full_address?: string | null
           id?: string
           instagram_url?: string | null
           location?: string | null
           logo_url?: string | null
+          onboarding_completed?: boolean
+          onboarding_progress?: Json
+          onboarding_stage?: string
           opening_hours?: Json | null
+          owner_id?: string | null
           phone?: string | null
+          profile_completion_percentage?: number
           service_area?: string[] | null
           service_centre?: boolean
+          showroom_photos?: string[]
           slug: string
+          team_size?: number
           tiktok_url?: string | null
           total_reviews?: number
           user_id: string
+          verification_note?: string | null
+          verification_requested_at?: string | null
           verified?: boolean
           whatsapp?: string | null
           years_in_business?: number | null
@@ -259,6 +342,8 @@ export type Database = {
           active_listings_count?: number
           average_rating?: number | null
           banner_url?: string | null
+          beta_ends_at?: string | null
+          beta_started_at?: string | null
           brands?: string[] | null
           business_name?: string
           created_at?: string
@@ -267,26 +352,198 @@ export type Database = {
           exchange_accepted?: boolean
           facebook_url?: string | null
           financing_available?: boolean
+          flag_count?: number
           flagged?: boolean
+          followers_count?: number
           full_address?: string | null
           id?: string
           instagram_url?: string | null
           location?: string | null
           logo_url?: string | null
+          onboarding_completed?: boolean
+          onboarding_progress?: Json
+          onboarding_stage?: string
           opening_hours?: Json | null
+          owner_id?: string | null
           phone?: string | null
+          profile_completion_percentage?: number
           service_area?: string[] | null
           service_centre?: boolean
+          showroom_photos?: string[]
           slug?: string
+          team_size?: number
           tiktok_url?: string | null
           total_reviews?: number
           user_id?: string
+          verification_note?: string | null
+          verification_requested_at?: string | null
           verified?: boolean
           whatsapp?: string | null
           years_in_business?: number | null
           youtube_url?: string | null
         }
         Relationships: []
+      }
+      dealer_reports: {
+        Row: {
+          created_at: string
+          dealer_id: string
+          details: string | null
+          id: string
+          reason: string
+          reporter_id: string | null
+          resolved: boolean
+          resolved_at: string | null
+          resolved_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          dealer_id: string
+          details?: string | null
+          id?: string
+          reason: string
+          reporter_id?: string | null
+          resolved?: boolean
+          resolved_at?: string | null
+          resolved_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          dealer_id?: string
+          details?: string | null
+          id?: string
+          reason?: string
+          reporter_id?: string | null
+          resolved?: boolean
+          resolved_at?: string | null
+          resolved_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dealer_reports_dealer_id_fkey"
+            columns: ["dealer_id"]
+            isOneToOne: false
+            referencedRelation: "dealer_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dealer_reports_reporter_id_fkey"
+            columns: ["reporter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dealer_reports_resolved_by_fkey"
+            columns: ["resolved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dealer_reviews: {
+        Row: {
+          comment: string | null
+          created_at: string
+          dealer_id: string
+          helpful_count: number
+          id: string
+          rating: number
+          reported: boolean
+          reviewer_id: string | null
+          status: string
+          title: string | null
+          updated_at: string
+          verified_purchase: boolean
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          dealer_id: string
+          helpful_count?: number
+          id?: string
+          rating: number
+          reported?: boolean
+          reviewer_id?: string | null
+          status?: string
+          title?: string | null
+          updated_at?: string
+          verified_purchase?: boolean
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          dealer_id?: string
+          helpful_count?: number
+          id?: string
+          rating?: number
+          reported?: boolean
+          reviewer_id?: string | null
+          status?: string
+          title?: string | null
+          updated_at?: string
+          verified_purchase?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dealer_reviews_dealer_id_fkey"
+            columns: ["dealer_id"]
+            isOneToOne: false
+            referencedRelation: "dealer_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dealer_staff: {
+        Row: {
+          accepted_at: string | null
+          created_at: string
+          dealer_id: string
+          id: string
+          invited_at: string
+          invited_by: string | null
+          invited_email: string | null
+          permissions: Json
+          role: string
+          status: string
+          user_id: string | null
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string
+          dealer_id: string
+          id?: string
+          invited_at?: string
+          invited_by?: string | null
+          invited_email?: string | null
+          permissions?: Json
+          role?: string
+          status?: string
+          user_id?: string | null
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string
+          dealer_id?: string
+          id?: string
+          invited_at?: string
+          invited_by?: string | null
+          invited_email?: string | null
+          permissions?: Json
+          role?: string
+          status?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dealer_staff_dealer_id_fkey"
+            columns: ["dealer_id"]
+            isOneToOne: false
+            referencedRelation: "dealer_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       listing_reports: {
         Row: {
@@ -336,9 +593,12 @@ export type Database = {
           colour: string | null
           condition: Database["public"]["Enums"]["bike_condition"]
           created_at: string
+          dealer_id: string | null
+          deleted_at: string | null
           description: string | null
           district: string
           document_notes: string | null
+          engine_cc: number | null
           featured: boolean
           fuel_type: Database["public"]["Enums"]["fuel_type"]
           has_bluebook: boolean | null
@@ -367,6 +627,7 @@ export type Database = {
           sold_price: number | null
           status: Database["public"]["Enums"]["listing_status"]
           title: string
+          transmission: string | null
           user_id: string
           views: number
           views_count: number
@@ -383,9 +644,12 @@ export type Database = {
           colour?: string | null
           condition: Database["public"]["Enums"]["bike_condition"]
           created_at?: string
+          dealer_id?: string | null
+          deleted_at?: string | null
           description?: string | null
           district: string
           document_notes?: string | null
+          engine_cc?: number | null
           featured?: boolean
           fuel_type?: Database["public"]["Enums"]["fuel_type"]
           has_bluebook?: boolean | null
@@ -414,6 +678,7 @@ export type Database = {
           sold_price?: number | null
           status?: Database["public"]["Enums"]["listing_status"]
           title: string
+          transmission?: string | null
           user_id: string
           views?: number
           views_count?: number
@@ -430,9 +695,12 @@ export type Database = {
           colour?: string | null
           condition?: Database["public"]["Enums"]["bike_condition"]
           created_at?: string
+          dealer_id?: string | null
+          deleted_at?: string | null
           description?: string | null
           district?: string
           document_notes?: string | null
+          engine_cc?: number | null
           featured?: boolean
           fuel_type?: Database["public"]["Enums"]["fuel_type"]
           has_bluebook?: boolean | null
@@ -461,6 +729,7 @@ export type Database = {
           sold_price?: number | null
           status?: Database["public"]["Enums"]["listing_status"]
           title?: string
+          transmission?: string | null
           user_id?: string
           views?: number
           views_count?: number
@@ -468,35 +737,58 @@ export type Database = {
           year?: number
           youtube_url?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "listings_dealer_id_fkey"
+            columns: ["dealer_id"]
+            isOneToOne: false
+            referencedRelation: "dealer_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notifications: {
         Row: {
+          action_url: string | null
           created_at: string | null
+          follow_up_date: string | null
           id: string
           link: string | null
           message: string
+          priority: string
           read: boolean | null
+          related_id: string | null
+          related_type: string | null
           title: string
           type: string | null
           user_id: string | null
         }
         Insert: {
+          action_url?: string | null
           created_at?: string | null
+          follow_up_date?: string | null
           id?: string
           link?: string | null
           message: string
+          priority?: string
           read?: boolean | null
+          related_id?: string | null
+          related_type?: string | null
           title: string
           type?: string | null
           user_id?: string | null
         }
         Update: {
+          action_url?: string | null
           created_at?: string | null
+          follow_up_date?: string | null
           id?: string
           link?: string | null
           message?: string
+          priority?: string
           read?: boolean | null
+          related_id?: string | null
+          related_type?: string | null
           title?: string
           type?: string | null
           user_id?: string | null
@@ -891,9 +1183,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {
       app_role: ["user", "dealer", "admin"],

@@ -14,8 +14,8 @@ export const Route = createFileRoute("/dealers")({
   component: DealersPage,
   head: () => ({
     meta: [
-      { title: "Verified Dealers — MyRideNepal" },
-      { name: "description", content: "Browse trusted bike and scooter dealers across Nepal." },
+      { title: "Verified Bike & Scooter Dealers in Nepal — MyRideNepal" },
+      { name: "description", content: "Browse trusted verified dealers across Nepal. View showrooms, inventory, ratings. Free dealer beta program available." },
     ],
   }),
 });

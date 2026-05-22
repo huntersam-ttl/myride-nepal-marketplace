@@ -33,6 +33,7 @@ function HomePage() {
         .from("listings")
         .select("id,title,brand,price,year,mileage,district,condition,images,featured")
         .eq("status", "active")
+        .is("deleted_at", null) // Exclude soft-deleted listings
         .order("created_at", { ascending: false })
         .limit(6);
       if (error) throw error;
@@ -47,7 +48,8 @@ function HomePage() {
       const { count } = await supabase
         .from("listings")
         .select("*", { count: "exact", head: true })
-        .eq("status", "active");
+        .eq("status", "active")
+        .is("deleted_at", null); // Exclude soft-deleted listings
       return count ?? 0;
     },
   });
@@ -66,11 +68,11 @@ function HomePage() {
 
   const stats = [
     {
-      value: listingCount != null ? (listingCount > 0 ? `${listingCount}+` : "Growing") : "—",
-      label: "Active listings",
+      value: listingCount != null && listingCount > 0 ? `${listingCount}+` : "Growing",
+      label: "Verified listings",
     },
     { value: "77", label: "Districts covered" },
-    { value: "Free", label: "To list your bike" },
+    { value: "Free", label: "No commission" },
   ];
 
   return (
@@ -98,7 +100,7 @@ function HomePage() {
               Nepal's Trusted Bike &<br className="hidden sm:block" /> Scooter Marketplace
             </h1>
             <p className="mt-4 text-lg md:text-xl text-white/75 max-w-xl mx-auto">
-              Browse verified bikes across all 77 districts. Buy and sell with confidence — no middlemen.
+              Free listings for bikes and scooters. Admin-reviewed. Contact sellers directly by phone or WhatsApp.
             </p>
             <div className="mt-7 flex flex-col sm:flex-row gap-3 justify-center">
               <Button size="lg" onClick={() => navigate({ to: "/browse" })} className="text-base gap-2">
@@ -235,13 +237,13 @@ function HomePage() {
         <div className="container mx-auto px-4">
           <div className="text-center mb-10">
             <h2 className="text-2xl md:text-3xl font-bold">How MyRideNepal works</h2>
-            <p className="text-muted-foreground mt-2">Sell your bike in 3 easy steps — completely free</p>
+            <p className="text-muted-foreground mt-2">Built for Nepal's two-wheeler market</p>
           </div>
           <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
             {[
-              { icon: Zap, title: "1. List your bike", desc: "Create a free listing in under 3 minutes with photos, specs, and your asking price.", color: "bg-orange-500/10 text-orange-500" },
-              { icon: Users, title: "2. Get contacted", desc: "Buyers reach out directly via WhatsApp or phone. No middlemen, no commissions.", color: "bg-blue-500/10 text-blue-500" },
-              { icon: ShieldCheck, title: "3. Sell safely", desc: "Meet in a safe public location. Verified dealer listings also available.", color: "bg-green-500/10 text-green-500" },
+              { icon: Zap, title: "1. Sellers list bikes", desc: "Create a free listing with photos and specs. MyRideNepal reviews every listing for quality.", color: "bg-orange-500/10 text-orange-500" },
+              { icon: ShieldCheck, title: "2. Admin review", desc: "Our team reviews listings to filter spam and ensure quality standards.", color: "bg-blue-500/10 text-blue-500" },
+              { icon: Users, title: "3. Direct contact", desc: "Buyers contact sellers directly via WhatsApp or phone. No middleman, no commission.", color: "bg-green-500/10 text-green-500" },
             ].map((step, i) => (
               <div key={i} className="bg-card p-6 rounded-xl border shadow-[var(--shadow-card)]">
                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${step.color}`}>
@@ -255,6 +257,77 @@ function HomePage() {
           <div className="text-center mt-10">
             <Button size="lg" onClick={() => navigate({ to: "/sell" })} className="gap-2">
               Post your bike for free <ArrowRight className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Buyer Safety & Seller Benefits */}
+      <section className="container mx-auto px-4 py-16">
+        <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+          {/* Buyer Safety */}
+          <div className="bg-card p-6 md:p-8 rounded-xl border">
+            <div className="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center mb-4">
+              <ShieldCheck className="w-6 h-6" />
+            </div>
+            <h3 className="text-xl font-bold mb-3">Buyer Safety Tips</h3>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li className="flex gap-2">
+                <span className="text-primary mt-0.5">•</span>
+                <span>Inspect bike thoroughly before payment</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="text-primary mt-0.5">•</span>
+                <span>Check bluebook and ownership documents</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="text-primary mt-0.5">•</span>
+                <span>Meet in safe public location or dealer showroom</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="text-primary mt-0.5">•</span>
+                <span>Never pay 100% advance to unknown sellers</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="text-primary mt-0.5">•</span>
+                <span>Complete ownership transfer before finalizing</span>
+              </li>
+            </ul>
+            <Button variant="outline" className="mt-4 w-full" onClick={() => navigate({ to: "/safety-tips" })}>
+              Read full safety guide
+            </Button>
+          </div>
+
+          {/* Seller Benefits */}
+          <div className="bg-card p-6 md:p-8 rounded-xl border">
+            <div className="w-12 h-12 rounded-xl bg-green-500/10 text-green-500 flex items-center justify-center mb-4">
+              <TrendingUp className="w-6 h-6" />
+            </div>
+            <h3 className="text-xl font-bold mb-3">Seller Benefits</h3>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li className="flex gap-2">
+                <span className="text-primary mt-0.5">•</span>
+                <span>List your bike or scooter for free</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="text-primary mt-0.5">•</span>
+                <span>No commission on sales — keep 100% profit</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="text-primary mt-0.5">•</span>
+                <span>Buyers contact you directly via phone/WhatsApp</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="text-primary mt-0.5">•</span>
+                <span>Reach thousands of buyers across Nepal</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="text-primary mt-0.5">•</span>
+                <span>Dealers get free beta access with analytics</span>
+              </li>
+            </ul>
+            <Button className="mt-4 w-full" onClick={() => navigate({ to: "/sell" })}>
+              Start selling now — Free
             </Button>
           </div>
         </div>

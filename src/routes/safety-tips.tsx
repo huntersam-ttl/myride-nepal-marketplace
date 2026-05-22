@@ -6,7 +6,12 @@ import { ShieldCheck, AlertTriangle, CheckCircle, Users, FileText, Bike, Wallet,
 
 export const Route = createFileRoute("/safety-tips")({
   component: SafetyTipsPage,
-  head: () => ({ meta: [{ title: "Buyer Safety Tips — MyRideNepal" }] }),
+  head: () => ({
+    meta: [
+      { title: "Buyer Safety Tips — How to Buy Bikes Safely in Nepal — MyRideNepal" },
+      { name: "description", content: "Essential safety tips for buying used bikes and scooters in Nepal. Learn how to inspect vehicles, verify documents, avoid scams." },
+    ],
+  }),
 });
 
 function SafetyTipsPage() {

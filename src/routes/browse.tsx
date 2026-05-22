@@ -32,7 +32,12 @@ export const Route = createFileRoute("/browse")({
     sort: typeof s.sort === "string" ? s.sort : "newest",
   }),
   component: BrowsePage,
-  head: () => ({ meta: [{ title: "Browse Bikes & Scooters — MyRideNepal" }] }),
+  head: () => ({
+    meta: [
+      { title: "Browse Bikes & Scooters for Sale in Nepal — MyRideNepal" },
+      { name: "description", content: "Find bikes and scooters for sale across all 77 districts of Nepal. Free listings, verified sellers, direct contact. No commission." },
+    ],
+  }),
 });
 
 function BrowsePage() {
@@ -67,7 +72,8 @@ function BrowsePage() {
       let q = supabase
         .from("listings")
         .select("id,title,brand,price,year,mileage,district,condition,images,featured,accident_history,num_owners,user_id,has_bluebook,has_insurance,has_tax_clearance,has_registration,description,phone,whatsapp,created_at,views")
-        .eq("status", "active");
+        .eq("status", "active")
+        .is("deleted_at", null); // Exclude soft-deleted listings
       if (search.brand) q = q.eq("brand", search.brand);
       if (search.district) q = q.eq("district", search.district);
       if (search.type) q = q.eq("bike_type", search.type as any);

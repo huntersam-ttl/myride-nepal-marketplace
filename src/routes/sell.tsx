@@ -14,7 +14,12 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/sell")({
   component: SellPage,
-  head: () => ({ meta: [{ title: "Sell Your Bike — MyRideNepal" }] }),
+  head: () => ({
+    meta: [
+      { title: "Sell Your Bike or Scooter for Free — MyRideNepal" },
+      { name: "description", content: "List your bike or scooter for free on MyRideNepal. No commission, direct buyer contact, reach thousands across Nepal. Get started in minutes." },
+    ],
+  }),
 });
 
 interface FormData {

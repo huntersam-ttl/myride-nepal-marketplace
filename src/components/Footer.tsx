@@ -8,15 +8,14 @@ const FOOTER_LINKS = {
     { to: "/sell", label: "Sell your bike" },
     { to: "/price-estimator", label: "Price estimator" },
     { to: "/dealers", label: "Dealers" },
-    { to: "/compare", label: "Compare bikes" },
+    { to: "/dealer-beta", label: "Dealer beta" },
   ],
   Resources: [
     { to: "/blog", label: "Blog & guides" },
+    { to: "/safety-tips", label: "Safety guide" },
     { to: "/about", label: "About us" },
     { to: "/auth", label: "Login / Sign up" },
-    { to: "/dashboard", label: "My listings" },
     { to: "/saved", label: "Saved listings" },
-    { to: "/dealer-signup", label: "Become a dealer" },
   ],
 };
 

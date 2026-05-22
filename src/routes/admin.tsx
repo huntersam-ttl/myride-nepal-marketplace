@@ -75,6 +75,43 @@ function AdminListings() {
   const setStatus = async (id: string, status: "active" | "rejected") => {
     const { error } = await supabase.from("listings").update({ status }).eq("id", id);
     if (error) return toast.error(error.message);
+    
+    // If approved, notify dealer followers
+    if (status === "active") {
+      try {
+        // Get listing details
+        const { data: listing } = await supabase
+          .from("listings")
+          .select("user_id, title, price, brand")
+          .eq("id", id)
+          .single();
+
+        if (listing) {
+          // Check if user is a dealer
+          const { data: dealerProfile } = await supabase
+            .from("dealer_profiles")
+            .select("id")
+            .eq("user_id", listing.user_id)
+            .maybeSingle();
+
+          if (dealerProfile) {
+            // Call notify_dealer_followers function (type cast needed until types regenerated)
+            const supabaseAny = supabase as any;
+            await supabaseAny.rpc("notify_dealer_followers", {
+              p_dealer_id: dealerProfile.id,
+              p_listing_id: id,
+              p_listing_title: listing.title,
+              p_listing_price: listing.price,
+              p_listing_brands: [listing.brand],
+            });
+          }
+        }
+      } catch (e: any) {
+        console.error("Failed to notify followers:", e);
+        // Don't show error to admin, just log it
+      }
+    }
+    
     toast.success(`Listing ${status === "active" ? "approved" : "rejected"}`);
     refetch();
   };
