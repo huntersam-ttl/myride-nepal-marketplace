@@ -1,0 +1,24 @@
+<svg width="220" height="40" viewBox="0 0 220 40" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="logo-title logo-desc">
+  <title id="logo-title">MyRideNepal</title>
+  <desc id="logo-desc">MyRideNepal marketplace logo with M-shaped icon and location pin</desc>
+  
+  <!-- M-shaped Icon with Route -->
+  <g id="icon">
+    <!-- Deep Navy M Shape -->
+    <path d="M 2 30 L 2 10 L 14 22 L 26 10 L 26 30 L 22 30 L 22 16 L 14 26 L 6 16 L 6 30 Z" fill="#0B1D3A"/>
+    
+    <!-- White Route/Road Negative Space -->
+    <path d="M 11 19 L 14 23 L 17 19 L 14 15 Z" fill="#FFFFFF" opacity="0.9"/>
+    
+    <!-- Premium Orange Location Pin -->
+    <g transform="translate(14, 7)">
+      <path d="M 0 0 C 2.2 0 4 1.8 4 4 C 4 6 0 10 0 10 C 0 10 -4 6 -4 4 C -4 1.8 -2.2 0 0 0 Z" fill="#FF6A00"/>
+      <circle cx="0" cy="3.5" r="1.8" fill="#FFFFFF"/>
+    </g>
+  </g>
+  
+  <!-- MyRideNepal Wordmark -->
+  <text x="38" y="26" font-family="'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="19" font-weight="700" fill="#0B1D3A" letter-spacing="-0.02em">
+    MyRideNepal
+  </text>
+</svg>
