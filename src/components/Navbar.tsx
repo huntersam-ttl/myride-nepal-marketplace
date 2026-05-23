@@ -8,7 +8,7 @@ import { useIsAdmin } from "@/hooks/use-saved";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { NotificationBell } from "./NotificationBell";
 
 const NAV_LINKS = [
@@ -115,6 +115,8 @@ export function Navbar() {
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-[280px] flex flex-col p-0">
+              <SheetTitle className="sr-only">Main menu</SheetTitle>
+              <SheetDescription className="sr-only">Site navigation and account actions</SheetDescription>
               <div className="p-5 border-b">
                 <Logo />
               </div>

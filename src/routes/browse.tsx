@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { POPULAR_BRANDS, NEPAL_DISTRICTS, BIKE_TYPES, CONDITIONS } from "@/lib/nepal";
 import { Filter, X, SlidersHorizontal } from "lucide-react";
 import { useSavedIds, useToggleSave } from "@/hooks/use-saved";
@@ -316,6 +316,8 @@ function BrowsePage() {
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-[300px] overflow-y-auto">
+              <SheetTitle className="sr-only">Browse filters</SheetTitle>
+              <SheetDescription className="sr-only">Filter marketplace listings by brand, district, type, condition, and price.</SheetDescription>
               <div className="mt-6 px-1">{filters}</div>
             </SheetContent>
           </Sheet>

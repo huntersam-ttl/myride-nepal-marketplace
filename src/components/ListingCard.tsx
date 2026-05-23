@@ -23,6 +23,11 @@ export function ListingCard({ listing, onSave, isSaved }: {
   isSaved?: boolean;
 }) {
   const cover = listing.images?.[0] || "https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=800";
+  const price = Number(listing.price);
+  const mileage = Number(listing.mileage);
+  const priceLabel = Number.isFinite(price) ? formatNPR(price) : "Price on request";
+  const mileageLabel = Number.isFinite(mileage) && mileage > 0 ? mileage.toLocaleString() + " km" : "Mileage n/a";
+  const yearLabel = listing.year ?? "Year n/a";
 
   return (
     <Link
@@ -81,17 +86,15 @@ export function ListingCard({ listing, onSave, isSaved }: {
           {listing.title}
         </h3>
         <p className="text-xl font-bold text-primary leading-tight">
-          {formatNPR(listing.price)}
+          {priceLabel}
         </p>
         <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground mt-2.5">
           <span className="flex items-center gap-1">
-            <Calendar className="w-3 h-3 flex-shrink-0" /> {listing.year}
+            <Calendar className="w-3 h-3 flex-shrink-0" /> {yearLabel}
           </span>
-          {listing.mileage != null && (
-            <span className="flex items-center gap-1">
-              <Gauge className="w-3 h-3 flex-shrink-0" /> {listing.mileage.toLocaleString()} km
-            </span>
-          )}
+          <span className="flex items-center gap-1">
+            <Gauge className="w-3 h-3 flex-shrink-0" /> {mileageLabel}
+          </span>
           <span className="flex items-center gap-1">
             <MapPin className="w-3 h-3 flex-shrink-0" /> {listing.district}
           </span>
