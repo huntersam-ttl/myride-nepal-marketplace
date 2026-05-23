@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Menu, User as UserIcon, LogOut, Heart, Plus, Shield, ChevronDown } from "lucide-react";
+import { Menu, User as UserIcon, LogOut, Heart, Plus, Shield, ChevronDown, Search } from "lucide-react";
 import { useState } from "react";
 import { Logo } from "./Logo";
 import { Button } from "@/components/ui/button";
@@ -26,7 +26,15 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/75">
+    <header
+      className={[
+        "sticky top-0 z-50 w-full backdrop-blur transition-colors duration-200",
+        // Mobile: Deep Navy with subtle gradient blend into hero
+        "bg-[#0B1D3A]/95 supports-[backdrop-filter]:bg-[#0B1D3A]/90 border-0",
+        // Desktop: original light navbar
+        "lg:bg-background/90 lg:supports-[backdrop-filter]:bg-background/75 lg:border-b",
+      ].join(" ")}
+    >
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
 
         {/* Left: Logo + nav */}
@@ -47,15 +55,26 @@ export function Navbar() {
         </div>
 
         {/* Right: actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           {/* Notification Bell — logged in users only */}
           {user && <NotificationBell />}
 
-          {/* Sell CTA — visible on sm+ */}
+          {/* Search icon — mobile only, jumps to /browse */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate({ to: "/browse" })}
+            className="lg:hidden h-10 w-10 text-white hover:bg-white/10 hover:text-white"
+            aria-label="Search bikes"
+          >
+            <Search className="w-5 h-5" />
+          </Button>
+
+          {/* Sell CTA — visible on all widths now, compact label on mobile */}
           <Button
             size="sm"
             onClick={() => navigate({ to: "/sell" })}
-            className="hidden sm:flex gap-1.5 font-semibold shadow-sm"
+            className="flex gap-1.5 font-semibold shadow-sm h-10 px-3 sm:h-9 sm:px-4"
           >
             <Plus className="w-3.5 h-3.5" />
             <span className="hidden md:inline">Sell your bike</span>
@@ -110,7 +129,7 @@ export function Navbar() {
           {/* Hamburger — mobile */}
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Open menu">
+              <Button variant="ghost" size="icon" className="lg:hidden h-10 w-10 text-white hover:bg-white/10 hover:text-white" aria-label="Open menu">
                 <Menu className="w-5 h-5" />
               </Button>
             </SheetTrigger>
