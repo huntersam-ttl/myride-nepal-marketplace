@@ -10,6 +10,20 @@ import { ShieldCheck, MapPin, Store, ArrowRight, UserPlus, ListChecks, Phone, Ch
 import { NEPAL_DISTRICTS, POPULAR_BRANDS } from "@/lib/nepal";
 import { useState } from "react";
 
+const PUBLIC_DEALER_CARD_COLUMNS = [
+  "id",
+  "slug",
+  "business_name",
+  "description",
+  "district",
+  "location",
+  "brands",
+  "logo_url",
+  "banner_url",
+  "verified",
+  "active_listings_count",
+].join(",");
+
 export const Route = createFileRoute("/dealers")({
   component: DealersPage,
   head: () => ({
@@ -29,11 +43,10 @@ function DealersPage() {
     queryKey: ["dealers"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("dealer_profiles")
-        .select("*")
-        .eq("flagged" as any, false)
+        .from("public_dealer_profiles")
+        .select(PUBLIC_DEALER_CARD_COLUMNS)
         .order("verified", { ascending: false })
-        .order("created_at", { ascending: false });
+        .order("business_name", { ascending: true });
       if (error) throw error;
       return data;
     },

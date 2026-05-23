@@ -133,14 +133,7 @@ function OffersPage() {
 
       if (error) throw error;
 
-      await supabase.from("notifications").insert({
-        user_id: offer.buyer_id,
-        type: "offer_accepted",
-        title: "Your Offer was Accepted",
-        message: `Your offer of ${formatNPR(offer.offer_price)} for ${offer.listing_title} has been accepted. Contact the seller on WhatsApp to arrange the sale.`,
-        link: `/listings/${offer.listing_id}`,
-        read: false,
-      });
+      // TODO(security-s3): restore trusted buyer notifications via trigger/server function.
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["received-offers"] });
@@ -160,14 +153,7 @@ function OffersPage() {
 
       if (error) throw error;
 
-      await supabase.from("notifications").insert({
-        user_id: offer.buyer_id,
-        type: "offer_declined",
-        title: "Offer Declined",
-        message: `Your offer of ${formatNPR(offer.offer_price)} for ${offer.listing_title} was declined by the seller.`,
-        link: `/listings/${offer.listing_id}`,
-        read: false,
-      });
+      // TODO(security-s3): restore trusted buyer notifications via trigger/server function.
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["received-offers"] });
@@ -193,14 +179,7 @@ function OffersPage() {
 
       if (error) throw error;
 
-      await supabase.from("notifications").insert({
-        user_id: selectedOffer.buyer_id,
-        type: "offer_countered",
-        title: "Seller Made a Counter Offer",
-        message: `The seller countered your offer of ${formatNPR(selectedOffer.offer_price)} with ${formatNPR(Number(counterPrice))} for ${selectedOffer.listing_title}.`,
-        link: `/listings/${selectedOffer.listing_id}`,
-        read: false,
-      });
+      // TODO(security-s3): restore trusted buyer notifications via trigger/server function.
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["received-offers"] });
@@ -224,14 +203,7 @@ function OffersPage() {
 
       if (error) throw error;
 
-      await supabase.from("notifications").insert({
-        user_id: offer.seller_id,
-        type: "offer_accepted",
-        title: "Buyer Accepted Your Counter Offer",
-        message: `The buyer accepted your counter offer of ${formatNPR(offer.counter_price!)} for ${offer.listing_title}.`,
-        link: `/listings/${offer.listing_id}`,
-        read: false,
-      });
+      // TODO(security-s3): restore trusted seller notifications via trigger/server function.
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sent-offers"] });
@@ -251,14 +223,7 @@ function OffersPage() {
 
       if (error) throw error;
 
-      await supabase.from("notifications").insert({
-        user_id: offer.seller_id,
-        type: "offer_declined",
-        title: "Buyer Declined Your Counter Offer",
-        message: `The buyer declined your counter offer of ${formatNPR(offer.counter_price!)} for ${offer.listing_title}.`,
-        link: `/listings/${offer.listing_id}`,
-        read: false,
-      });
+      // TODO(security-s3): restore trusted seller notifications via trigger/server function.
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["sent-offers"] });

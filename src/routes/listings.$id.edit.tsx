@@ -65,6 +65,23 @@ function EditListingPage() {
       price: newPrice, mileage: Number(f.mileage), colour: f.colour,
       district: f.district, description: f.description.trim(), phone: f.phone, whatsapp: f.whatsapp,
     };
+
+    if (!f.dealer_id) {
+      const { data: dealerProfile, error: dealerProfileError } = await supabase
+        .from("dealer_profiles")
+        .select("id")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (dealerProfileError) {
+        setSaving(false);
+        return toast.error(dealerProfileError.message);
+      }
+
+      if (dealerProfile?.id) {
+        updates.dealer_id = dealerProfile.id;
+      }
+    }
     
     // If listing was rejected, reset to pending for re-review
     if (f.status === "rejected") {
@@ -90,17 +107,7 @@ function EditListingPage() {
         .eq("notify_price_drop", true);
       
       if (savedUsers && savedUsers.length > 0) {
-        // Create notifications for each user
-        const notifications = savedUsers.map(saved => ({
-          user_id: saved.user_id,
-          type: "offer",
-          title: "Price Drop Alert",
-          message: `${f.title} has dropped in price from NPR ${oldPrice.toLocaleString()} to NPR ${newPrice.toLocaleString()}`,
-          link: `/listings/${id}`,
-          read: false
-        }));
-        
-        await supabase.from("notifications").insert(notifications);
+        // TODO(security-s3): restore trusted price-drop notifications via trigger/server function.
       }
     }
     

@@ -63,7 +63,7 @@ const statusColors: Record<string, string> = {
 function InventoryPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { canManageListings, isLoading: accessLoading } = useDealerAccess();
+  const { canManageListings, dealerProfile, isLoading: accessLoading } = useDealerAccess();
   const queryClient = useQueryClient();
   
   // State
@@ -135,7 +135,7 @@ function InventoryPage() {
       if (original.engine_cc) duplicate.engine_cc = original.engine_cc;
       if (original.transmission) duplicate.transmission = original.transmission;
       if (original.youtube_url) duplicate.youtube_url = original.youtube_url;
-      if (original.dealer_id) duplicate.dealer_id = original.dealer_id;
+      duplicate.dealer_id = original.dealer_id ?? dealerProfile?.id ?? null;
 
       const { data, error } = await supabase
         .from("listings")

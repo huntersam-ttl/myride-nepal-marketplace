@@ -26,6 +26,46 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { calculateListingScore } from "@/utils/listingScore";
 import { addRecentlyViewed } from "@/utils/recentlyViewed";
 
+const PUBLIC_LISTING_DETAIL_COLUMNS = [
+  "id",
+  "title",
+  "brand",
+  "model",
+  "bike_type",
+  "price",
+  "year",
+  "mileage",
+  "district",
+  "condition",
+  "fuel_type",
+  "colour",
+  "description",
+  "images",
+  "phone",
+  "whatsapp",
+  "status",
+  "created_at",
+  "user_id",
+  "views",
+  "shares",
+  "has_bluebook",
+  "has_insurance",
+  "has_tax_clearance",
+  "has_registration",
+  "bluebook_name_match",
+  "insurance_valid",
+  "registration_expiry",
+  "document_notes",
+  "accident_history",
+  "accident_details",
+  "num_owners",
+  "service_history",
+  "last_service_date",
+  "original_parts",
+  "modifications",
+  "youtube_url",
+].join(",");
+
 // Helper function to extract YouTube video ID and create embed URL
 function getYouTubeEmbedUrl(url: string): string {
   try {
@@ -51,7 +91,7 @@ export const Route = createFileRoute("/listings/$id")({
   component: ListingDetailPage,
   loader: async ({ params }) => {
     const { data, error } = await supabase
-      .from("listings").select("*").eq("id", params.id).maybeSingle();
+      .from("listings").select(PUBLIC_LISTING_DETAIL_COLUMNS).eq("id", params.id).maybeSingle();
     if (error || !data) throw notFound();
     supabase.from("listings").update({ views: (data.views ?? 0) + 1 }).eq("id", params.id).then(() => {});
     return { listing: data };
@@ -204,7 +244,7 @@ function ListingDetailPage() {
       if (results.length > 0) {
         const userIds = [...new Set(results.map(l => l.user_id))];
         const { data: profiles } = await supabase
-          .from("profiles")
+          .from("public_profile_badges")
           .select("id, verification_level")
           .in("id", userIds);
 
@@ -243,7 +283,7 @@ function ListingDetailPage() {
     enabled: !!listing.user_id,
     queryFn: async () => {
       const { data } = await supabase
-        .from("profiles")
+        .from("public_profile_badges")
         .select("name, verification_level")
         .eq("id", listing.user_id)
         .maybeSingle();
@@ -553,24 +593,7 @@ function ListingDetailPage() {
 
       if (updateError) console.error("Error updating report count:", updateError);
 
-      // Get all admin users
-      const { data: adminUsers } = await supabase
-        .from("user_roles")
-        .select("user_id")
-        .eq("role", "admin");
-
-      // Create notifications for admins
-      if (adminUsers && adminUsers.length > 0) {
-        const notifications = adminUsers.map((admin) => ({
-          user_id: admin.user_id,
-          title: "New Listing Report",
-          message: `A listing has been reported for ${reportReason}. Listing title: ${listing.title}`,
-          type: "system",
-          link: "/admin",
-        }));
-
-        await supabase.from("notifications").insert(notifications);
-      }
+      // TODO(security-s3): restore trusted admin notifications via trigger/server function.
 
       toast.success("Thank you for your report. Our team will review it within 24 hours.");
       setReportDialogOpen(false);
@@ -1651,16 +1674,7 @@ function ListingDetailPage() {
 
                     if (error) throw error;
 
-                    // Create notification for seller
-                    const buyerName = user.user_metadata?.full_name || user.email?.split('@')[0] || "A buyer";
-                    await supabase.from("notifications").insert({
-                      user_id: listing.user_id,
-                      type: "offer_received",
-                      title: "New Offer Received",
-                      message: `${buyerName} made an offer of ${formatNPR(price)} on your ${listing.title}`,
-                      link: "/dashboard/offers",
-                      read: false
-                    });
+                    // TODO(security-s3): restore trusted seller notifications via trigger/server function.
 
                     toast.success("Offer submitted successfully! The seller will be notified.");
                     setOfferDialogOpen(false);

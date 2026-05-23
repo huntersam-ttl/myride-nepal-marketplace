@@ -21,6 +21,48 @@ interface SearchParams {
   minPrice?: number; maxPrice?: number; sort?: string;
 }
 
+const PUBLIC_BROWSE_LISTING_COLUMNS = [
+  "id",
+  "title",
+  "brand",
+  "price",
+  "year",
+  "mileage",
+  "district",
+  "condition",
+  "images",
+  "featured",
+  "accident_history",
+  "num_owners",
+  "user_id",
+  "has_bluebook",
+  "has_insurance",
+  "has_tax_clearance",
+  "has_registration",
+  "bluebook_name_match",
+  "service_history",
+  "last_service_date",
+  "registration_expiry",
+  "created_at",
+  "views",
+  "shares",
+].join(",");
+
+const RELATED_LISTING_COLUMNS = [
+  "id",
+  "title",
+  "brand",
+  "price",
+  "year",
+  "mileage",
+  "district",
+  "condition",
+  "images",
+  "featured",
+  "user_id",
+  "created_at",
+].join(",");
+
 export const Route = createFileRoute("/browse")({
   validateSearch: (s: Record<string, unknown>): SearchParams => ({
     brand: typeof s.brand === "string" ? s.brand : undefined,
@@ -71,7 +113,7 @@ function BrowsePage() {
     queryFn: async () => {
       let q = supabase
         .from("listings")
-        .select("id,title,brand,price,year,mileage,district,condition,images,featured,accident_history,num_owners,user_id,has_bluebook,has_insurance,has_tax_clearance,has_registration,description,phone,whatsapp,created_at,views")
+        .select(PUBLIC_BROWSE_LISTING_COLUMNS)
         .eq("status", "active")
         .is("deleted_at", null); // Exclude soft-deleted listings
       if (search.brand) q = q.eq("brand", search.brand);
@@ -94,7 +136,7 @@ function BrowsePage() {
       if (listings && listings.length > 0) {
         const userIds = [...new Set(listings.map(l => l.user_id))];
         const { data: profiles } = await supabase
-          .from("profiles")
+          .from("public_profile_badges")
           .select("id, verification_level")
           .in("id", userIds);
 
@@ -164,7 +206,7 @@ function BrowsePage() {
       // Build a more relaxed query based on current search criteria
       let q = supabase
         .from("listings")
-        .select("id,title,brand,model,bike_type,price,year,mileage,district,condition,images,featured,user_id,status,created_at")
+        .select(RELATED_LISTING_COLUMNS)
         .eq("status", "active")
         .not("id", "in", `(${excludeIds.join(",")})`);
 
@@ -196,7 +238,7 @@ function BrowsePage() {
       if (listings && listings.length > 0) {
         const userIds = [...new Set(listings.map(l => l.user_id))];
         const { data: profiles } = await supabase
-          .from("profiles")
+          .from("public_profile_badges")
           .select("id, verification_level")
           .in("id", userIds);
 

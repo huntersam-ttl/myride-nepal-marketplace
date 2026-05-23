@@ -8,8 +8,8 @@ import { FollowDealerButton } from "@/components/FollowDealerButton";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ShieldCheck, MapPin, Store, Phone, MessageCircle, Clock, Facebook, Youtube, Instagram, CheckCircle, Wrench, MapPinned, AlertTriangle, Calendar, Flag } from "lucide-react";
-import { whatsappLink, telLink, formatNPR } from "@/lib/nepal";
+import { ShieldCheck, MapPin, Store, Clock, Facebook, Youtube, Instagram, CheckCircle, Wrench, AlertTriangle, Calendar, Flag, Lock } from "lucide-react";
+import { formatNPR } from "@/lib/nepal";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -24,9 +24,50 @@ const TikTokIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+const PUBLIC_DEALER_PROFILE_COLUMNS = [
+  "id",
+  "slug",
+  "business_name",
+  "description",
+  "location",
+  "district",
+  "brands",
+  "logo_url",
+  "banner_url",
+  "verified",
+  "years_in_business",
+  "opening_hours",
+  "showroom_photos",
+  "facebook_url",
+  "instagram_url",
+  "youtube_url",
+  "tiktok_url",
+  "exchange_accepted",
+  "financing_available",
+  "service_centre",
+  "average_rating",
+  "total_reviews",
+  "followers_count",
+  "active_listings_count",
+].join(",");
+
+const DEALER_PUBLIC_LISTING_CARD_COLUMNS = [
+  "id",
+  "title",
+  "brand",
+  "price",
+  "year",
+  "mileage",
+  "district",
+  "condition",
+  "images",
+  "featured",
+  "user_id",
+].join(",");
+
 export const Route = createFileRoute("/dealers/$slug")({
   loader: async ({ params }) => {
-    const { data, error } = await supabase.from("dealer_profiles").select("*").eq("slug", params.slug).maybeSingle();
+    const { data, error } = await supabase.from("public_dealer_profiles").select(PUBLIC_DEALER_PROFILE_COLUMNS).eq("slug", params.slug).maybeSingle();
     if (error || !data) throw notFound();
     return { dealer: data };
   },
@@ -67,27 +108,14 @@ export const Route = createFileRoute("/dealers/$slug")({
 function DealerProfilePage() {
   const { dealer } = Route.useLoaderData();
   const { data: listings } = useQuery({
-    queryKey: ["dealer-listings", dealer.user_id],
+    queryKey: ["dealer-listings", dealer.id],
     queryFn: async () => {
       const { data: listings } = await supabase
         .from("listings")
-        .select("id,title,brand,price,year,mileage,district,condition,images,featured,accident_history,num_owners,user_id,has_bluebook,has_insurance,has_tax_clearance,has_registration")
-        .eq("user_id", dealer.user_id).eq("status", "active")
+        .select(DEALER_PUBLIC_LISTING_CARD_COLUMNS)
+        .eq("dealer_id", dealer.id)
+        .eq("status", "active")
         .order("created_at", { ascending: false });
-      
-      // Fetch verification level
-      if (listings && listings.length > 0) {
-        const { data: profiles } = await supabase
-          .from("profiles")
-          .select("id, verification_level")
-          .eq("id", dealer.user_id)
-          .maybeSingle();
-
-        return listings.map(listing => ({
-          ...listing,
-          verification_level: profiles?.verification_level || null,
-        }));
-      }
 
       return listings ?? [];
     },
@@ -95,66 +123,21 @@ function DealerProfilePage() {
 
   // Fetch recently sold listings
   const { data: soldListings } = useQuery({
-    queryKey: ["dealer-sold-listings", dealer.user_id],
+    queryKey: ["dealer-sold-listings", dealer.id],
     queryFn: async () => {
       const { data } = await supabase
         .from("listings")
         .select("id,title,price,sold_at,images")
-        .eq("user_id", dealer.user_id)
+        .eq("dealer_id", dealer.id)
         .eq("status", "sold")
         .not("sold_at", "is", null)
         .order("sold_at", { ascending: false })
         .limit(10);
-      
+
       return data ?? [];
     },
   });
 
-  // Track analytics event
-  const trackEvent = async (eventType: string, listingId?: string) => {
-    try {
-      await supabase.from("dealer_analytics_events").insert({
-        dealer_id: dealer.id,
-        listing_id: listingId || null,
-        event_type: eventType,
-        source: "profile_page",
-      });
-    } catch (error) {
-      // Silently fail - don't block user action
-      console.error("Failed to track event:", error);
-    }
-  };
-
-  // Create lead on contact click
-  const createLead = async (clickType: "whatsapp" | "phone") => {
-    try {
-      await supabase.from("dealer_leads").insert({
-        dealer_id: dealer.id,
-        source: "profile_contact",
-        stage: "new",
-        whatsapp_click: clickType === "whatsapp",
-        phone_click: clickType === "phone",
-      });
-    } catch (error) {
-      // Silently fail
-      console.error("Failed to create lead:", error);
-    }
-  };
-
-  const handleWhatsAppClick = async () => {
-    await trackEvent("whatsapp_click");
-    await createLead("whatsapp");
-  };
-
-  const handlePhoneClick = async () => {
-    await trackEvent("phone_click");
-    await createLead("phone");
-  };
-
-  const whatsappMessage = `Hi ${dealer.business_name}, I found your showroom on MyRideNepal and I'm interested in your bikes. Can you help me?`;
-  const whatsappUrl = dealer.whatsapp ? whatsappLink(dealer.whatsapp, whatsappMessage) : null;
-  const phoneUrl = dealer.phone ? telLink(dealer.phone) : null;
-  
   // Parse opening hours (can be JSON or simple string)
   let openingHours: Record<string, string> | null = null;
   try {
@@ -254,22 +237,6 @@ function DealerProfilePage() {
                   )}
                 </div>
                 
-                {/* Service areas */}
-                {dealer.service_area && dealer.service_area.length > 0 && (
-                  <div className="mt-4 pt-4 border-t">
-                    <p className="text-sm text-muted-foreground mb-2 flex items-center gap-1.5">
-                      <MapPinned className="w-4 h-4" /> Service areas:
-                    </p>
-                    <div className="flex flex-wrap gap-1">
-                      {dealer.service_area.slice(0, 10).map((area: string) => (
-                        <Badge key={area} variant="outline" className="text-xs">{area}</Badge>
-                      ))}
-                      {dealer.service_area.length > 10 && (
-                        <Badge variant="outline" className="text-xs">+{dealer.service_area.length - 10} more</Badge>
-                      )}
-                    </div>
-                  </div>
-                )}
               </Card>
             )}
 
@@ -363,7 +330,7 @@ function DealerProfilePage() {
               <h2 className="text-2xl font-bold mb-4">Reviews & Ratings</h2>
               <DealerReviews
                 dealerId={dealer.id}
-                dealerUserId={dealer.user_id}
+                dealerUserId=""
                 averageRating={dealer.average_rating}
                 totalReviews={dealer.total_reviews}
               />
@@ -372,26 +339,22 @@ function DealerProfilePage() {
 
           {/* Sidebar */}
           <div className="space-y-4">
-            {/* Contact Card */}
+            {/* Dealer Info Card */}
             <Card className="p-5 sticky top-4">
-              <h3 className="font-bold mb-4">Contact Showroom</h3>
-              
-              <div className="space-y-2">
-                {phoneUrl && (
-                  <Button asChild className="w-full gap-2" size="lg" onClick={handlePhoneClick}>
-                    <a href={phoneUrl}>
-                      <Phone className="w-4 h-4" /> Call Now
-                    </a>
-                  </Button>
-                )}
-                
-                {whatsappUrl && (
-                  <Button asChild variant="outline" className="w-full gap-2" size="lg" onClick={handleWhatsAppClick}>
-                    <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-                      <MessageCircle className="w-4 h-4" /> WhatsApp
-                    </a>
-                  </Button>
-                )}
+              <h3 className="font-bold mb-4">Showroom Info</h3>
+
+              <div className="rounded-lg border bg-muted/30 p-4 text-sm text-muted-foreground">
+                <div className="flex items-start gap-3">
+                  <div className="mt-0.5 rounded-full bg-background p-2">
+                    <Lock className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-foreground">Direct dealer contact is temporarily unavailable</p>
+                    <p className="mt-1">
+                      We're moving dealer enquiries to a more secure contact flow before launch. Follow the dealer or check their active inventory while we finish that rollout.
+                    </p>
+                  </div>
+                </div>
               </div>
 
               {/* Opening Hours */}
@@ -408,27 +371,6 @@ function DealerProfilePage() {
                       </div>
                     ))}
                   </div>
-                </div>
-              )}
-
-              {/* Address */}
-              {dealer.full_address && (
-                <div className="mt-6 pt-6 border-t">
-                  <h4 className="font-semibold mb-2 flex items-center gap-2 text-sm">
-                    <MapPin className="w-4 h-4" /> Address
-                  </h4>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{dealer.full_address}</p>
-                  
-                  {/* Google Maps link */}
-                  <Button asChild variant="outline" size="sm" className="w-full mt-3 gap-2">
-                    <a 
-                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dealer.full_address)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <MapPinned className="w-4 h-4" /> View on Map
-                    </a>
-                  </Button>
                 </div>
               )}
 
@@ -471,7 +413,7 @@ function DealerProfilePage() {
 
               {/* Follow Dealer */}
               <div className="mt-6 pt-6 border-t">
-                <FollowDealerButton dealerId={dealer.id} followerCount={dealer.follower_count || 0} />
+                <FollowDealerButton dealerId={dealer.id} followerCount={dealer.followers_count || 0} />
               </div>
 
               {/* Report Dealer */}

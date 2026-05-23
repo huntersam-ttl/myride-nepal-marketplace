@@ -92,6 +92,14 @@ function SellPage() {
     if (!f.phone || f.phone === "+977") { toast.error("Please enter your phone number"); return; }
     setSubmitting(true);
     try {
+      const { data: dealerProfile, error: dealerProfileError } = await supabase
+        .from("dealer_profiles")
+        .select("id")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (dealerProfileError) throw dealerProfileError;
+
       const urls: string[] = [];
       for (const file of files) {
         const ext = file.name.split(".").pop();
@@ -103,6 +111,7 @@ function SellPage() {
       }
       const { error } = await supabase.from("listings").insert({
         user_id: user.id,
+        dealer_id: dealerProfile?.id ?? null,
         title: f.title, brand: f.brand, model: f.model,
         year: Number(f.year), condition: f.condition as any,
         fuel_type: f.fuel_type as any, bike_type: f.bike_type as any,
