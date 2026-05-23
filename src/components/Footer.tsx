@@ -26,14 +26,10 @@ export function Footer() {
         <div className="grid gap-10 md:grid-cols-4">
           {/* Brand */}
           <div className="md:col-span-1 space-y-4">
-            {/* Use white logo for better contrast on dark footer */}
-            <Link to="/" className="inline-block opacity-90 hover:opacity-100 transition-opacity">
-              <img
-                src="/brand/logo-navbar-v3-white.svg"
-                alt="MyRideNepal"
-                className="h-8 w-auto"
-              />
-            </Link>
+            {/* Centralized Logo — forced to light variant for the dark footer */}
+            <div className="opacity-90 hover:opacity-100 transition-opacity">
+              <Logo variant="light" />
+            </div>
             <p className="text-sm opacity-75 leading-relaxed max-w-xs">
               Nepal's trusted marketplace for buying and selling bikes and scooters. Free to list, no commissions.
             </p>

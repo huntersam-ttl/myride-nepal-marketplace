@@ -68,7 +68,7 @@ function AuthPage() {
   return (
     <div className="container mx-auto px-4 py-12 max-w-md">
       <div className="text-center mb-8">
-        <div className="flex justify-center mb-4"><Logo /></div>
+        <div className="flex justify-center mb-4"><Logo variant="dark" /></div>
         <h1 className="text-2xl font-bold">Welcome to MyRideNepal</h1>
         <p className="text-sm text-muted-foreground mt-1">Buy, sell, and discover bikes across Nepal</p>
       </div>

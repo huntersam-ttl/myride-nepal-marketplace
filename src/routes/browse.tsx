@@ -108,6 +108,33 @@ function BrowsePage() {
 
   const clearAll = () => navigate({ to: "/browse", search: {} as any });
 
+  // Distinct brands actually present in active listings — used to enrich the brand filter.
+  // Merged with POPULAR_BRANDS so the dropdown always has the popular set even if
+  // no listings exist yet, plus any extra brand someone actually listed.
+  const { data: dbBrands } = useQuery({
+    queryKey: ["browse-distinct-brands"],
+    staleTime: 5 * 60_000,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("listings")
+        .select("brand")
+        .eq("status", "active")
+        .is("deleted_at", null);
+      if (error) throw error;
+      return (data ?? []).map((r) => r.brand).filter((b): b is string => !!b);
+    },
+  });
+
+  const brandOptions = useMemo(() => {
+    const merged = new Set<string>();
+    for (const b of POPULAR_BRANDS) merged.add(b);
+    for (const b of (dbBrands ?? [])) {
+      const trimmed = b.trim();
+      if (trimmed) merged.add(trimmed);
+    }
+    return Array.from(merged).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
+  }, [dbBrands]);
+
   const { data, isLoading } = useQuery({
     queryKey: ["listings", search],
     queryFn: async () => {
@@ -272,9 +299,9 @@ function BrowsePage() {
         <Label className="text-xs uppercase tracking-wide text-muted-foreground font-semibold mb-2 block">Brand</Label>
         <Select value={search.brand ?? "_all"} onValueChange={(v) => update({ brand: v === "_all" ? undefined : v })}>
           <SelectTrigger className="h-11 border-border/60"><SelectValue placeholder="All brands" /></SelectTrigger>
-          <SelectContent>
+          <SelectContent className="max-h-72">
             <SelectItem value="_all">All brands</SelectItem>
-            {POPULAR_BRANDS.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}
+            {brandOptions.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}
           </SelectContent>
         </Select>
       </div>
