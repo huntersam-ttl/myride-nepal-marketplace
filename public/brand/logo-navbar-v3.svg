@@ -2,6 +2,34 @@
   <title id="logo-title">MyRideNepal</title>
   <desc id="logo-desc">MyRideNepal marketplace logo with M-shaped icon and location pin</desc>
   
+  <style>
+    .logo-pin {
+      transform-origin: center;
+      animation: mrnPinDrop 700ms cubic-bezier(.2, .9, .2, 1.15) 180ms both;
+    }
+
+    @keyframes mrnPinDrop {
+      0% {
+        transform: translateY(-5px) scale(0.96);
+        opacity: 0;
+      }
+      65% {
+        transform: translateY(1px) scale(1.03);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .logo-pin {
+        animation: none;
+      }
+    }
+  </style>
+  
   <!-- M-shaped Icon with Route -->
   <g id="icon">
     <!-- Deep Navy M Shape -->
@@ -11,7 +39,7 @@
     <path d="M 11 19 L 14 23 L 17 19 L 14 15 Z" fill="#FFFFFF" opacity="0.9"/>
     
     <!-- Premium Orange Location Pin -->
-    <g transform="translate(14, 7)">
+    <g class="logo-pin" transform="translate(14, 7)">
       <path d="M 0 0 C 2.2 0 4 1.8 4 4 C 4 6 0 10 0 10 C 0 10 -4 6 -4 4 C -4 1.8 -2.2 0 0 0 Z" fill="#FF6A00"/>
       <circle cx="0" cy="3.5" r="1.8" fill="#FFFFFF"/>
     </g>
