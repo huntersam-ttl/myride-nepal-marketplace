@@ -225,11 +225,11 @@ function BrowsePage() {
   }, [search]);
 
   const filters = (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <div>
-        <Label className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Brand</Label>
+        <Label className="text-xs uppercase tracking-wide text-muted-foreground font-semibold mb-2 block">Brand</Label>
         <Select value={search.brand ?? "_all"} onValueChange={(v) => update({ brand: v === "_all" ? undefined : v })}>
-          <SelectTrigger className="mt-1.5"><SelectValue placeholder="All brands" /></SelectTrigger>
+          <SelectTrigger className="h-11 border-border/60"><SelectValue placeholder="All brands" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="_all">All brands</SelectItem>
             {POPULAR_BRANDS.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}
@@ -237,9 +237,9 @@ function BrowsePage() {
         </Select>
       </div>
       <div>
-        <Label className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">District</Label>
+        <Label className="text-xs uppercase tracking-wide text-muted-foreground font-semibold mb-2 block">District</Label>
         <Select value={search.district ?? "_all"} onValueChange={(v) => update({ district: v === "_all" ? undefined : v })}>
-          <SelectTrigger className="mt-1.5"><SelectValue placeholder="All districts" /></SelectTrigger>
+          <SelectTrigger className="h-11 border-border/60"><SelectValue placeholder="All districts" /></SelectTrigger>
           <SelectContent className="max-h-72">
             <SelectItem value="_all">All districts</SelectItem>
             {NEPAL_DISTRICTS.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}
@@ -247,9 +247,9 @@ function BrowsePage() {
         </Select>
       </div>
       <div>
-        <Label className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Bike type</Label>
+        <Label className="text-xs uppercase tracking-wide text-muted-foreground font-semibold mb-2 block">Bike type</Label>
         <Select value={search.type ?? "_all"} onValueChange={(v) => update({ type: v === "_all" ? undefined : v })}>
-          <SelectTrigger className="mt-1.5"><SelectValue placeholder="All types" /></SelectTrigger>
+          <SelectTrigger className="h-11 border-border/60"><SelectValue placeholder="All types" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="_all">All types</SelectItem>
             {BIKE_TYPES.map(t => <SelectItem key={t} value={t} className="capitalize">{t}</SelectItem>)}
@@ -257,9 +257,9 @@ function BrowsePage() {
         </Select>
       </div>
       <div>
-        <Label className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Condition</Label>
+        <Label className="text-xs uppercase tracking-wide text-muted-foreground font-semibold mb-2 block">Condition</Label>
         <Select value={search.condition ?? "_all"} onValueChange={(v) => update({ condition: v === "_all" ? undefined : v })}>
-          <SelectTrigger className="mt-1.5"><SelectValue placeholder="Any condition" /></SelectTrigger>
+          <SelectTrigger className="h-11 border-border/60"><SelectValue placeholder="Any condition" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="_all">Any condition</SelectItem>
             {CONDITIONS.map(c => <SelectItem key={c} value={c} className="capitalize">{c}</SelectItem>)}
@@ -267,24 +267,26 @@ function BrowsePage() {
         </Select>
       </div>
       <div>
-        <Label className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Price range (NPR)</Label>
-        <div className="grid grid-cols-2 gap-2 mt-1.5">
+        <Label className="text-xs uppercase tracking-wide text-muted-foreground font-semibold mb-2 block">Price range (NPR)</Label>
+        <div className="grid grid-cols-2 gap-2">
           <Input
             type="number"
             value={search.minPrice ?? ""}
             onChange={(e) => update({ minPrice: e.target.value ? Number(e.target.value) : undefined })}
             placeholder="Min"
+            className="h-11 border-border/60"
           />
           <Input
             type="number"
             value={search.maxPrice ?? ""}
             onChange={(e) => update({ maxPrice: e.target.value ? Number(e.target.value) : undefined })}
             placeholder="Max"
+            className="h-11 border-border/60"
           />
         </div>
       </div>
       {activeFilters.length > 0 && (
-        <Button variant="outline" onClick={clearAll} className="w-full gap-2 text-muted-foreground">
+        <Button variant="outline" onClick={clearAll} className="w-full gap-2 text-muted-foreground h-11 mt-2">
           <X className="w-4 h-4" /> Clear all filters
         </Button>
       )}
@@ -292,180 +294,191 @@ function BrowsePage() {
   );
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-5 gap-3 flex-wrap">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold">Browse bikes & scooters</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            {isLoading ? "Loading..." : `${data?.length ?? 0} listing${data?.length !== 1 ? "s" : ""} found`}
-          </p>
-        </div>
-        <div className="flex gap-2 items-center">
-          {/* Mobile filter toggle */}
+    <div className="min-h-screen bg-muted/30">
+      {/* Mobile search header - sticky */}
+      <div className="sticky top-14 z-30 bg-background/98 backdrop-blur-lg border-b shadow-sm lg:static lg:bg-transparent lg:border-0 lg:shadow-none">
+        <div className="container mx-auto px-4 py-4 lg:py-8">
+          {/* Title and count */}
+          <div className="flex items-center justify-between mb-4 lg:mb-5">
+            <div>
+              <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-[#0B1D3A]">Browse Bikes</h1>
+              <p className="text-xs md:text-sm text-muted-foreground mt-0.5">
+                {isLoading ? "Loading..." : `${data?.length ?? 0} listing${data?.length !== 1 ? "s" : ""} found`}
+              </p>
+            </div>
+            {/* Sort - always visible */}
+            <Select value={search.sort ?? "newest"} onValueChange={(v) => update({ sort: v })}>
+              <SelectTrigger className="w-[140px] md:w-[170px] h-10 text-sm">
+                <Filter className="w-3.5 h-3.5 mr-1.5 text-muted-foreground" />
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="newest">Newest first</SelectItem>
+                <SelectItem value="price_asc">Price: low to high</SelectItem>
+                <SelectItem value="price_desc">Price: high to low</SelectItem>
+                <SelectItem value="views">Most viewed</SelectItem>
+                <SelectItem value="most_shared">Most shared</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Mobile filter button */}
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="outline" className="lg:hidden gap-2">
+              <Button variant="outline" className="w-full lg:hidden h-11 gap-2 border-border/60">
                 <SlidersHorizontal className="w-4 h-4" />
-                Filters
+                <span className="font-medium">Filters</span>
                 {activeFilters.length > 0 && (
-                  <Badge className="h-5 w-5 p-0 flex items-center justify-center text-xs rounded-full">
+                  <Badge className="h-5 min-w-5 px-1.5 flex items-center justify-center text-xs rounded-full bg-[#FF6A00] text-white">
                     {activeFilters.length}
                   </Badge>
                 )}
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-[300px] overflow-y-auto">
+            <SheetContent side="left" className="w-[320px] overflow-y-auto">
               <SheetTitle className="sr-only">Browse filters</SheetTitle>
               <SheetDescription className="sr-only">Filter marketplace listings by brand, district, type, condition, and price.</SheetDescription>
               <div className="mt-6 px-1">{filters}</div>
             </SheetContent>
           </Sheet>
-          {/* Sort */}
-          <Select value={search.sort ?? "newest"} onValueChange={(v) => update({ sort: v })}>
-            <SelectTrigger className="w-[170px]">
-              <Filter className="w-3.5 h-3.5 mr-1.5 text-muted-foreground" />
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="newest">Newest first</SelectItem>
-              <SelectItem value="price_asc">Price: low to high</SelectItem>
-              <SelectItem value="price_desc">Price: high to low</SelectItem>
-              <SelectItem value="views">Most viewed</SelectItem>
-              <SelectItem value="most_shared">Most shared</SelectItem>
-            </SelectContent>
-          </Select>
         </div>
       </div>
 
-      {/* Continue where you left off */}
-      {!dismissedRecent && recentlyViewed.length > 0 && (
-        <Card className="p-4 mb-5 bg-primary/5 border-primary/20">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-semibold">Continue where you left off</h2>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
-              onClick={dismissRecentlyViewed}
-            >
-              <X className="w-4 h-4" />
-            </Button>
-          </div>
-          <div className="overflow-x-auto -mx-4 px-4">
-            <div className="flex gap-4 pb-2" style={{ minWidth: 'min-content' }}>
-              {recentlyViewed.map((listing) => (
-                <div key={listing.id} className="flex-shrink-0 w-64">
-                  <ListingCard listing={listing as any} />
-                </div>
-              ))}
+      <div className="container mx-auto px-4 pb-8">
+        {/* Continue where you left off */}
+        {!dismissedRecent && recentlyViewed.length > 0 && (
+          <Card className="p-4 mb-5 bg-[#FF6A00]/5 border-[#FF6A00]/20 shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm font-semibold text-[#0B1D3A]">Continue where you left off</h2>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
+                onClick={dismissRecentlyViewed}
+              >
+                <X className="w-4 h-4" />
+              </Button>
             </div>
-          </div>
-        </Card>
-      )}
-
-      {/* Active filter chips */}
-      {activeFilters.length > 0 && (
-        <div className="flex flex-wrap gap-2 mb-5">
-          {activeFilters.map(({ key, label }) => (
-            <Badge
-              key={key}
-              variant="secondary"
-              className="gap-1.5 pr-1.5 py-1 text-sm cursor-pointer hover:bg-destructive/10 hover:text-destructive transition-colors capitalize"
-              onClick={() => update({ [key]: undefined })}
-            >
-              {label}
-              <X className="w-3 h-3" />
-            </Badge>
-          ))}
-          <Button variant="ghost" size="sm" onClick={clearAll} className="h-7 text-xs text-muted-foreground">
-            Clear all
-          </Button>
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-8">
-        {/* Desktop sidebar filters */}
-        <aside className="hidden lg:block">
-          <div className="sticky top-20 bg-card border rounded-xl p-5 shadow-sm">
-            <h2 className="font-semibold mb-4 flex items-center gap-2">
-              <SlidersHorizontal className="w-4 h-4" /> Filters
-            </h2>
-            {filters}
-          </div>
-        </aside>
-
-        {/* Results */}
-        <section>
-          {isLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-              {Array.from({ length: 9 }).map((_, i) => (
-                <div key={i} className="rounded-xl bg-card border overflow-hidden">
-                  <div className="aspect-[4/3] bg-muted animate-pulse" />
-                  <div className="p-4 space-y-3">
-                    <div className="h-4 bg-muted animate-pulse rounded w-3/4" />
-                    <div className="h-5 bg-muted animate-pulse rounded w-1/2" />
-                    <div className="h-3 bg-muted animate-pulse rounded" />
+            <div className="overflow-x-auto -mx-4 px-4">
+              <div className="flex gap-4 pb-2" style={{ minWidth: 'min-content' }}>
+                {recentlyViewed.map((listing) => (
+                  <div key={listing.id} className="flex-shrink-0 w-64">
+                    <ListingCard listing={listing as any} />
                   </div>
-                </div>
-              ))}
-            </div>
-          ) : data?.length ? (
-            <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-                {data.map(l => (
-                  <ListingCard
-                    key={l.id}
-                    listing={l as any}
-                    onSave={(id: string) => toggleSave(id, l.price)}
-                    isSaved={savedIds?.has(l.id)}
-                  />
                 ))}
               </div>
-
-              {/* Related Listings - shown when fewer than 4 results */}
-              {showRelated && (
-                <div className="mt-12">
-                  <h3 className="text-lg font-semibold mb-4">You might also like these similar bikes</h3>
-                  {relatedLoading ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-                      {Array.from({ length: 3 }).map((_, i) => (
-                        <div key={i} className="rounded-xl bg-card border overflow-hidden">
-                          <div className="aspect-[4/3] bg-muted animate-pulse" />
-                          <div className="p-4 space-y-3">
-                            <div className="h-4 bg-muted animate-pulse rounded w-3/4" />
-                            <div className="h-5 bg-muted animate-pulse rounded w-1/2" />
-                            <div className="h-3 bg-muted animate-pulse rounded" />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : relatedListings && relatedListings.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-                      {relatedListings.map(l => (
-                        <ListingCard
-                          key={l.id}
-                          listing={l as any}
-                          onSave={(id: string) => toggleSave(id, l.price)}
-                          isSaved={savedIds?.has(l.id)}
-                        />
-                      ))}
-                    </div>
-                  ) : null}
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="flex flex-col items-center justify-center py-20 border rounded-xl bg-card text-center px-4">
-              <SlidersHorizontal className="w-10 h-10 text-muted-foreground mb-3" />
-              <h3 className="font-semibold text-lg mb-1">No listings found</h3>
-              <p className="text-muted-foreground text-sm mb-4">
-                Try adjusting your filters or clearing them to see all available bikes.
-              </p>
-              <Button onClick={clearAll}>Clear all filters</Button>
             </div>
-          )}
-        </section>
+          </Card>
+        )}
+
+        {/* Active filter chips */}
+        {activeFilters.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-5">
+            {activeFilters.map(({ key, label }) => (
+              <Badge
+                key={key}
+                variant="secondary"
+                className="gap-1.5 pr-1.5 py-1.5 text-xs cursor-pointer hover:bg-destructive/10 hover:text-destructive transition-colors capitalize"
+                onClick={() => update({ [key]: undefined })}
+              >
+                {label}
+                <X className="w-3.5 h-3.5" />
+              </Badge>
+            ))}
+            <Button variant="ghost" size="sm" onClick={clearAll} className="h-8 text-xs text-muted-foreground hover:text-foreground">
+              Clear all
+            </Button>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6 lg:gap-8">
+          {/* Desktop sidebar filters */}
+          <aside className="hidden lg:block">
+            <div className="sticky top-20 bg-card border rounded-xl p-5 shadow-sm border-border/60">
+              <h2 className="font-semibold mb-4 flex items-center gap-2 text-[#0B1D3A]">
+                <SlidersHorizontal className="w-4 h-4" /> Filters
+              </h2>
+              {filters}
+            </div>
+          </aside>
+
+          {/* Results */}
+          <section>
+            {isLoading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-5">
+                {Array.from({ length: 9 }).map((_, i) => (
+                  <div key={i} className="rounded-xl bg-card border overflow-hidden shadow-sm">
+                    <div className="aspect-[16/10] bg-muted animate-pulse" />
+                    <div className="p-4 space-y-3">
+                      <div className="h-5 bg-muted animate-pulse rounded w-1/2" />
+                      <div className="h-4 bg-muted animate-pulse rounded w-3/4" />
+                      <div className="h-3 bg-muted animate-pulse rounded" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : data?.length ? (
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-5">
+                  {data.map(l => (
+                    <ListingCard
+                      key={l.id}
+                      listing={l as any}
+                      onSave={(id: string) => toggleSave(id, l.price)}
+                      isSaved={savedIds?.has(l.id)}
+                    />
+                  ))}
+                </div>
+
+                {/* Related Listings - shown when fewer than 4 results */}
+                {showRelated && (
+                  <div className="mt-12">
+                    <h3 className="text-lg font-semibold mb-4 text-[#0B1D3A]">You might also like these similar bikes</h3>
+                    {relatedLoading ? (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-5">
+                        {Array.from({ length: 3 }).map((_, i) => (
+                          <div key={i} className="rounded-xl bg-card border overflow-hidden shadow-sm">
+                            <div className="aspect-[16/10] bg-muted animate-pulse" />
+                            <div className="p-4 space-y-3">
+                              <div className="h-5 bg-muted animate-pulse rounded w-1/2" />
+                              <div className="h-4 bg-muted animate-pulse rounded w-3/4" />
+                              <div className="h-3 bg-muted animate-pulse rounded" />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : relatedListings && relatedListings.length > 0 ? (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-5">
+                        {relatedListings.map(l => (
+                          <ListingCard
+                            key={l.id}
+                            listing={l as any}
+                            onSave={(id: string) => toggleSave(id, l.price)}
+                            isSaved={savedIds?.has(l.id)}
+                          />
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-16 lg:py-20 border rounded-2xl bg-card text-center px-4 shadow-sm">
+                <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
+                  <SlidersHorizontal className="w-8 h-8 text-muted-foreground" />
+                </div>
+                <h3 className="font-bold text-lg lg:text-xl mb-2 text-[#0B1D3A]">No bikes found</h3>
+                <p className="text-muted-foreground text-sm mb-6 max-w-sm">
+                  Try changing your filters or browse all listings to see available bikes.
+                </p>
+                <Button onClick={clearAll} className="gap-2 bg-[#FF6A00] hover:bg-[#FF6A00]/90 text-white">
+                  <X className="w-4 h-4" />
+                  Clear all filters
+                </Button>
+              </div>
+            )}
+          </section>
+        </div>
       </div>
     </div>
   );

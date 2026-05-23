@@ -1,0 +1,85 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Deep Navy Background -->
+  <rect width="1200" height="630" fill="#0B1D3A"/>
+  
+  <!-- Subtle Grid Pattern -->
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1A2F4D" stroke-width="0.5" opacity="0.3"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+  
+  <!-- Decorative Route Path (subtle background) -->
+  <path d="M -50 400 Q 200 350 400 380 T 800 400 Q 1000 420 1250 380" 
+        stroke="#FF6A00" 
+        stroke-width="3" 
+        fill="none" 
+        opacity="0.15"
+        stroke-linecap="round"/>
+  
+  <!-- Location Pin (top left accent) -->
+  <g opacity="0.2">
+    <circle cx="120" cy="120" r="8" fill="#FF6A00"/>
+    <path d="M 120 100 Q 108 108 108 120 Q 108 128 120 140 Q 132 128 132 120 Q 132 108 120 100 Z" 
+          fill="#FF6A00"/>
+  </g>
+  
+  <!-- Main Content Group -->
+  <g>
+    <!-- M-shaped Logo Mark (larger) -->
+    <g transform="translate(100, 180)">
+      <!-- M Shape in White -->
+      <path d="M 0 60 L 0 0 L 30 30 L 60 0 L 60 60 L 48 60 L 48 20 L 30 38 L 12 20 L 12 60 Z" 
+            fill="#FFFFFF"/>
+      <!-- Orange Pin on M -->
+      <g transform="translate(24, 8)">
+        <circle cx="6" cy="6" r="3" fill="#FF6A00"/>
+        <path d="M 6 0 Q 0 3 0 6 Q 0 9 6 15 Q 12 9 12 6 Q 12 3 6 0 Z" 
+              fill="#FF6A00"/>
+      </g>
+    </g>
+    
+    <!-- MyRideNepal Text -->
+    <text x="200" y="240" 
+          font-family="Inter, system-ui, -apple-system, sans-serif" 
+          font-size="72" 
+          font-weight="800" 
+          fill="#FFFFFF" 
+          letter-spacing="-0.02em">MyRideNepal</text>
+    
+    <!-- Main Tagline -->
+    <text x="100" y="340" 
+          font-family="Inter, system-ui, -apple-system, sans-serif" 
+          font-size="48" 
+          font-weight="600" 
+          fill="#FFFFFF" 
+          letter-spacing="-0.01em">Nepal's Trusted Bike &amp; Scooter Marketplace</text>
+    
+    <!-- Subtext -->
+    <text x="100" y="410" 
+          font-family="Inter, system-ui, -apple-system, sans-serif" 
+          font-size="32" 
+          font-weight="500" 
+          fill="#FF6A00" 
+          letter-spacing="0.02em">Buy. Sell. Ride across Nepal.</text>
+  </g>
+  
+  <!-- Bottom Route Accent -->
+  <g opacity="0.3">
+    <line x1="100" y1="520" x2="300" y2="520" 
+          stroke="#FF6A00" 
+          stroke-width="4" 
+          stroke-linecap="round"/>
+    <circle cx="100" cy="520" r="6" fill="#FF6A00"/>
+    <circle cx="300" cy="520" r="6" fill="#FF6A00"/>
+  </g>
+  
+  <!-- Website URL -->
+  <text x="100" y="570" 
+        font-family="Inter, system-ui, -apple-system, sans-serif" 
+        font-size="24" 
+        font-weight="500" 
+        fill="#FFFFFF" 
+        opacity="0.6">myridenepal.com</text>
+</svg>

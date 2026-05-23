@@ -33,31 +33,31 @@ export function ListingCard({ listing, onSave, isSaved }: {
     <Link
       to="/listings/$id"
       params={{ id: listing.id }}
-      className="group block rounded-xl overflow-hidden bg-card border shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elegant)] hover:-translate-y-0.5 transition-all duration-200"
+      className="group block rounded-xl overflow-hidden bg-card border border-border/60 shadow-sm hover:shadow-md hover:-translate-y-1 hover:border-border transition-all duration-300"
     >
-      {/* Image — 4:3 ratio (standard product photography) */}
-      <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+      {/* Image — 16:10 ratio (premium, slightly wider for bikes) */}
+      <div className="relative aspect-[16/10] overflow-hidden bg-muted">
         <img
           src={cover}
           alt={listing.title}
           loading="lazy"
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-700 ease-out"
           onError={(e) => {
             (e.target as HTMLImageElement).src =
               "https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=800";
           }}
         />
-        {/* Gradient overlay — improves badge/button legibility over any photo */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none" />
+        {/* Subtle gradient overlay for depth */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent pointer-events-none" />
 
-        {/* Badges — text-xs (12px) meets WCAG minimum */}
-        <div className="absolute top-2.5 left-2.5 flex gap-1.5">
+        {/* Badges — top right, compact */}
+        <div className="absolute top-3 right-3 flex gap-1.5">
           {listing.featured && (
-            <Badge className="bg-primary text-primary-foreground text-xs px-2 py-0.5">
+            <Badge className="bg-primary text-primary-foreground text-[10px] px-2 py-0.5 font-semibold shadow-sm">
               Featured
             </Badge>
           )}
-          <Badge variant="secondary" className="capitalize bg-background/90 text-xs px-2 py-0.5">
+          <Badge variant="secondary" className="capitalize bg-background/95 backdrop-blur-sm text-[10px] px-2 py-0.5 font-medium shadow-sm">
             {listing.condition}
           </Badge>
         </div>
@@ -69,34 +69,41 @@ export function ListingCard({ listing, onSave, isSaved }: {
             variant="secondary"
             size="icon"
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); onSave(listing.id); }}
-            className="absolute bottom-2.5 right-2.5 w-8 h-8 rounded-full bg-background/90 hover:bg-background shadow-sm"
+            className="absolute top-3 left-3 w-8 h-8 rounded-full bg-background/95 backdrop-blur-sm hover:bg-background shadow-sm"
             aria-label={isSaved ? "Remove from saved" : "Save listing"}
           >
             <Heart
-              className={`w-4 h-4 transition-colors ${isSaved ? "fill-primary text-primary" : "text-muted-foreground"}`}
+              className={`w-3.5 h-3.5 transition-colors ${isSaved ? "fill-primary text-primary" : "text-muted-foreground"}`}
             />
           </Button>
         )}
       </div>
 
-      {/* Info */}
-      <div className="p-4">
-        {/* text-base (16px) — primary identifier, must be readable */}
-        <h3 className="font-semibold text-base line-clamp-1 group-hover:text-primary transition-colors mb-1">
-          {listing.title}
-        </h3>
-        <p className="text-xl font-bold text-primary leading-tight">
+      {/* Info — premium spacing */}
+      <div className="p-4 space-y-2">
+        {/* Price first — strong hierarchy */}
+        <p className="text-2xl font-bold text-foreground leading-none">
           {priceLabel}
         </p>
-        <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground mt-2.5">
+        
+        {/* Title — limited to 2 lines max */}
+        <h3 className="font-semibold text-base leading-snug line-clamp-2 group-hover:text-primary transition-colors min-h-[2.5rem]">
+          {listing.title}
+        </h3>
+        
+        {/* Metadata row — compact, single line */}
+        <div className="flex items-center gap-3 text-xs text-muted-foreground pt-1">
           <span className="flex items-center gap-1">
-            <Calendar className="w-3 h-3 flex-shrink-0" /> {yearLabel}
+            <Calendar className="w-3 h-3 flex-shrink-0" />
+            {yearLabel}
           </span>
           <span className="flex items-center gap-1">
-            <Gauge className="w-3 h-3 flex-shrink-0" /> {mileageLabel}
+            <Gauge className="w-3 h-3 flex-shrink-0" />
+            {mileageLabel}
           </span>
-          <span className="flex items-center gap-1">
-            <MapPin className="w-3 h-3 flex-shrink-0" /> {listing.district}
+          <span className="flex items-center gap-1 truncate">
+            <MapPin className="w-3 h-3 flex-shrink-0" />
+            {listing.district}
           </span>
         </div>
       </div>

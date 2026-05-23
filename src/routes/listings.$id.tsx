@@ -596,7 +596,7 @@ function ListingDetailPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-6 pb-28 lg:pb-8">
+    <div className="container mx-auto px-4 py-6 pb-32 lg:pb-8">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
         <Link to="/browse" className="hover:text-foreground transition-colors">Listings</Link>
@@ -604,11 +604,11 @@ function ListingDetailPage() {
         <span className="text-foreground truncate">{listing.title}</span>
       </div>
 
-      <div className="grid lg:grid-cols-[1fr_360px] gap-8">
+      <div className="grid lg:grid-cols-[1fr_380px] gap-8">
         {/* Left column */}
         <div>
-          {/* Gallery */}
-          <div className="relative rounded-xl overflow-hidden bg-muted aspect-[4/3] group">
+          {/* Gallery — Mobile: full bleed on sides */}
+          <div className="relative rounded-xl lg:rounded-2xl overflow-hidden bg-muted aspect-[4/3] group shadow-sm">
             <img
               src={cover}
               alt={listing.title}
@@ -661,34 +661,39 @@ function ListingDetailPage() {
             </div>
           )}
 
-          {/* Title + price */}
+          {/* Title + price — Mobile: price first with strong hierarchy */}
           <div className="mt-5">
+            {/* Price first on mobile, strong and prominent */}
+            <p className="text-3xl lg:text-4xl font-bold text-[#0B1D3A] leading-none mb-3">
+              {formatNPR(listing.price)}
+            </p>
+            
+            {/* Price drop banner */}
+            {showPriceDrop && savedListingData?.price_at_save && (
+              <div className="mb-3 p-3 rounded-lg bg-green-50 border border-green-200 text-green-800 flex items-center gap-2">
+                <TrendingDown className="w-5 h-5 flex-shrink-0" />
+                <p className="text-sm font-medium">
+                  Price dropped from {formatNPR(savedListingData.price_at_save)} since you saved this
+                </p>
+              </div>
+            )}
+            
+            {/* Title below price */}
             <div className="flex items-start justify-between flex-wrap gap-3">
               <div className="flex-1 min-w-0">
-                <h1 className="text-2xl md:text-3xl font-bold leading-tight">{listing.title}</h1>
+                <h1 className="text-xl md:text-2xl lg:text-3xl font-bold leading-snug text-foreground">{listing.title}</h1>
                 <div className="flex flex-wrap items-center gap-2 mt-2 text-sm text-muted-foreground">
                   <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> {listing.district}</span>
                   <Badge variant="secondary" className="capitalize">{listing.condition}</Badge>
                 </div>
               </div>
-              <p className="text-3xl font-bold text-primary">{formatNPR(listing.price)}</p>
             </div>
-            
-            {/* Price drop banner */}
-            {showPriceDrop && savedListingData?.price_at_save && (
-              <div className="mt-3 p-3 rounded-lg bg-green-50 border border-green-200 text-green-800 flex items-center gap-2">
-                <TrendingDown className="w-5 h-5 flex-shrink-0" />
-                <p className="text-sm font-medium">
-                  Price dropped from {formatNPR(savedListingData.price_at_save)} to {formatNPR(listing.price)} since you saved this
-                </p>
-              </div>
-            )}
           </div>
 
-          {/* Key specs */}
-          <Card className="mt-5 p-5">
-            <h2 className="font-semibold mb-4 text-base">Key specifications</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {/* Key specs — Mobile: compact chips layout */}
+          <Card className="mt-5 p-4 lg:p-5 shadow-sm border-border/60">
+            <h2 className="font-semibold mb-3 lg:mb-4 text-base text-[#0B1D3A]">Key specifications</h2>
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4">
               <Spec icon={Calendar} label="Year" value={String(listing.year)} />
               <Spec icon={Gauge} label="Mileage" value={`${listing.mileage.toLocaleString()} km`} />
               <Spec icon={Fuel} label="Fuel" value={listing.fuel_type} />
@@ -700,9 +705,45 @@ function ListingDetailPage() {
           </Card>
 
           {listing.description && (
-            <Card className="mt-4 p-5">
-              <h2 className="font-semibold mb-3 text-base">Description</h2>
+            <Card className="mt-4 p-4 lg:p-5 shadow-sm border-border/60">
+              <h2 className="font-semibold mb-3 text-base text-[#0B1D3A]">Description</h2>
               <p className="text-sm whitespace-pre-line text-muted-foreground leading-relaxed">{listing.description}</p>
+            </Card>
+          )}
+
+          {/* Safety Tips Card — Mobile: compact, always visible for buyers */}
+          {user && listing.user_id !== user.id && (
+            <Card className="mt-4 p-4 bg-[#0B1D3A]/5 border-[#0B1D3A]/10 shadow-sm">
+              <div className="flex items-start gap-3 mb-3">
+                <div className="w-8 h-8 rounded-lg bg-[#FF6A00] flex items-center justify-center flex-shrink-0">
+                  <ShieldCheck className="w-5 h-5 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-sm text-[#0B1D3A]">Safety Tips</h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">Stay safe when buying</p>
+                </div>
+              </div>
+              <ul className="space-y-2 text-xs text-muted-foreground">
+                <li className="flex items-start gap-2">
+                  <span className="w-1 h-1 rounded-full bg-[#FF6A00] mt-1.5 flex-shrink-0"></span>
+                  <span>Meet in a public place or mechanic shop</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="w-1 h-1 rounded-full bg-[#FF6A00] mt-1.5 flex-shrink-0"></span>
+                  <span>Check all documents (bluebook, tax clearance)</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="w-1 h-1 rounded-full bg-[#FF6A00] mt-1.5 flex-shrink-0"></span>
+                  <span>Never send advance payment without inspection</span>
+                </li>
+              </ul>
+              <Link
+                to="/safety-tips"
+                className="inline-flex items-center gap-1 text-xs text-[#FF6A00] hover:text-[#FF6A00]/80 font-medium mt-3"
+              >
+                Read full safety guide
+                <ExternalLink className="w-3 h-3" />
+              </Link>
             </Card>
           )}
 
@@ -726,16 +767,28 @@ function ListingDetailPage() {
 
         {/* Sticky contact sidebar — desktop */}
         <aside>
-          <Card className="sticky top-20 shadow-md overflow-hidden">
-            {/* Seller Info */}
+          <Card className="sticky top-20 shadow-md overflow-hidden border-border/60">
+            {/* Seller Info — Trust card style */}
             {sellerProfile && (
-              <div className="px-5 py-4 border-b">
+              <div className="px-5 py-4 border-b bg-muted/30">
                 <p className="text-xs text-muted-foreground mb-2">Listed by</p>
                 <div className="flex items-center gap-2">
-                  <p className="font-semibold">{sellerProfile.name || "Seller"}</p>
-                  {sellerProfile.verification_level && (
-                    <VerificationBadge verification_level={sellerProfile.verification_level as any} />
-                  )}
+                  <div className="w-10 h-10 rounded-full bg-[#0B1D3A] text-white flex items-center justify-center font-bold text-sm flex-shrink-0">
+                    {(sellerProfile.name || "S").charAt(0).toUpperCase()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="font-semibold truncate">{sellerProfile.name || "Seller"}</p>
+                      {sellerProfile.verification_level && (
+                        <VerificationBadge verification_level={sellerProfile.verification_level as any} />
+                      )}
+                    </div>
+                    {responseTimeBadge && (
+                      <p className="text-xs text-muted-foreground mt-0.5 truncate">
+                        {responseTimeBadge.label}
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
@@ -752,12 +805,6 @@ function ListingDetailPage() {
                   <p className="text-xs text-muted-foreground">Opens WhatsApp with message ready</p>
                 </div>
               </div>
-              {responseTimeBadge && (
-                <div className={`mt-3 flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border w-fit ${responseTimeBadge.color}`}>
-                  <Clock className="w-3 h-3 flex-shrink-0" />
-                  {responseTimeBadge.label}
-                </div>
-              )}
             </div>
 
             <div className="p-5">
@@ -1432,19 +1479,23 @@ function ListingDetailPage() {
         </div>
       )}
 
-      {/* Mobile sticky contact bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-background/95 backdrop-blur border-t shadow-lg">
+      {/* Mobile sticky contact bar — Premium, thumb-friendly */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-background/98 backdrop-blur-lg border-t shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
+        {/* Response time badge */}
         {responseTimeBadge && (
-          <div className={`flex items-center justify-center gap-1.5 text-xs py-1.5 border-b ${responseTimeBadge.color}`}>
+          <div className={`flex items-center justify-center gap-1.5 text-xs py-2 border-b ${responseTimeBadge.color}`}>
             <Clock className="w-3 h-3" />
-            {responseTimeBadge.label}
+            <span className="font-medium">{responseTimeBadge.label}</span>
           </div>
         )}
+        
+        {/* Contact buttons — Taller, thumb-friendly */}
         <div className="p-3 flex gap-2">
+          {/* WhatsApp — Primary action, orange */}
           <Button
             asChild
             size="lg"
-            className="flex-1 gap-1.5 bg-[#25D366] hover:bg-[#1da851] text-white border-0 text-sm"
+            className="flex-[2] gap-2 bg-[#FF6A00] hover:bg-[#FF6A00]/90 text-white border-0 h-14 text-base font-semibold shadow-sm"
             disabled={!wa}
           >
             <a
@@ -1454,27 +1505,34 @@ function ListingDetailPage() {
               aria-disabled={!wa}
               onClick={(e) => { if (!wa) e.preventDefault(); }}
             >
-              <MessageCircle className="w-4 h-4 flex-shrink-0" /> WhatsApp
+              <MessageCircle className="w-5 h-5 flex-shrink-0" />
+              <span>WhatsApp</span>
             </a>
           </Button>
-          <Button asChild size="lg" variant="outline" className="flex-1 gap-1.5 text-sm" disabled={!tel}>
+          
+          {/* Call button */}
+          <Button
+            asChild
+            size="lg"
+            variant="outline"
+            className="flex-1 gap-2 h-14 border-border/60 text-sm font-medium"
+            disabled={!tel}
+          >
             <a href={tel ?? "#"} aria-disabled={!tel} onClick={(e) => { if (!tel) e.preventDefault(); }}>
-              <Phone className="w-4 h-4 flex-shrink-0" /> Call
+              <Phone className="w-4 h-4 flex-shrink-0" />
+              <span className="hidden sm:inline">Call</span>
             </a>
           </Button>
-          <Button asChild size="lg" variant="outline" className="flex-1 gap-1.5 text-sm" disabled={!sms}>
-            <a href={sms ?? "#"} aria-disabled={!sms} onClick={(e) => { if (!sms) e.preventDefault(); }}>
-              <MessageSquare className="w-4 h-4 flex-shrink-0" /> Text
-            </a>
-          </Button>
+          
+          {/* Save button */}
           <Button
             variant="outline"
             size="icon"
-            className="flex-shrink-0 h-11 w-11"
+            className="flex-shrink-0 h-14 w-14 border-border/60"
             onClick={() => toggleSave(listing.id, listing.price)}
             aria-label="Save listing"
           >
-            <Heart className={`w-5 h-5 ${isSaved ? "fill-primary text-primary" : ""}`} />
+            <Heart className={`w-5 h-5 ${isSaved ? "fill-[#FF6A00] text-[#FF6A00]" : "text-muted-foreground"}`} />
           </Button>
         </div>
       </div>
