@@ -120,7 +120,7 @@ If you encounter issues:
 ## 🔒 Security Contacts
 
 - **Supabase Dashboard**: https://supabase.com/dashboard
-- **Project ID**: nukeyvnsvsgwyvbtertf
+- **Project ID**: rcypkqctgonotawnajqb
 - **Region**: Auto-selected by Supabase
 
 ---

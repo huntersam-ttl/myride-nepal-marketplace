@@ -110,7 +110,7 @@ console.log('══════════════════════�
 if (!columnExists) {
   console.log('⚠️  MIGRATION NEEDED');
   console.log('\nTo add the rejection_reason column, you need to:');
-  console.log('1. Go to https://supabase.com/dashboard/project/nukeyvnsvsgwyvbtertf/editor');
+  console.log('1. Go to https://supabase.com/dashboard/project/rcypkqctgonotawnajqb/editor');
   console.log('2. Click on "SQL Editor"');
   console.log('3. Run this SQL:\n');
   console.log('   ALTER TABLE public.listings ADD COLUMN IF NOT EXISTS rejection_reason TEXT;');

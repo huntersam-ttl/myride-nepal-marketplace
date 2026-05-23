@@ -1,8 +1,8 @@
 # 🔧 Supabase Migration Guide
 
 ## ✅ Supabase Connection Status
-- **Project ID**: `nukeyvnsvsgwyvbtertf`
-- **URL**: `https://nukeyvnsvsgwyvbtertf.supabase.co`
+- **Project ID**: `rcypkqctgonotawnajqb`
+- **URL**: `https://rcypkqctgonotawnajqb.supabase.co`
 - **Connection**: ✅ Active (profiles, user_roles accessible)
 
 ## ⚠️ Issues Found
@@ -21,7 +21,7 @@ The new `rejection_reason` column needs to be added to the `listings` table.
 
 Please run this SQL in your Supabase SQL Editor:
 
-1. Go to: https://supabase.com/dashboard/project/nukeyvnsvsgwyvbtertf/editor
+1. Go to: https://supabase.com/dashboard/project/rcypkqctgonotawnajqb/editor
 2. Click "SQL Editor" in the left sidebar
 3. Click "New Query"
 4. Paste the following SQL:
