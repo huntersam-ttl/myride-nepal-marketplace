@@ -74,30 +74,48 @@ function HomePage() {
 
   return (
     <div>
-      {/* Hero — dark navy, left-aligned on mobile, centered from sm+ */}
-      <section className="relative overflow-hidden" style={{ background: "var(--gradient-hero)" }}>
-        {/* Soft radial glow — pure CSS, no images */}
+      {/* Hero — premium dark navy with subtle Himalaya atmosphere */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-[#0B1D3A] via-[#0d2242] to-[#0B1D3A]">
+        {/* Subtle Himalaya peaks silhouette — CSS only */}
+        <div className="absolute inset-0 opacity-[0.035] pointer-events-none">
+          <svg className="absolute bottom-0 left-0 w-full h-[40%]" viewBox="0 0 1200 300" preserveAspectRatio="none">
+            <path d="M0,300 L0,180 Q150,120 300,140 T600,100 Q750,80 900,120 T1200,140 L1200,300 Z" fill="white" />
+            <path d="M0,300 L0,200 Q200,160 400,180 T800,150 Q950,130 1200,170 L1200,300 Z" fill="white" opacity="0.5" />
+          </svg>
+        </div>
+        
+        {/* Soft radial glow with orange accent */}
         <div
-          className="absolute inset-0 opacity-20 pointer-events-none"
+          className="absolute inset-0 opacity-[0.15] pointer-events-none"
           style={{
             backgroundImage:
-              "radial-gradient(circle at 20% 30%, rgba(232,75,26,0.4), transparent 50%), radial-gradient(circle at 80% 70%, rgba(232,75,26,0.25), transparent 50%)",
+              "radial-gradient(ellipse at 30% 20%, rgba(255,106,0,0.3), transparent 60%), radial-gradient(ellipse at 70% 60%, rgba(255,106,0,0.15), transparent 50%)",
           }}
         />
-        {/* Subtle decorative route path at bottom — much softer than mountain shape */}
+        
+        {/* Subtle grid pattern for depth */}
+        <div 
+          className="absolute inset-0 opacity-[0.02] pointer-events-none"
+          style={{
+            backgroundImage: "linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)",
+            backgroundSize: "60px 60px"
+          }}
+        />
+        
+        {/* Subtle route path decoration at bottom */}
         <svg
           aria-hidden="true"
-          className="absolute bottom-0 left-0 w-full h-20 opacity-[0.03] pointer-events-none"
+          className="absolute bottom-0 left-0 w-full h-16 opacity-[0.04] pointer-events-none"
           viewBox="0 0 1200 80"
           preserveAspectRatio="none"
         >
           <path 
-            d="M0,40 Q200,20 400,35 T800,40 Q1000,45 1200,35 L1200,80 L0,80 Z" 
+            d="M0,40 Q200,25 400,35 T800,38 Q1000,42 1200,35 L1200,80 L0,80 Z" 
             fill="#FFFFFF" 
           />
         </svg>
-        {/* Pulled the hero up under the dark mobile navbar; the navbar background matches so it reads as one surface */}
-        <div className="container mx-auto px-4 pt-10 pb-24 md:pt-20 md:pb-32 relative">
+        
+        <div className="container mx-auto px-4 pt-12 pb-28 md:pt-24 md:pb-36 lg:pt-28 lg:pb-40 relative">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
@@ -154,232 +172,242 @@ function HomePage() {
         </div>
       </section>
 
-      {/* White search card — overlaps the hero bottom, sits as a clear product surface */}
-      <section className="container mx-auto px-4 relative z-10 -mt-12 md:-mt-16">
+      {/* Premium search card — better integration and polish */}
+      <section className="container mx-auto px-4 relative z-10 -mt-16 md:-mt-20 lg:-mt-24">
         <motion.div
-          initial={{ opacity: 0, y: 16 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="max-w-3xl mx-auto bg-card border rounded-2xl shadow-lg p-6 sm:p-7"
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="max-w-4xl mx-auto bg-card border border-border/60 rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] backdrop-blur-sm p-6 sm:p-8"
         >
-          <h2 className="text-lg sm:text-xl font-bold mb-5">Find Your Next Ride</h2>
+          <h2 className="text-xl sm:text-2xl font-bold mb-6 text-[#0B1D3A]">Find Your Next Ride</h2>
 
           {/* Main search input + go button */}
           <form
             onSubmit={(e) => { e.preventDefault(); doSearch(); }}
-            className="flex gap-2.5 mb-5"
+            className="flex gap-3 mb-6"
           >
             <div className="relative flex-1">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
               <Input
                 placeholder="Search brand, model, or district..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={handleKeyDown}
-                className="pl-10 h-12 text-base"
+                className="pl-12 h-14 text-base border-border/60 focus:border-[#FF6A00] focus:ring-[#FF6A00]/20"
               />
             </div>
-            <Button type="submit" size="lg" className="h-12 px-5" aria-label="Search">
-              <Search className="w-4 h-4" />
+            <Button type="submit" size="lg" className="h-14 px-7 bg-[#FF6A00] hover:bg-[#FF6A00]/90 shadow-lg" aria-label="Search">
+              <Search className="w-5 h-5" />
             </Button>
           </form>
 
-          {/* Quick chip filters */}
-          <div className="flex flex-wrap gap-2 mb-5">
+          {/* Quick chip filters — better mobile scroll */}
+          <div className="flex gap-2 mb-6 overflow-x-auto pb-2 -mx-2 px-2 scrollbar-hide">
             <Link
               to="/browse"
-              className="px-3.5 py-2 rounded-full border bg-card text-sm font-medium hover:border-primary hover:bg-primary/5 hover:text-primary active:scale-95 transition-all"
+              className="px-4 py-2.5 rounded-full border border-border/60 bg-card text-sm font-medium hover:border-[#FF6A00] hover:bg-[#FF6A00]/5 hover:text-[#FF6A00] active:scale-95 transition-all whitespace-nowrap"
             >
               All Brands
             </Link>
             <Link
               to="/browse"
-              className="px-3.5 py-2 rounded-full border bg-card text-sm font-medium hover:border-primary hover:bg-primary/5 hover:text-primary active:scale-95 transition-all"
+              className="px-4 py-2.5 rounded-full border border-border/60 bg-card text-sm font-medium hover:border-[#FF6A00] hover:bg-[#FF6A00]/5 hover:text-[#FF6A00] active:scale-95 transition-all whitespace-nowrap"
             >
               All Districts
             </Link>
             <Link
               to="/browse"
-              className="px-3.5 py-2 rounded-full border bg-card text-sm font-medium hover:border-primary hover:bg-primary/5 hover:text-primary active:scale-95 transition-all"
+              className="px-4 py-2.5 rounded-full border border-border/60 bg-card text-sm font-medium hover:border-[#FF6A00] hover:bg-[#FF6A00]/5 hover:text-[#FF6A00] active:scale-95 transition-all whitespace-nowrap"
             >
               Scooters
             </Link>
             <Link
               to="/browse"
-              className="px-3.5 py-2 rounded-full border bg-card text-sm font-medium hover:border-primary hover:bg-primary/5 hover:text-primary active:scale-95 transition-all"
+              className="px-4 py-2.5 rounded-full border border-border/60 bg-card text-sm font-medium hover:border-[#FF6A00] hover:bg-[#FF6A00]/5 hover:text-[#FF6A00] active:scale-95 transition-all whitespace-nowrap"
             >
               Motorbikes
             </Link>
           </div>
 
-          {/* More Filters CTA — opens the full browse experience */}
+          {/* More Filters CTA */}
           <Button
             variant="outline"
             onClick={() => navigate({ to: "/browse" })}
-            className="w-full h-12 gap-2 justify-center text-base"
+            className="w-full h-12 gap-2 justify-center text-base border-border/60 hover:border-[#FF6A00] hover:text-[#FF6A00]"
           >
             More Filters <ArrowRight className="w-4 h-4" />
           </Button>
         </motion.div>
       </section>
 
-      {/* Browse by brand — pill tag style */}
-      <section className="container mx-auto px-4 py-12">
-        <h2 className="text-2xl md:text-3xl font-bold mb-6">Browse by brand</h2>
-        <div className="flex flex-wrap gap-2">
+      {/* Browse by brand — polished pills with better spacing */}
+      <section className="container mx-auto px-4 py-14 md:py-16">
+        <h2 className="text-2xl md:text-3xl font-bold mb-7 text-[#0B1D3A]">Browse by brand</h2>
+        <div className="flex gap-2.5 overflow-x-auto pb-3 -mx-4 px-4 md:mx-0 md:px-0 md:flex-wrap scrollbar-hide">
           {POPULAR_BRANDS.map(b => (
             <Link
               key={b}
               to="/browse"
               search={{ brand: b } as any}
-              className="px-4 py-2.5 rounded-full border bg-card text-sm font-medium hover:border-primary hover:bg-primary/5 hover:text-primary active:scale-95 transition-all duration-150"
+              className="px-5 py-3 rounded-full border border-border/60 bg-card text-sm font-medium hover:border-[#FF6A00] hover:bg-[#FF6A00]/5 hover:text-[#FF6A00] active:scale-95 transition-all duration-200 whitespace-nowrap shadow-sm"
             >
               {b}
             </Link>
           ))}
           <Link
             to="/browse"
-            className="px-4 py-2.5 rounded-full border bg-muted text-sm font-medium text-muted-foreground hover:border-primary hover:text-primary active:scale-95 transition-all duration-150"
+            className="px-5 py-3 rounded-full border border-border/60 bg-muted/50 text-sm font-medium text-muted-foreground hover:border-[#FF6A00] hover:text-[#FF6A00] active:scale-95 transition-all duration-200 whitespace-nowrap"
           >
             All bikes →
           </Link>
         </div>
       </section>
 
-      {/* Latest listings */}
-      <section className="container mx-auto px-4 py-12 pt-0">
-        <div className="flex items-end justify-between mb-6">
-          <div>
-            <h2 className="text-2xl md:text-3xl font-bold">Latest listings</h2>
-            <p className="text-sm text-muted-foreground mt-1">Fresh bikes added daily across Nepal</p>
+      {/* Latest listings — better spacing and premium feel */}
+      <section className="bg-muted/30 py-14 md:py-16">
+        <div className="container mx-auto px-4">
+          <div className="flex items-end justify-between mb-8">
+            <div>
+              <h2 className="text-2xl md:text-3xl font-bold text-[#0B1D3A]">Latest listings</h2>
+              <p className="text-sm text-muted-foreground mt-1.5">Fresh bikes added daily across Nepal</p>
+            </div>
+            <Link to="/browse" className="text-sm text-[#FF6A00] font-medium hover:underline flex items-center gap-1.5">
+              View all <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
-          <Link to="/browse" className="text-sm text-primary font-medium hover:underline flex items-center gap-1">
-            View all <ArrowRight className="w-3 h-3" />
-          </Link>
-        </div>
-        {featuredLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="rounded-xl bg-card border overflow-hidden">
-                <div className="aspect-[4/3] bg-muted animate-pulse" />
-                <div className="p-4 space-y-3">
-                  <div className="h-4 bg-muted animate-pulse rounded w-3/4" />
-                  <div className="h-5 bg-muted animate-pulse rounded w-1/2" />
-                  <div className="h-3 bg-muted animate-pulse rounded" />
+          {featuredLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="rounded-xl bg-card border border-border/60 overflow-hidden shadow-sm">
+                  <div className="aspect-[16/10] bg-muted animate-pulse" />
+                  <div className="p-5 space-y-3">
+                    <div className="h-4 bg-muted animate-pulse rounded w-3/4" />
+                    <div className="h-5 bg-muted animate-pulse rounded w-1/2" />
+                    <div className="h-3 bg-muted animate-pulse rounded" />
+                  </div>
                 </div>
+              ))}
+            </div>
+          ) : featured?.length ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
+              {featured.map(l => <ListingCard key={l.id} listing={l as any} />)}
+            </div>
+          ) : (
+            <div className="text-center py-12 border border-border/60 rounded-2xl bg-card shadow-sm max-w-xl mx-auto">
+              <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
+                <TrendingUp className="w-8 h-8 text-muted-foreground" />
               </div>
-            ))}
-          </div>
-        ) : featured?.length ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {featured.map(l => <ListingCard key={l.id} listing={l as any} />)}
-          </div>
-        ) : (
-          <div className="text-center py-16 border rounded-xl bg-card">
-            <TrendingUp className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-            <p className="text-muted-foreground mb-4">No listings yet. Be the first to sell!</p>
-            <Button onClick={() => navigate({ to: "/sell" })}>Post your bike for free</Button>
-          </div>
-        )}
+              <p className="text-muted-foreground mb-5">No listings yet. Be the first to sell!</p>
+              <Button onClick={() => navigate({ to: "/sell" })} className="bg-[#FF6A00] hover:bg-[#FF6A00]/90">Post your bike for free</Button>
+            </div>
+          )}
+        </div>
       </section>
 
-      {/* How it works */}
-      <section className="bg-muted/40 py-16">
+      {/* How it works — polished cards with better visual hierarchy */}
+      <section className="py-16 md:py-20">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-10">
-            <h2 className="text-2xl md:text-3xl font-bold">How MyRideNepal works</h2>
+          <div className="text-center mb-12">
+            <h2 className="text-2xl md:text-3xl font-bold text-[#0B1D3A]">How MyRideNepal works</h2>
             <p className="text-muted-foreground mt-2">Built for Nepal's two-wheeler market</p>
           </div>
-          <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-6 lg:gap-8 max-w-5xl mx-auto">
             {[
-              { icon: Zap, title: "1. Sellers list bikes", desc: "Create a free listing with photos and specs. MyRideNepal reviews every listing for quality.", color: "bg-orange-500/10 text-orange-500" },
+              { icon: Zap, title: "1. Sellers list bikes", desc: "Create a free listing with photos and specs. MyRideNepal reviews every listing for quality.", color: "bg-[#FF6A00]/10 text-[#FF6A00]" },
               { icon: ShieldCheck, title: "2. Admin review", desc: "Our team reviews listings to filter spam and ensure quality standards.", color: "bg-blue-500/10 text-blue-500" },
               { icon: Users, title: "3. Direct contact", desc: "Buyers contact sellers directly via WhatsApp or phone. No middleman, no commission.", color: "bg-green-500/10 text-green-500" },
             ].map((step, i) => (
-              <div key={i} className="bg-card p-6 rounded-xl border shadow-[var(--shadow-card)]">
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${step.color}`}>
-                  <step.icon className="w-6 h-6" />
+              <div key={i} className="bg-card p-7 rounded-2xl border border-border/50 shadow-sm hover:shadow-md transition-shadow">
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-5 ${step.color}`}>
+                  <step.icon className="w-7 h-7" />
                 </div>
-                <h3 className="font-semibold text-lg mb-2">{step.title}</h3>
+                <h3 className="font-bold text-lg mb-2.5 text-[#0B1D3A]">{step.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{step.desc}</p>
               </div>
             ))}
           </div>
-          <div className="text-center mt-10">
-            <Button size="lg" onClick={() => navigate({ to: "/sell" })} className="gap-2">
+          <div className="text-center mt-12">
+            <Button size="lg" onClick={() => navigate({ to: "/sell" })} className="gap-2 bg-[#FF6A00] hover:bg-[#FF6A00]/90 px-8 h-12 shadow-lg">
               Post your bike for free <ArrowRight className="w-4 h-4" />
             </Button>
           </div>
         </div>
       </section>
 
-      {/* Buyer Safety & Seller Benefits */}
-      <section className="container mx-auto px-4 py-16">
-        <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-          {/* Buyer Safety */}
-          <div className="bg-card p-6 md:p-8 rounded-xl border">
-            <div className="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center mb-4">
-              <ShieldCheck className="w-6 h-6" />
-            </div>
-            <h3 className="text-xl font-bold mb-3">Buyer Safety Tips</h3>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li className="flex gap-2">
-                <span className="text-primary mt-0.5">•</span>
-                <span>Inspect bike thoroughly before payment</span>
-              </li>
-              <li className="flex gap-2">
-                <span className="text-primary mt-0.5">•</span>
-                <span>Check bluebook and ownership documents</span>
-              </li>
-              <li className="flex gap-2">
-                <span className="text-primary mt-0.5">•</span>
-                <span>Meet in safe public location or dealer showroom</span>
-              </li>
-              <li className="flex gap-2">
-                <span className="text-primary mt-0.5">•</span>
-                <span>Never pay 100% advance to unknown sellers</span>
-              </li>
-              <li className="flex gap-2">
-                <span className="text-primary mt-0.5">•</span>
-                <span>Complete ownership transfer before finalizing</span>
-              </li>
-            </ul>
-            <Button variant="outline" className="mt-4 w-full" onClick={() => navigate({ to: "/safety-tips" })}>
-              Read full safety guide
-            </Button>
+      {/* Buyer Safety & Seller Benefits — better integrated section */}
+      <section className="bg-muted/30 py-16 md:py-20">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl md:text-3xl font-bold text-[#0B1D3A]">Why choose MyRideNepal?</h2>
+            <p className="text-muted-foreground mt-2">Safe for buyers, profitable for sellers</p>
           </div>
-
-          {/* Seller Benefits */}
-          <div className="bg-card p-6 md:p-8 rounded-xl border">
-            <div className="w-12 h-12 rounded-xl bg-green-500/10 text-green-500 flex items-center justify-center mb-4">
-              <TrendingUp className="w-6 h-6" />
+          <div className="grid md:grid-cols-2 gap-6 lg:gap-8 max-w-5xl mx-auto">
+            {/* Buyer Safety */}
+            <div className="bg-card p-7 md:p-8 rounded-2xl border border-border/50 shadow-sm">
+              <div className="w-14 h-14 rounded-2xl bg-blue-500/10 text-blue-500 flex items-center justify-center mb-5">
+                <ShieldCheck className="w-7 h-7" />
+              </div>
+              <h3 className="text-xl font-bold mb-4 text-[#0B1D3A]">Buyer Safety Tips</h3>
+              <ul className="space-y-3 text-sm text-muted-foreground mb-6">
+                <li className="flex gap-2.5">
+                  <span className="text-[#FF6A00] mt-0.5 font-bold">•</span>
+                  <span>Inspect bike thoroughly before payment</span>
+                </li>
+                <li className="flex gap-2.5">
+                  <span className="text-[#FF6A00] mt-0.5 font-bold">•</span>
+                  <span>Check bluebook and ownership documents</span>
+                </li>
+                <li className="flex gap-2.5">
+                  <span className="text-[#FF6A00] mt-0.5 font-bold">•</span>
+                  <span>Meet in safe public location or dealer showroom</span>
+                </li>
+                <li className="flex gap-2.5">
+                  <span className="text-[#FF6A00] mt-0.5 font-bold">•</span>
+                  <span>Never pay 100% advance to unknown sellers</span>
+                </li>
+                <li className="flex gap-2.5">
+                  <span className="text-[#FF6A00] mt-0.5 font-bold">•</span>
+                  <span>Complete ownership transfer before finalizing</span>
+                </li>
+              </ul>
+              <Button variant="outline" className="w-full h-11 border-border/60 hover:border-[#FF6A00] hover:text-[#FF6A00]" onClick={() => navigate({ to: "/safety-tips" })}>
+                Read full safety guide
+              </Button>
             </div>
-            <h3 className="text-xl font-bold mb-3">Seller Benefits</h3>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li className="flex gap-2">
-                <span className="text-primary mt-0.5">•</span>
-                <span>List your bike or scooter for free</span>
-              </li>
-              <li className="flex gap-2">
-                <span className="text-primary mt-0.5">•</span>
-                <span>No commission on sales — keep 100% profit</span>
-              </li>
-              <li className="flex gap-2">
-                <span className="text-primary mt-0.5">•</span>
-                <span>Buyers contact you directly via phone/WhatsApp</span>
-              </li>
-              <li className="flex gap-2">
-                <span className="text-primary mt-0.5">•</span>
-                <span>Reach thousands of buyers across Nepal</span>
-              </li>
-              <li className="flex gap-2">
-                <span className="text-primary mt-0.5">•</span>
-                <span>Dealers get free beta access with analytics</span>
-              </li>
-            </ul>
-            <Button className="mt-4 w-full" onClick={() => navigate({ to: "/sell" })}>
-              Start selling now — Free
-            </Button>
+
+            {/* Seller Benefits */}
+            <div className="bg-card p-7 md:p-8 rounded-2xl border border-border/50 shadow-sm">
+              <div className="w-14 h-14 rounded-2xl bg-green-500/10 text-green-500 flex items-center justify-center mb-5">
+                <TrendingUp className="w-7 h-7" />
+              </div>
+              <h3 className="text-xl font-bold mb-4 text-[#0B1D3A]">Seller Benefits</h3>
+              <ul className="space-y-3 text-sm text-muted-foreground mb-6">
+                <li className="flex gap-2.5">
+                  <span className="text-[#FF6A00] mt-0.5 font-bold">•</span>
+                  <span>List your bike or scooter for free</span>
+                </li>
+                <li className="flex gap-2.5">
+                  <span className="text-[#FF6A00] mt-0.5 font-bold">•</span>
+                  <span>No commission on sales — keep 100% profit</span>
+                </li>
+                <li className="flex gap-2.5">
+                  <span className="text-[#FF6A00] mt-0.5 font-bold">•</span>
+                  <span>Buyers contact you directly via phone/WhatsApp</span>
+                </li>
+                <li className="flex gap-2.5">
+                  <span className="text-[#FF6A00] mt-0.5 font-bold">•</span>
+                  <span>Reach thousands of buyers across Nepal</span>
+                </li>
+                <li className="flex gap-2.5">
+                  <span className="text-[#FF6A00] mt-0.5 font-bold">•</span>
+                  <span>Dealers get free beta access with analytics</span>
+                </li>
+              </ul>
+              <Button className="w-full h-11 bg-[#FF6A00] hover:bg-[#FF6A00]/90 shadow-md" onClick={() => navigate({ to: "/sell" })}>
+                Start selling now — Free
+              </Button>
+            </div>
           </div>
         </div>
       </section>
