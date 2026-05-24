@@ -63,12 +63,14 @@ function ComparePage() {
     <div className="min-h-screen bg-muted/30">
       {/* Header */}
       <div className="bg-card border-b">
-        <div className="container mx-auto px-4 py-8 max-w-5xl text-center">
-          <div className="inline-flex w-12 h-12 rounded-2xl bg-primary/10 text-primary items-center justify-center mb-3">
+        <div className="container mx-auto px-4 py-10 max-w-5xl text-center mrn-fade-in-up">
+          <div className="inline-flex w-12 h-12 rounded-2xl bg-primary/10 text-primary items-center justify-center mb-4">
             <GitCompare className="w-6 h-6" />
           </div>
-          <h1 className="text-3xl font-bold">Compare bikes</h1>
-          <p className="text-muted-foreground mt-1">Add up to 3 listings to compare side by side.</p>
+          <h1 className="text-3xl md:text-4xl font-bold">Compare bikes</h1>
+          <p className="text-muted-foreground mt-2 max-w-xl mx-auto">
+            Add up to 3 listings to compare price, specs, and condition side by side.
+          </p>
         </div>
       </div>
 
@@ -81,13 +83,17 @@ function ComparePage() {
         )}
 
         {ids.length === 0 ? (
-          <Card className="p-16 text-center shadow-[var(--shadow-card)]">
-            <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
+          <Card className="p-12 sm:p-16 text-center shadow-[var(--shadow-card)] max-w-xl mx-auto">
+            <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-5">
               <GitCompare className="w-8 h-8 text-muted-foreground opacity-50" />
             </div>
-            <p className="font-semibold text-lg mb-1">No bikes selected</p>
-            <p className="text-muted-foreground text-sm mb-6">Search for listings above or browse to find bikes to compare.</p>
-            <Button asChild><Link to="/browse">Browse listings</Link></Button>
+            <p className="font-semibold text-lg mb-1.5">No bikes selected</p>
+            <p className="text-muted-foreground text-sm mb-6 max-w-md mx-auto leading-relaxed">
+              Search for listings above or browse the marketplace to pick bikes you'd like to compare side by side.
+            </p>
+            <Button asChild className="transition-all duration-200 active:scale-[0.98]">
+              <Link to="/browse">Browse listings</Link>
+            </Button>
           </Card>
         ) : (
           <div className="overflow-x-auto">
@@ -96,7 +102,10 @@ function ComparePage() {
               <div className="grid gap-4 mb-2" style={{ gridTemplateColumns: `160px repeat(${ids.length}, 1fr)` }}>
                 <div /> {/* label column spacer */}
                 {listings?.map(l => (
-                  <Card key={l.id} className="overflow-hidden shadow-[var(--shadow-card)]">
+                  <Card
+                    key={l.id}
+                    className="overflow-hidden shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elegant)] hover:-translate-y-1 transition-all duration-200"
+                  >
                     <div className="relative">
                       <img
                         src={l.images?.[0] || "https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=400"}
@@ -105,14 +114,15 @@ function ComparePage() {
                       />
                       <button
                         onClick={() => remove(l.id)}
-                        className="absolute top-2 right-2 w-7 h-7 bg-black/60 text-white rounded-full flex items-center justify-center hover:bg-black/80 transition-colors"
+                        className="absolute top-2 right-2 w-7 h-7 bg-black/60 text-white rounded-full flex items-center justify-center hover:bg-black/80 transition-all active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                        aria-label="Remove from comparison"
                       >
                         <X className="w-3.5 h-3.5" />
                       </button>
                     </div>
                     <div className="p-3">
-                      <Link to="/listings/$id" params={{ id: l.id }}>
-                        <p className="font-semibold text-sm line-clamp-2 hover:text-primary leading-snug">{l.title}</p>
+                      <Link to="/listings/$id" params={{ id: l.id }} className="focus-visible:outline-none focus-visible:underline">
+                        <p className="font-semibold text-sm line-clamp-2 hover:text-primary leading-snug transition-colors">{l.title}</p>
                       </Link>
                       <p className="text-primary font-bold mt-1">{formatNPR(l.price)}</p>
                     </div>

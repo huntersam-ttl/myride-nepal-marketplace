@@ -147,8 +147,12 @@ function BlogIndex() {
           <div className="space-y-6">
             {/* Featured post — full-width hero */}
             {featured && !q && featured.slug && (
-              <Link to="/blog/$slug" params={{ slug: featured.slug }}>
-                <Card className="overflow-hidden group hover:shadow-[var(--shadow-elegant)] transition-shadow shadow-[var(--shadow-card)]">
+              <Link
+                to="/blog/$slug"
+                params={{ slug: featured.slug }}
+                className="block rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2"
+              >
+                <Card className="overflow-hidden group shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elegant)] hover:-translate-y-1 transition-all duration-200">
                   <div className="grid md:grid-cols-2">
                     <div className="relative overflow-hidden aspect-[16/9] md:aspect-auto">
                       {featured.cover_image ? (
@@ -194,8 +198,13 @@ function BlogIndex() {
             {rest.length > 0 && (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
                 {(q ? posts : rest).filter(p => p.slug).map(p => (
-                  <Link key={p.id} to="/blog/$slug" params={{ slug: p.slug }}>
-                    <Card className="overflow-hidden h-full group hover:shadow-[var(--shadow-elegant)] transition-shadow shadow-[var(--shadow-card)]">
+                  <Link
+                    key={p.id}
+                    to="/blog/$slug"
+                    params={{ slug: p.slug }}
+                    className="block rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2"
+                  >
+                    <Card className="overflow-hidden h-full group shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elegant)] hover:-translate-y-1 transition-all duration-200">
                       <div className="relative overflow-hidden aspect-[16/9] bg-muted">
                         {p.cover_image ? (
                           <img

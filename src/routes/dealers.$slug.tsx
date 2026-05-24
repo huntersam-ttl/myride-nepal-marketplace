@@ -150,28 +150,38 @@ function DealerProfilePage() {
 
   return (
     <div className="min-h-screen bg-muted/30">
-      {/* Banner */}
-      <div className="h-44 md:h-56 bg-gradient-to-br from-primary/20 via-primary/5 to-secondary/20 relative overflow-hidden">
-        {dealer.banner_url && <img src={dealer.banner_url} alt="" className="w-full h-full object-cover" />}
+      {/* Banner — deeper navy gradient for a stronger header presence */}
+      <div className="h-48 md:h-64 relative overflow-hidden" style={{ background: "var(--gradient-hero)" }}>
+        {dealer.banner_url
+          ? <img src={dealer.banner_url} alt="" className="w-full h-full object-cover" />
+          : (
+            <div
+              className="absolute inset-0 opacity-30 pointer-events-none"
+              style={{
+                backgroundImage:
+                  "radial-gradient(circle at 20% 30%, rgba(232,75,26,0.4), transparent 50%), radial-gradient(circle at 80% 70%, rgba(232,75,26,0.25), transparent 50%)",
+              }}
+            />
+          )}
       </div>
 
-      <div className="container mx-auto px-4 -mt-12 md:-mt-16 relative pb-12">
+      <div className="container mx-auto px-4 -mt-12 md:-mt-16 relative pb-12 mrn-fade-in-up">
         {/* Header Card */}
         <Card className="p-5 md:p-6 shadow-[var(--shadow-elegant)]">
           <div className="flex items-start gap-4 flex-wrap">
             {/* Logo */}
             <div className="w-20 h-20 md:w-24 md:h-24 rounded-xl bg-muted border-4 border-card overflow-hidden flex items-center justify-center flex-shrink-0 -mt-12 md:-mt-16 shadow-md">
-              {dealer.logo_url 
-                ? <img src={dealer.logo_url} alt={dealer.business_name} className="w-full h-full object-cover" /> 
+              {dealer.logo_url
+                ? <img src={dealer.logo_url} alt={dealer.business_name} className="w-full h-full object-cover" />
                 : <Store className="w-8 h-8 text-muted-foreground" />
               }
             </div>
-            
+
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap mb-2">
                 <h1 className="text-2xl md:text-3xl font-bold">{dealer.business_name}</h1>
                 {dealer.verified && (
-                  <Badge className="gap-1 bg-primary/10 text-primary border-primary/30" variant="outline">
+                  <Badge className="gap-1 bg-primary/10 text-primary border-primary/30 font-semibold" variant="outline">
                     <ShieldCheck className="w-3 h-3" /> Verified
                   </Badge>
                 )}

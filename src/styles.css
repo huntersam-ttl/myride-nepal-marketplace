@@ -157,3 +157,40 @@
     max-width: 100%;
   }
 }
+
+/* ============================================================
+   Subtle micro-interaction utilities for secondary pages
+   - Only used on opt-in elements via the .mrn-* classes
+   - Respects prefers-reduced-motion
+   ============================================================ */
+
+@keyframes mrn-fade-in-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.mrn-fade-in-up {
+  animation: mrn-fade-in-up 0.4s ease-out both;
+}
+
+/* Restrained hover lift for cards — additive utility, can be combined with Tailwind */
+.mrn-card-lift {
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+}
+.mrn-card-lift:hover {
+  transform: translateY(-2px);
+}
+
+/* Respect user motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .mrn-fade-in-up {
+    animation: none;
+  }
+  .mrn-card-lift {
+    transition: none;
+  }
+  .mrn-card-lift:hover {
+    transform: none;
+  }
+}
+

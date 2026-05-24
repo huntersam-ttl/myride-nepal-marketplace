@@ -80,31 +80,37 @@ function DealersPage() {
 
   return (
     <div className="min-h-screen bg-muted/30">
-      {/* Header */}
+      {/* Header — centered, icon-badge, matches /blog and /price-estimator */}
       <div className="bg-card border-b">
-        <div className="container mx-auto px-4 py-8 max-w-5xl">
-          <div className="flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-bold">Verified dealers</h1>
-              <p className="text-muted-foreground mt-1">Established showrooms and trusted sellers across Nepal.</p>
+        <div className="container mx-auto px-4 py-10 max-w-5xl mrn-fade-in-up">
+          <div className="text-center">
+            <div className="inline-flex w-12 h-12 rounded-2xl bg-primary/10 text-primary items-center justify-center mb-4">
+              <Store className="w-6 h-6" />
             </div>
-            <Button asChild variant="outline" className="gap-2">
-              <Link to="/dealer-signup">
-                Become a dealer <ArrowRight className="w-4 h-4" />
-              </Link>
-            </Button>
+            <h1 className="text-3xl md:text-4xl font-bold">Verified dealers</h1>
+            <p className="text-muted-foreground mt-2 max-w-xl mx-auto">
+              Established showrooms and trusted sellers across Nepal.
+            </p>
+            <div className="mt-5">
+              <Button asChild variant="outline" className="gap-2 transition-all duration-200 active:scale-[0.98]">
+                <Link to="/dealer-signup">
+                  Become a dealer <ArrowRight className="w-4 h-4" />
+                </Link>
+              </Button>
+            </div>
           </div>
 
           {/* Stats row */}
           {!isLoading && data && data.length > 0 && (
-            <div className="flex gap-6 mt-6 text-sm">
-              <div>
-                <span className="font-bold text-xl">{verified.length}</span>
-                <span className="text-muted-foreground ml-2">Verified dealers</span>
+            <div className="flex justify-center gap-8 mt-7 text-sm">
+              <div className="text-center">
+                <div className="font-bold text-2xl">{verified.length}</div>
+                <div className="text-muted-foreground text-xs uppercase tracking-wide mt-0.5">Verified</div>
               </div>
-              <div>
-                <span className="font-bold text-xl">{data.length}</span>
-                <span className="text-muted-foreground ml-2">Total dealers</span>
+              <div className="w-px bg-border" aria-hidden="true" />
+              <div className="text-center">
+                <div className="font-bold text-2xl">{data.length}</div>
+                <div className="text-muted-foreground text-xs uppercase tracking-wide mt-0.5">Total dealers</div>
               </div>
             </div>
           )}
@@ -305,22 +311,22 @@ function DealersPage() {
             )}
           </div>
         ) : (
-          <Card className="p-16 text-center shadow-[var(--shadow-card)]">
-            <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
-              <Store className="w-8 h-8 text-muted-foreground opacity-40" />
+          <Card className="p-12 sm:p-16 text-center shadow-[var(--shadow-card)] max-w-xl mx-auto">
+            <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-5">
+              <Store className="w-8 h-8 text-muted-foreground opacity-50" />
             </div>
-            <h2 className="font-semibold text-lg mb-1">
-              {searchQuery || districtFilter !== "all" || verifiedOnly 
-                ? "No dealers found" 
+            <h2 className="font-semibold text-lg mb-1.5">
+              {searchQuery || districtFilter !== "all" || verifiedOnly
+                ? "No dealers found"
                 : "No dealers yet"}
             </h2>
-            <p className="text-muted-foreground text-sm mb-6">
+            <p className="text-muted-foreground text-sm mb-6 max-w-md mx-auto leading-relaxed">
               {searchQuery || districtFilter !== "all" || verifiedOnly
                 ? "Try adjusting your search or filters."
                 : "Be the first verified dealer on MyRideNepal."}
             </p>
             {!searchQuery && districtFilter === "all" && !verifiedOnly && (
-              <Button asChild>
+              <Button asChild className="transition-all duration-200 active:scale-[0.98]">
                 <Link to="/dealer-signup">Register as a dealer</Link>
               </Button>
             )}
@@ -333,16 +339,20 @@ function DealersPage() {
 
 function DealerCard({ dealer: d }: { dealer: any }) {
   return (
-    <Link to="/dealers/$slug" params={{ slug: d.slug }}>
-      <Card className="overflow-hidden h-full group hover:shadow-[var(--shadow-elegant)] transition-shadow shadow-[var(--shadow-card)]">
+    <Link
+      to="/dealers/$slug"
+      params={{ slug: d.slug }}
+      className="block rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2"
+    >
+      <Card className="overflow-hidden h-full group shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elegant)] hover:-translate-y-1 transition-all duration-200">
         {/* Banner */}
         <div className="h-28 bg-gradient-to-br from-primary/15 to-secondary/20 relative overflow-hidden">
           {d.banner_url && (
             <img src={d.banner_url} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
           )}
           {d.verified && (
-            <div className="absolute top-2.5 right-2.5">
-              <Badge className="gap-1 bg-white/90 text-primary border-0 shadow-sm text-xs">
+            <div className="absolute top-2.5 right-2.5 pointer-events-none">
+              <Badge className="gap-1 bg-white/95 text-primary border-0 shadow-sm text-xs font-semibold">
                 <ShieldCheck className="w-3 h-3" /> Verified
               </Badge>
             </div>

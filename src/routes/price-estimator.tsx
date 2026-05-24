@@ -222,27 +222,31 @@ function PriceEstimatorPage() {
               </Card>
             ) : (
               <div className="space-y-4">
-                  {/* Main estimate */}
-                  <Card className="overflow-hidden shadow-[var(--shadow-card)]">
-                    {/* Top accent */}
-                    <div className="h-1.5 bg-gradient-to-r from-primary to-primary/60" />
-                    <div className="p-6">
-                      <div className="flex items-start justify-between mb-4">
-                        <div>
-                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Estimated resale value</p>
-                          <p className="text-4xl font-bold text-primary leading-tight">{formatNPR(calc.final)}</p>
-                          <p className="text-sm text-muted-foreground mt-1">
+                  {/* Main estimate — premium navy panel with orange value */}
+                  <Card className="overflow-hidden shadow-[var(--shadow-elegant)] border-0 mrn-fade-in-up">
+                    {/* Dark hero band carrying the headline number */}
+                    <div className="relative p-6 sm:p-7 text-white overflow-hidden" style={{ background: "var(--gradient-hero)" }}>
+                      <div
+                        className="absolute inset-0 opacity-20 pointer-events-none"
+                        style={{
+                          backgroundImage:
+                            "radial-gradient(circle at 20% 30%, rgba(232,75,26,0.35), transparent 50%), radial-gradient(circle at 80% 70%, rgba(232,75,26,0.18), transparent 50%)",
+                        }}
+                      />
+                      <div className="relative flex items-start justify-between gap-4 flex-wrap">
+                        <div className="min-w-0">
+                          <p className="text-[11px] font-semibold text-white/60 uppercase tracking-wide mb-1.5">Estimated resale value</p>
+                          <p className="text-4xl md:text-5xl font-bold text-primary leading-tight tabular-nums">{formatNPR(calc.final)}</p>
+                          <p className="text-sm text-white/70 mt-1.5">
                             Range: {formatNPR(calc.lowRange)} – {formatNPR(calc.highRange)}
                           </p>
                         </div>
-                        <Badge
-                          variant="secondary"
-                          className="text-sm font-bold px-3 py-1.5 tabular-nums"
-                        >
+                        <Badge className="text-sm font-bold px-3 py-1.5 tabular-nums bg-white/15 text-white border-white/20 hover:bg-white/15">
                           {calc.retentionPct}% retained
                         </Badge>
                       </div>
-
+                    </div>
+                    <div className="p-6">
                       {/* Retention bar */}
                       <div className="space-y-1.5 mb-5">
                         <div className="flex justify-between text-xs text-muted-foreground">
