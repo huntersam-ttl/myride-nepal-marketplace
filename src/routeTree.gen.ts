@@ -27,6 +27,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DealersIndexRouteImport } from './routes/dealers.index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as ListingsIdRouteImport } from './routes/listings.$id'
 import { Route as DealersSlugRouteImport } from './routes/dealers.$slug'
@@ -136,6 +137,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const DealersIndexRoute = DealersIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DealersRoute,
 } as any)
 const BlogIndexRoute = BlogIndexRouteImport.update({
   id: '/',
@@ -267,6 +273,7 @@ export interface FileRoutesByFullPath {
   '/dealers/$slug': typeof DealersSlugRoute
   '/listings/$id': typeof ListingsIdRouteWithChildren
   '/blog/': typeof BlogIndexRoute
+  '/dealers/': typeof DealersIndexRoute
   '/dealer/dashboard/analytics': typeof DealerDashboardAnalyticsRoute
   '/dealer/dashboard/inventory': typeof DealerDashboardInventoryRouteWithChildren
   '/dealer/dashboard/leads': typeof DealerDashboardLeadsRoute
@@ -290,7 +297,6 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRouteWithChildren
   '/dealer-beta': typeof DealerBetaRoute
   '/dealer-signup': typeof DealerSignupRoute
-  '/dealers': typeof DealersRouteWithChildren
   '/notifications': typeof NotificationsRoute
   '/price-estimator': typeof PriceEstimatorRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
@@ -305,6 +311,7 @@ export interface FileRoutesByTo {
   '/dealers/$slug': typeof DealersSlugRoute
   '/listings/$id': typeof ListingsIdRouteWithChildren
   '/blog': typeof BlogIndexRoute
+  '/dealers': typeof DealersIndexRoute
   '/dealer/dashboard/analytics': typeof DealerDashboardAnalyticsRoute
   '/dealer/dashboard/inventory': typeof DealerDashboardInventoryRouteWithChildren
   '/dealer/dashboard/leads': typeof DealerDashboardLeadsRoute
@@ -345,6 +352,7 @@ export interface FileRoutesById {
   '/dealers/$slug': typeof DealersSlugRoute
   '/listings/$id': typeof ListingsIdRouteWithChildren
   '/blog/': typeof BlogIndexRoute
+  '/dealers/': typeof DealersIndexRoute
   '/dealer/dashboard/analytics': typeof DealerDashboardAnalyticsRoute
   '/dealer/dashboard/inventory': typeof DealerDashboardInventoryRouteWithChildren
   '/dealer/dashboard/leads': typeof DealerDashboardLeadsRoute
@@ -386,6 +394,7 @@ export interface FileRouteTypes {
     | '/dealers/$slug'
     | '/listings/$id'
     | '/blog/'
+    | '/dealers/'
     | '/dealer/dashboard/analytics'
     | '/dealer/dashboard/inventory'
     | '/dealer/dashboard/leads'
@@ -409,7 +418,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/dealer-beta'
     | '/dealer-signup'
-    | '/dealers'
     | '/notifications'
     | '/price-estimator'
     | '/privacy-policy'
@@ -424,6 +432,7 @@ export interface FileRouteTypes {
     | '/dealers/$slug'
     | '/listings/$id'
     | '/blog'
+    | '/dealers'
     | '/dealer/dashboard/analytics'
     | '/dealer/dashboard/inventory'
     | '/dealer/dashboard/leads'
@@ -463,6 +472,7 @@ export interface FileRouteTypes {
     | '/dealers/$slug'
     | '/listings/$id'
     | '/blog/'
+    | '/dealers/'
     | '/dealer/dashboard/analytics'
     | '/dealer/dashboard/inventory'
     | '/dealer/dashboard/leads'
@@ -627,6 +637,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/dealers/': {
+      id: '/dealers/'
+      path: '/'
+      fullPath: '/dealers/'
+      preLoaderRoute: typeof DealersIndexRouteImport
+      parentRoute: typeof DealersRoute
     }
     '/blog/': {
       id: '/blog/'
@@ -800,10 +817,12 @@ const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
 
 interface DealersRouteChildren {
   DealersSlugRoute: typeof DealersSlugRoute
+  DealersIndexRoute: typeof DealersIndexRoute
 }
 
 const DealersRouteChildren: DealersRouteChildren = {
   DealersSlugRoute: DealersSlugRoute,
+  DealersIndexRoute: DealersIndexRoute,
 }
 
 const DealersRouteWithChildren =
