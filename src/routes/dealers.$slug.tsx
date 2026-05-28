@@ -24,46 +24,11 @@ const TikTokIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const PUBLIC_DEALER_PROFILE_COLUMNS = [
-  "id",
-  "slug",
-  "business_name",
-  "description",
-  "location",
-  "district",
-  "brands",
-  "logo_url",
-  "banner_url",
-  "verified",
-  "years_in_business",
-  "opening_hours",
-  "showroom_photos",
-  "facebook_url",
-  "instagram_url",
-  "youtube_url",
-  "tiktok_url",
-  "exchange_accepted",
-  "financing_available",
-  "service_centre",
-  "average_rating",
-  "total_reviews",
-  "followers_count",
-  "active_listings_count",
-].join(",");
+const PUBLIC_DEALER_PROFILE_COLUMNS =
+  "id,slug,business_name,description,location,district,brands,logo_url,banner_url,verified,years_in_business,opening_hours,showroom_photos,facebook_url,instagram_url,youtube_url,tiktok_url,exchange_accepted,financing_available,service_centre,average_rating,total_reviews,followers_count,active_listings_count";
 
-const DEALER_PUBLIC_LISTING_CARD_COLUMNS = [
-  "id",
-  "title",
-  "brand",
-  "price",
-  "year",
-  "mileage",
-  "district",
-  "condition",
-  "images",
-  "featured",
-  "user_id",
-].join(",");
+const DEALER_PUBLIC_LISTING_CARD_COLUMNS =
+  "id,title,brand,price,year,mileage,district,condition,images,featured,user_id";
 
 export const Route = createFileRoute("/dealers/$slug")({
   loader: async ({ params }) => {

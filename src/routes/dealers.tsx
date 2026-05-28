@@ -10,19 +10,8 @@ import { ShieldCheck, MapPin, Store, ArrowRight, UserPlus, ListChecks, Phone, Ch
 import { NEPAL_DISTRICTS, POPULAR_BRANDS } from "@/lib/nepal";
 import { useState } from "react";
 
-const PUBLIC_DEALER_CARD_COLUMNS = [
-  "id",
-  "slug",
-  "business_name",
-  "description",
-  "district",
-  "location",
-  "brands",
-  "logo_url",
-  "banner_url",
-  "verified",
-  "active_listings_count",
-].join(",");
+const PUBLIC_DEALER_CARD_COLUMNS =
+  "id,slug,business_name,description,district,location,brands,logo_url,banner_url,verified,active_listings_count";
 
 export const Route = createFileRoute("/dealers")({
   component: DealersPage,

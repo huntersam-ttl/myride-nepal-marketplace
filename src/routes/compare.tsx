@@ -33,6 +33,9 @@ export const Route = createFileRoute("/compare")({
   head: () => ({ meta: [{ title: "Compare Bikes — MyRideNepal" }] }),
 });
 
+const PUBLIC_COMPARE_LISTING_COLUMNS =
+  "id,title,images,price,year,mileage,brand,model,condition,fuel_type,bike_type,colour,district";
+
 type CompareRow = {
   label: string;
   key: string;
@@ -82,7 +85,7 @@ function ComparePage() {
   const { data: listings } = useQuery({
     queryKey: ["compare", ids],
     enabled: ids.length > 0,
-    queryFn: async () => (await supabase.from("listings").select("*").in("id", ids)).data ?? [],
+    queryFn: async () => (await supabase.from("listings").select(PUBLIC_COMPARE_LISTING_COLUMNS).in("id", ids)).data ?? [],
   });
 
   const remove = (id: string) => setIds(p => p.filter(x => x !== id));
@@ -400,7 +403,7 @@ function AddListingSearch({
   inputRef,
 }: {
   onAdd: (id: string) => void;
-  inputRef: React.RefObject<HTMLInputElement>;
+  inputRef: React.RefObject<HTMLInputElement | null>;
 }) {
   const [q, setQ] = useState("");
   const { data } = useQuery({

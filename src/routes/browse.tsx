@@ -21,47 +21,11 @@ interface SearchParams {
   minPrice?: number; maxPrice?: number; sort?: string;
 }
 
-const PUBLIC_BROWSE_LISTING_COLUMNS = [
-  "id",
-  "title",
-  "brand",
-  "price",
-  "year",
-  "mileage",
-  "district",
-  "condition",
-  "images",
-  "featured",
-  "accident_history",
-  "num_owners",
-  "user_id",
-  "has_bluebook",
-  "has_insurance",
-  "has_tax_clearance",
-  "has_registration",
-  "bluebook_name_match",
-  "service_history",
-  "last_service_date",
-  "registration_expiry",
-  "created_at",
-  "views",
-  "shares",
-].join(",");
+const PUBLIC_BROWSE_LISTING_COLUMNS =
+  "id,title,brand,price,year,mileage,district,condition,images,featured,accident_history,num_owners,user_id,has_bluebook,has_insurance,has_tax_clearance,has_registration,bluebook_name_match,service_history,last_service_date,registration_expiry,created_at,views,shares";
 
-const RELATED_LISTING_COLUMNS = [
-  "id",
-  "title",
-  "brand",
-  "price",
-  "year",
-  "mileage",
-  "district",
-  "condition",
-  "images",
-  "featured",
-  "user_id",
-  "created_at",
-].join(",");
+const RELATED_LISTING_COLUMNS =
+  "id,title,brand,price,year,mileage,district,condition,images,featured,user_id,created_at";
 
 export const Route = createFileRoute("/browse")({
   validateSearch: (s: Record<string, unknown>): SearchParams => ({

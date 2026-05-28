@@ -52,6 +52,7 @@ function ProfileEditPage() {
   // Load dealer profile data
   useEffect(() => {
     if (dealerProfile) {
+      const profile = dealerProfile as any;
       setFormData({
         business_name: dealerProfile.business_name || "",
         slug: dealerProfile.slug || "",
@@ -62,13 +63,13 @@ function ProfileEditPage() {
         whatsapp: dealerProfile.whatsapp || "",
         logo_url: dealerProfile.logo_url || "",
         banner_url: dealerProfile.banner_url || "",
-        brands_carried: dealerProfile.brands_carried || "",
-        service_areas: dealerProfile.service_areas || "",
+        brands_carried: profile.brands_carried || "",
+        service_areas: profile.service_areas || "",
         facebook_url: dealerProfile.facebook_url || "",
         tiktok_url: dealerProfile.tiktok_url || "",
         youtube_url: dealerProfile.youtube_url || "",
         instagram_url: dealerProfile.instagram_url || "",
-        opening_hours: dealerProfile.opening_hours || "",
+        opening_hours: profile.opening_hours || "",
         exchange_accepted: dealerProfile.exchange_accepted || false,
         financing_available: dealerProfile.financing_available || false,
         service_centre: dealerProfile.service_centre || false,
@@ -104,7 +105,7 @@ function ProfileEditPage() {
           financing_available: formData.financing_available,
           service_centre: formData.service_centre,
           years_in_business: formData.years_in_business ? parseInt(formData.years_in_business) : null,
-        })
+        } as any)
         .eq("id", dealerProfile.id);
 
       if (error) throw error;

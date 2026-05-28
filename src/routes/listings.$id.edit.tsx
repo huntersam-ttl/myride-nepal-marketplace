@@ -66,6 +66,11 @@ function EditListingPage() {
       district: f.district, description: f.description.trim(), phone: f.phone, whatsapp: f.whatsapp,
     };
 
+    if (!user) {
+      setSaving(false);
+      return toast.error("Please login to edit this listing");
+    }
+
     if (!f.dealer_id) {
       const { data: dealerProfile, error: dealerProfileError } = await supabase
         .from("dealer_profiles")

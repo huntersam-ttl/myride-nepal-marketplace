@@ -46,7 +46,7 @@ export function FollowDealerButton({ dealerId, followerCount = 0 }: FollowDealer
         user_id: user.id,
         brand_filter: [],
         price_max: null,
-      });
+      } as any);
 
       if (error) {
         // Check for unique constraint violation

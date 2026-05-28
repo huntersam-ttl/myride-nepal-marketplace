@@ -26,45 +26,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { calculateListingScore } from "@/utils/listingScore";
 import { addRecentlyViewed } from "@/utils/recentlyViewed";
 
-const PUBLIC_LISTING_DETAIL_COLUMNS = [
-  "id",
-  "title",
-  "brand",
-  "model",
-  "bike_type",
-  "price",
-  "year",
-  "mileage",
-  "district",
-  "condition",
-  "fuel_type",
-  "colour",
-  "description",
-  "images",
-  "phone",
-  "whatsapp",
-  "status",
-  "created_at",
-  "user_id",
-  "views",
-  "shares",
-  "has_bluebook",
-  "has_insurance",
-  "has_tax_clearance",
-  "has_registration",
-  "bluebook_name_match",
-  "insurance_valid",
-  "registration_expiry",
-  "document_notes",
-  "accident_history",
-  "accident_details",
-  "num_owners",
-  "service_history",
-  "last_service_date",
-  "original_parts",
-  "modifications",
-  "youtube_url",
-].join(",");
+const PUBLIC_LISTING_DETAIL_COLUMNS =
+  "id,title,brand,model,bike_type,price,year,mileage,district,condition,fuel_type,colour,description,images,phone,whatsapp,status,created_at,user_id,views,shares,has_bluebook,has_insurance,has_tax_clearance,has_registration,bluebook_name_match,insurance_valid,registration_expiry,document_notes,accident_history,accident_details,num_owners,service_history,last_service_date,original_parts,modifications,youtube_url";
 
 // Helper function to extract YouTube video ID and create embed URL
 function getYouTubeEmbedUrl(url: string): string {

@@ -1025,7 +1025,108 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      public_dealer_profiles: {
+        Row: {
+          active_listings_count: number | null
+          average_rating: number | null
+          banner_url: string | null
+          brands: string[] | null
+          business_name: string | null
+          description: string | null
+          district: string | null
+          exchange_accepted: boolean | null
+          facebook_url: string | null
+          financing_available: boolean | null
+          followers_count: number | null
+          id: string | null
+          instagram_url: string | null
+          location: string | null
+          logo_url: string | null
+          opening_hours: Json | null
+          service_centre: boolean | null
+          showroom_photos: string[] | null
+          slug: string | null
+          tiktok_url: string | null
+          total_reviews: number | null
+          verified: boolean | null
+          years_in_business: number | null
+          youtube_url: string | null
+        }
+        Insert: {
+          active_listings_count?: number | null
+          average_rating?: number | null
+          banner_url?: string | null
+          brands?: string[] | null
+          business_name?: string | null
+          description?: string | null
+          district?: string | null
+          exchange_accepted?: boolean | null
+          facebook_url?: string | null
+          financing_available?: boolean | null
+          followers_count?: number | null
+          id?: string | null
+          instagram_url?: string | null
+          location?: string | null
+          logo_url?: string | null
+          opening_hours?: Json | null
+          service_centre?: boolean | null
+          showroom_photos?: string[] | null
+          slug?: string | null
+          tiktok_url?: string | null
+          total_reviews?: number | null
+          verified?: boolean | null
+          years_in_business?: number | null
+          youtube_url?: string | null
+        }
+        Update: {
+          active_listings_count?: number | null
+          average_rating?: number | null
+          banner_url?: string | null
+          brands?: string[] | null
+          business_name?: string | null
+          description?: string | null
+          district?: string | null
+          exchange_accepted?: boolean | null
+          facebook_url?: string | null
+          financing_available?: boolean | null
+          followers_count?: number | null
+          id?: string | null
+          instagram_url?: string | null
+          location?: string | null
+          logo_url?: string | null
+          opening_hours?: Json | null
+          service_centre?: boolean | null
+          showroom_photos?: string[] | null
+          slug?: string | null
+          tiktok_url?: string | null
+          total_reviews?: number | null
+          verified?: boolean | null
+          years_in_business?: number | null
+          youtube_url?: string | null
+        }
+        Relationships: []
+      }
+      public_profile_badges: {
+        Row: {
+          avatar_url: string | null
+          id: string | null
+          name: string | null
+          verification_level: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          id?: string | null
+          name?: string | null
+          verification_level?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          id?: string | null
+          name?: string | null
+          verification_level?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_role: {
