@@ -36,6 +36,34 @@ const STEPS = [
   { label: "Contact", icon: Phone },
 ];
 
+const MAX_LISTING_IMAGES = 8;
+const MAX_LISTING_IMAGE_SIZE = 5 * 1024 * 1024;
+const ALLOWED_LISTING_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+const ALLOWED_LISTING_IMAGE_EXTENSIONS = new Set(["jpg", "jpeg", "png", "webp"]);
+
+function getFileExtension(fileName: string) {
+  const match = fileName.toLowerCase().match(/\.([^.]+)$/);
+  return match?.[1] ?? null;
+}
+
+function getListingImageValidationError(file: File) {
+  const extension = getFileExtension(file.name);
+
+  if (!extension || !ALLOWED_LISTING_IMAGE_EXTENSIONS.has(extension)) {
+    return "Only JPG, PNG, or WebP photos are allowed.";
+  }
+
+  if (!ALLOWED_LISTING_IMAGE_TYPES.has(file.type)) {
+    return "Only JPG, PNG, or WebP photos are allowed.";
+  }
+
+  if (file.size > MAX_LISTING_IMAGE_SIZE) {
+    return "Each photo must be 5MB or smaller.";
+  }
+
+  return null;
+}
+
 function SellPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
@@ -77,7 +105,26 @@ function SellPage() {
 
   const onFiles = (fileList: FileList | null) => {
     if (!fileList) return;
-    const arr = Array.from(fileList).slice(0, 8 - files.length);
+
+    const remainingSlots = MAX_LISTING_IMAGES - files.length;
+    if (remainingSlots <= 0) {
+      toast.error(`You can upload up to ${MAX_LISTING_IMAGES} photos.`);
+      return;
+    }
+
+    const validFiles = Array.from(fileList).filter(file => {
+      const validationError = getListingImageValidationError(file);
+      if (validationError) toast.error(`${file.name}: ${validationError}`);
+      return !validationError;
+    });
+
+    if (validFiles.length > remainingSlots) {
+      toast.error(`You can upload up to ${MAX_LISTING_IMAGES} photos.`);
+    }
+
+    const arr = validFiles.slice(0, remainingSlots);
+    if (arr.length === 0) return;
+
     setFiles(prev => [...prev, ...arr]);
     setPreviews(prev => [...prev, ...arr.map(f => URL.createObjectURL(f))]);
   };
@@ -89,8 +136,10 @@ function SellPage() {
 
   const submit = async () => {
     if (files.length === 0) { toast.error("Please upload at least one photo"); return; }
+    if (files.length > MAX_LISTING_IMAGES) { toast.error(`You can upload up to ${MAX_LISTING_IMAGES} photos.`); return; }
     if (!f.phone || f.phone === "+977") { toast.error("Please enter your phone number"); return; }
     setSubmitting(true);
+    const uploadedPaths: string[] = [];
     try {
       const { data: dealerProfile, error: dealerProfileError } = await supabase
         .from("dealer_profiles")
@@ -102,10 +151,14 @@ function SellPage() {
 
       const urls: string[] = [];
       for (const file of files) {
-        const ext = file.name.split(".").pop();
+        const validationError = getListingImageValidationError(file);
+        if (validationError) throw new Error(`${file.name}: ${validationError}`);
+
+        const ext = getFileExtension(file.name);
         const path = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
         const { error } = await supabase.storage.from("listings").upload(path, file);
         if (error) throw error;
+        uploadedPaths.push(path);
         const { data } = supabase.storage.from("listings").getPublicUrl(path);
         urls.push(data.publicUrl);
       }
@@ -124,6 +177,10 @@ function SellPage() {
       toast.success("Listing submitted! It'll go live after admin review.");
       navigate({ to: "/dashboard" });
     } catch (e: any) {
+      if (uploadedPaths.length > 0) {
+        const { error: cleanupError } = await supabase.storage.from("listings").remove(uploadedPaths);
+        if (cleanupError) console.error("Failed to clean up listing images:", cleanupError);
+      }
       toast.error(e.message || "Failed to submit listing");
     } finally {
       setSubmitting(false);
@@ -293,20 +350,20 @@ function SellPage() {
               </div>
 
               <label className={`flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-10 cursor-pointer transition-colors ${
-                files.length >= 8 ? "opacity-50 cursor-not-allowed" : "hover:border-primary hover:bg-primary/5"
+                files.length >= MAX_LISTING_IMAGES ? "opacity-50 cursor-not-allowed" : "hover:border-primary hover:bg-primary/5"
               }`}>
                 <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center mb-3">
                   <Upload className="w-6 h-6 text-muted-foreground" />
                 </div>
                 <span className="font-semibold text-base">Tap to upload photos</span>
-                <span className="text-sm text-muted-foreground mt-1">JPG, PNG · up to 5MB each · max 8 photos</span>
-                <span className="text-xs text-muted-foreground mt-2">{files.length}/8 uploaded</span>
+                <span className="text-sm text-muted-foreground mt-1">JPG, PNG, WebP · up to 5MB each · max 8 photos</span>
+                <span className="text-xs text-muted-foreground mt-2">{files.length}/{MAX_LISTING_IMAGES} uploaded</span>
                 <input
                   type="file"
-                  accept="image/*"
+                  accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
                   multiple
                   className="hidden"
-                  disabled={files.length >= 8}
+                  disabled={files.length >= MAX_LISTING_IMAGES}
                   onChange={e => onFiles(e.target.files)}
                 />
               </label>
