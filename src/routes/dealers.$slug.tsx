@@ -76,7 +76,7 @@ function DealerProfilePage() {
     queryKey: ["dealer-listings", dealer.id],
     queryFn: async () => {
       const { data: listings } = await supabase
-        .from("listings")
+        .from("public_listings")
         .select(DEALER_PUBLIC_LISTING_CARD_COLUMNS)
         .eq("dealer_id", dealer.id)
         .eq("status", "active")
@@ -91,7 +91,7 @@ function DealerProfilePage() {
     queryKey: ["dealer-sold-listings", dealer.id],
     queryFn: async () => {
       const { data } = await supabase
-        .from("listings")
+        .from("public_listings")
         .select("id,title,price,sold_at,images")
         .eq("dealer_id", dealer.id)
         .eq("status", "sold")

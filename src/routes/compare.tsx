@@ -85,7 +85,7 @@ function ComparePage() {
   const { data: listings } = useQuery({
     queryKey: ["compare", ids],
     enabled: ids.length > 0,
-    queryFn: async () => (await supabase.from("listings").select(PUBLIC_COMPARE_LISTING_COLUMNS).in("id", ids)).data ?? [],
+    queryFn: async () => (await supabase.from("public_listings").select(PUBLIC_COMPARE_LISTING_COLUMNS).in("id", ids)).data ?? [],
   });
 
   const remove = (id: string) => setIds(p => p.filter(x => x !== id));
@@ -409,7 +409,7 @@ function AddListingSearch({
   const { data } = useQuery({
     queryKey: ["compare-search", q],
     enabled: q.length > 1,
-    queryFn: async () => (await supabase.from("listings").select("id,title,price,images,brand,district").eq("status", "active").ilike("title", `%${q}%`).limit(6)).data ?? [],
+    queryFn: async () => (await supabase.from("public_listings").select("id,title,price,images,brand,district").eq("status", "active").ilike("title", `%${q}%`).limit(6)).data ?? [],
   });
 
   return (

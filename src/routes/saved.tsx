@@ -28,7 +28,7 @@ function SavedPage() {
   const { data: listings, isLoading: listingsLoading } = useQuery({
     queryKey: ["saved-full", ids.join(",")],
     enabled: ids.length > 0,
-    queryFn: async () => (await supabase.from("listings")
+    queryFn: async () => (await supabase.from("public_listings")
       .select("id,title,brand,price,year,mileage,district,condition,images,featured")
       .in("id", ids)).data ?? [],
   });

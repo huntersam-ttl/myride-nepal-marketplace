@@ -12,7 +12,7 @@ export async function getSellerResponseTime(
     // Fetch seller's most recent listing to estimate activity
     // (last_active column doesn't exist in profiles table yet)
     const { data: listing, error } = await supabase
-      .from("listings")
+      .from("public_listings")
       .select("created_at")
       .eq("user_id", userId)
       .order("created_at", { ascending: false })

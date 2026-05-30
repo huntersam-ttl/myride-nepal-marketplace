@@ -80,10 +80,9 @@ function BrowsePage() {
     staleTime: 5 * 60_000,
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("listings")
+        .from("public_listings")
         .select("brand")
-        .eq("status", "active")
-        .is("deleted_at", null);
+        .eq("status", "active");
       if (error) throw error;
       return (data ?? []).map((r) => r.brand).filter((b): b is string => !!b);
     },
@@ -103,10 +102,9 @@ function BrowsePage() {
     queryKey: ["listings", search],
     queryFn: async () => {
       let q = supabase
-        .from("listings")
+        .from("public_listings")
         .select(PUBLIC_BROWSE_LISTING_COLUMNS)
-        .eq("status", "active")
-        .is("deleted_at", null); // Exclude soft-deleted listings
+        .eq("status", "active");
       if (search.brand) q = q.eq("brand", search.brand);
       if (search.district) q = q.eq("district", search.district);
       if (search.type) q = q.eq("bike_type", search.type as any);
@@ -196,7 +194,7 @@ function BrowsePage() {
       
       // Build a more relaxed query based on current search criteria
       let q = supabase
-        .from("listings")
+        .from("public_listings")
         .select(RELATED_LISTING_COLUMNS)
         .eq("status", "active")
         .not("id", "in", `(${excludeIds.join(",")})`);

@@ -27,7 +27,7 @@ import { calculateListingScore } from "@/utils/listingScore";
 import { addRecentlyViewed } from "@/utils/recentlyViewed";
 
 const PUBLIC_LISTING_DETAIL_COLUMNS =
-  "id,title,brand,model,bike_type,price,year,mileage,district,condition,fuel_type,colour,description,images,phone,whatsapp,status,created_at,user_id,views,shares,has_bluebook,has_insurance,has_tax_clearance,has_registration,bluebook_name_match,insurance_valid,registration_expiry,document_notes,accident_history,accident_details,num_owners,service_history,last_service_date,original_parts,modifications,youtube_url";
+  "id,title,brand,model,bike_type,price,year,mileage,district,condition,fuel_type,colour,description,images,phone,whatsapp,status,created_at,user_id,views,shares,has_bluebook,has_insurance,has_tax_clearance,has_registration,bluebook_name_match,insurance_valid,registration_expiry,accident_history,accident_details,num_owners,service_history,last_service_date,original_parts,modifications,youtube_url";
 
 // Helper function to extract YouTube video ID and create embed URL
 function getYouTubeEmbedUrl(url: string): string {
@@ -54,7 +54,7 @@ export const Route = createFileRoute("/listings/$id")({
   component: ListingDetailPage,
   loader: async ({ params }) => {
     const { data, error } = await supabase
-      .from("listings").select(PUBLIC_LISTING_DETAIL_COLUMNS).eq("id", params.id).maybeSingle();
+      .from("public_listing_details").select(PUBLIC_LISTING_DETAIL_COLUMNS).eq("id", params.id).maybeSingle();
     if (error || !data) throw notFound();
     supabase.from("listings").update({ views: (data.views ?? 0) + 1 }).eq("id", params.id).then(() => {});
     return { listing: data };
@@ -149,7 +149,7 @@ function ListingDetailPage() {
       // First try: same brand and same bike_type
       if (listing.bike_type) {
         const { data: sameBrandType } = await supabase
-          .from("listings")
+          .from("public_listings")
           .select("id,title,brand,model,bike_type,price,year,mileage,district,condition,images,featured,user_id,status,created_at")
           .eq("status", "active")
           .eq("brand", listing.brand)
@@ -167,7 +167,7 @@ function ListingDetailPage() {
       // If fewer than 4 results, fetch same brand (any bike_type)
       if (results.length < 4) {
         const { data: sameBrand } = await supabase
-          .from("listings")
+          .from("public_listings")
           .select("id,title,brand,model,bike_type,price,year,mileage,district,condition,images,featured,user_id,status,created_at")
           .eq("status", "active")
           .eq("brand", listing.brand)
@@ -188,7 +188,7 @@ function ListingDetailPage() {
         const maxPrice = Math.ceil(listing.price * 1.3);
         
         const { data: similarPrice } = await supabase
-          .from("listings")
+          .from("public_listings")
           .select("id,title,brand,model,bike_type,price,year,mileage,district,condition,images,featured,user_id,status,created_at")
           .eq("status", "active")
           .neq("id", listing.id)
@@ -260,7 +260,7 @@ function ListingDetailPage() {
     enabled: !!listing.user_id,
     queryFn: async () => {
       const { data } = await supabase
-        .from("listings")
+        .from("public_listings")
         .select("created_at")
         .eq("user_id", listing.user_id)
         .order("created_at", { ascending: false })
@@ -1240,16 +1240,14 @@ function ListingDetailPage() {
         const hasAnyDocInfo = listing.has_bluebook !== null || 
                                listing.has_insurance !== null || 
                                listing.has_tax_clearance !== null || 
-                               listing.has_registration !== null ||
-                               listing.document_notes;
+                               listing.has_registration !== null;
         
         if (!hasAnyDocInfo) return null;
 
         const hasNoDocsProvided = !listing.has_bluebook && 
                                    !listing.has_insurance && 
                                    !listing.has_tax_clearance && 
-                                   !listing.has_registration &&
-                                   !listing.document_notes;
+                                   !listing.has_registration;
 
         return (
           <section className="mt-14">
@@ -1372,21 +1370,6 @@ function ListingDetailPage() {
                       )}
                     </div>
                   </div>
-
-                  {/* Document Notes */}
-                  {listing.document_notes && (
-                    <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                      <div className="flex items-start gap-2">
-                        <Info className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
-                        <div className="flex-1">
-                          <p className="text-xs font-medium text-gray-700 mb-1">Additional Information</p>
-                          <p className="text-sm text-gray-600 leading-relaxed">
-                            {listing.document_notes}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
 
                   {/* Verification Tip */}
                   <div className="mt-4 p-4 bg-yellow-50 rounded-lg border border-yellow-200">

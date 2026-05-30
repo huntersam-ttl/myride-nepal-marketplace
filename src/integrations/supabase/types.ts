@@ -6,6 +6,52 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
+type PublicListingViewRow = {
+  accident_details: string | null
+  accident_history: boolean | null
+  bike_type: Database["public"]["Enums"]["bike_type"]
+  bluebook_name_match: boolean | null
+  brand: string
+  colour: string | null
+  condition: Database["public"]["Enums"]["bike_condition"]
+  created_at: string
+  dealer_id: string | null
+  description: string | null
+  district: string
+  engine_cc: number | null
+  featured: boolean
+  fuel_type: Database["public"]["Enums"]["fuel_type"]
+  has_bluebook: boolean | null
+  has_insurance: boolean | null
+  has_registration: boolean | null
+  has_tax_clearance: boolean | null
+  id: string
+  images: string[]
+  insurance_valid: boolean | null
+  last_service_date: string | null
+  mileage: number
+  model: string
+  modifications: string | null
+  num_owners: number | null
+  original_parts: boolean | null
+  price: number
+  registration_expiry: string | null
+  service_history: boolean | null
+  shares: number | null
+  status: Database["public"]["Enums"]["listing_status"]
+  title: string
+  transmission: string | null
+  user_id: string
+  views: number
+  year: number
+  youtube_url: string | null
+}
+
+type PublicListingDetailViewRow = PublicListingViewRow & {
+  phone: string
+  whatsapp: string | null
+}
+
 export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
@@ -1025,6 +1071,18 @@ export type Database = {
       }
     }
     Views: {
+      public_listing_details: {
+        Row: PublicListingDetailViewRow
+        Insert: Partial<PublicListingDetailViewRow>
+        Update: Partial<PublicListingDetailViewRow>
+        Relationships: []
+      }
+      public_listings: {
+        Row: PublicListingViewRow
+        Insert: Partial<PublicListingViewRow>
+        Update: Partial<PublicListingViewRow>
+        Relationships: []
+      }
       public_dealer_profiles: {
         Row: {
           active_listings_count: number | null

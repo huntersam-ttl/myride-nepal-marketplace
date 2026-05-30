@@ -27,10 +27,9 @@ function HomePage() {
     queryKey: ["featured-listings"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("listings")
+        .from("public_listings")
         .select("id,title,brand,price,year,mileage,district,condition,images,featured")
         .eq("status", "active")
-        .is("deleted_at", null) // Exclude soft-deleted listings
         .order("created_at", { ascending: false })
         .limit(6);
       if (error) throw error;
@@ -43,10 +42,9 @@ function HomePage() {
     queryKey: ["listing-count"],
     queryFn: async () => {
       const { count } = await supabase
-        .from("listings")
+        .from("public_listings")
         .select("*", { count: "exact", head: true })
-        .eq("status", "active")
-        .is("deleted_at", null); // Exclude soft-deleted listings
+        .eq("status", "active");
       return count ?? 0;
     },
   });
