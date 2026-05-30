@@ -37,6 +37,7 @@ import { Route as DealerDashboardRouteImport } from './routes/dealer.dashboard'
 import { Route as DashboardOffersRouteImport } from './routes/dashboard.offers'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
+import { Route as ListingsIdIndexRouteImport } from './routes/listings.$id.index'
 import { Route as ListingsIdEditRouteImport } from './routes/listings.$id.edit'
 import { Route as DealerDashboardShareRouteImport } from './routes/dealer.dashboard.share'
 import { Route as DealerDashboardSettingsRouteImport } from './routes/dealer.dashboard.settings'
@@ -190,6 +191,11 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
   path: '/callback',
   getParentRoute: () => AuthRoute,
 } as any)
+const ListingsIdIndexRoute = ListingsIdIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ListingsIdRoute,
+} as any)
 const ListingsIdEditRoute = ListingsIdEditRouteImport.update({
   id: '/edit',
   path: '/edit',
@@ -295,6 +301,7 @@ export interface FileRoutesByFullPath {
   '/dealer/dashboard/settings': typeof DealerDashboardSettingsRouteWithChildren
   '/dealer/dashboard/share': typeof DealerDashboardShareRoute
   '/listings/$id/edit': typeof ListingsIdEditRoute
+  '/listings/$id/': typeof ListingsIdIndexRoute
   '/dealer/dashboard/inventory/import': typeof DealerDashboardInventoryImportRoute
   '/dealer/dashboard/settings/notifications': typeof DealerDashboardSettingsNotificationsRoute
   '/dealer/dashboard/settings/profile': typeof DealerDashboardSettingsProfileRoute
@@ -321,7 +328,6 @@ export interface FileRoutesByTo {
   '/dashboard/offers': typeof DashboardOffersRoute
   '/dealer/dashboard': typeof DealerDashboardRouteWithChildren
   '/dealers/$slug': typeof DealersSlugRoute
-  '/listings/$id': typeof ListingsIdRouteWithChildren
   '/auth': typeof AuthIndexRoute
   '/blog': typeof BlogIndexRoute
   '/dashboard': typeof DashboardIndexRoute
@@ -333,6 +339,7 @@ export interface FileRoutesByTo {
   '/dealer/dashboard/settings': typeof DealerDashboardSettingsRouteWithChildren
   '/dealer/dashboard/share': typeof DealerDashboardShareRoute
   '/listings/$id/edit': typeof ListingsIdEditRoute
+  '/listings/$id': typeof ListingsIdIndexRoute
   '/dealer/dashboard/inventory/import': typeof DealerDashboardInventoryImportRoute
   '/dealer/dashboard/settings/notifications': typeof DealerDashboardSettingsNotificationsRoute
   '/dealer/dashboard/settings/profile': typeof DealerDashboardSettingsProfileRoute
@@ -376,6 +383,7 @@ export interface FileRoutesById {
   '/dealer/dashboard/settings': typeof DealerDashboardSettingsRouteWithChildren
   '/dealer/dashboard/share': typeof DealerDashboardShareRoute
   '/listings/$id/edit': typeof ListingsIdEditRoute
+  '/listings/$id/': typeof ListingsIdIndexRoute
   '/dealer/dashboard/inventory/import': typeof DealerDashboardInventoryImportRoute
   '/dealer/dashboard/settings/notifications': typeof DealerDashboardSettingsNotificationsRoute
   '/dealer/dashboard/settings/profile': typeof DealerDashboardSettingsProfileRoute
@@ -420,6 +428,7 @@ export interface FileRouteTypes {
     | '/dealer/dashboard/settings'
     | '/dealer/dashboard/share'
     | '/listings/$id/edit'
+    | '/listings/$id/'
     | '/dealer/dashboard/inventory/import'
     | '/dealer/dashboard/settings/notifications'
     | '/dealer/dashboard/settings/profile'
@@ -446,7 +455,6 @@ export interface FileRouteTypes {
     | '/dashboard/offers'
     | '/dealer/dashboard'
     | '/dealers/$slug'
-    | '/listings/$id'
     | '/auth'
     | '/blog'
     | '/dashboard'
@@ -458,6 +466,7 @@ export interface FileRouteTypes {
     | '/dealer/dashboard/settings'
     | '/dealer/dashboard/share'
     | '/listings/$id/edit'
+    | '/listings/$id'
     | '/dealer/dashboard/inventory/import'
     | '/dealer/dashboard/settings/notifications'
     | '/dealer/dashboard/settings/profile'
@@ -500,6 +509,7 @@ export interface FileRouteTypes {
     | '/dealer/dashboard/settings'
     | '/dealer/dashboard/share'
     | '/listings/$id/edit'
+    | '/listings/$id/'
     | '/dealer/dashboard/inventory/import'
     | '/dealer/dashboard/settings/notifications'
     | '/dealer/dashboard/settings/profile'
@@ -728,6 +738,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/listings/$id/': {
+      id: '/listings/$id/'
+      path: '/'
+      fullPath: '/listings/$id/'
+      preLoaderRoute: typeof ListingsIdIndexRouteImport
+      parentRoute: typeof ListingsIdRoute
+    }
     '/listings/$id/edit': {
       id: '/listings/$id/edit'
       path: '/edit'
@@ -925,10 +942,12 @@ const DealerDashboardRouteWithChildren = DealerDashboardRoute._addFileChildren(
 
 interface ListingsIdRouteChildren {
   ListingsIdEditRoute: typeof ListingsIdEditRoute
+  ListingsIdIndexRoute: typeof ListingsIdIndexRoute
 }
 
 const ListingsIdRouteChildren: ListingsIdRouteChildren = {
   ListingsIdEditRoute: ListingsIdEditRoute,
+  ListingsIdIndexRoute: ListingsIdIndexRoute,
 }
 
 const ListingsIdRouteWithChildren = ListingsIdRoute._addFileChildren(
