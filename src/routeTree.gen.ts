@@ -28,6 +28,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DealersIndexRouteImport } from './routes/dealers.index'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as AuthIndexRouteImport } from './routes/auth.index'
 import { Route as ListingsIdRouteImport } from './routes/listings.$id'
@@ -143,6 +144,11 @@ const DealersIndexRoute = DealersIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => DealersRoute,
+} as any)
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardRoute,
 } as any)
 const BlogIndexRoute = BlogIndexRouteImport.update({
   id: '/',
@@ -280,6 +286,7 @@ export interface FileRoutesByFullPath {
   '/listings/$id': typeof ListingsIdRouteWithChildren
   '/auth/': typeof AuthIndexRoute
   '/blog/': typeof BlogIndexRoute
+  '/dashboard/': typeof DashboardIndexRoute
   '/dealers/': typeof DealersIndexRoute
   '/dealer/dashboard/analytics': typeof DealerDashboardAnalyticsRoute
   '/dealer/dashboard/inventory': typeof DealerDashboardInventoryRouteWithChildren
@@ -300,7 +307,6 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/browse': typeof BrowseRoute
   '/compare': typeof CompareRoute
-  '/dashboard': typeof DashboardRouteWithChildren
   '/dealer-beta': typeof DealerBetaRoute
   '/dealer-signup': typeof DealerSignupRoute
   '/notifications': typeof NotificationsRoute
@@ -318,6 +324,7 @@ export interface FileRoutesByTo {
   '/listings/$id': typeof ListingsIdRouteWithChildren
   '/auth': typeof AuthIndexRoute
   '/blog': typeof BlogIndexRoute
+  '/dashboard': typeof DashboardIndexRoute
   '/dealers': typeof DealersIndexRoute
   '/dealer/dashboard/analytics': typeof DealerDashboardAnalyticsRoute
   '/dealer/dashboard/inventory': typeof DealerDashboardInventoryRouteWithChildren
@@ -360,6 +367,7 @@ export interface FileRoutesById {
   '/listings/$id': typeof ListingsIdRouteWithChildren
   '/auth/': typeof AuthIndexRoute
   '/blog/': typeof BlogIndexRoute
+  '/dashboard/': typeof DashboardIndexRoute
   '/dealers/': typeof DealersIndexRoute
   '/dealer/dashboard/analytics': typeof DealerDashboardAnalyticsRoute
   '/dealer/dashboard/inventory': typeof DealerDashboardInventoryRouteWithChildren
@@ -403,6 +411,7 @@ export interface FileRouteTypes {
     | '/listings/$id'
     | '/auth/'
     | '/blog/'
+    | '/dashboard/'
     | '/dealers/'
     | '/dealer/dashboard/analytics'
     | '/dealer/dashboard/inventory'
@@ -423,7 +432,6 @@ export interface FileRouteTypes {
     | '/admin'
     | '/browse'
     | '/compare'
-    | '/dashboard'
     | '/dealer-beta'
     | '/dealer-signup'
     | '/notifications'
@@ -441,6 +449,7 @@ export interface FileRouteTypes {
     | '/listings/$id'
     | '/auth'
     | '/blog'
+    | '/dashboard'
     | '/dealers'
     | '/dealer/dashboard/analytics'
     | '/dealer/dashboard/inventory'
@@ -482,6 +491,7 @@ export interface FileRouteTypes {
     | '/listings/$id'
     | '/auth/'
     | '/blog/'
+    | '/dashboard/'
     | '/dealers/'
     | '/dealer/dashboard/analytics'
     | '/dealer/dashboard/inventory'
@@ -655,6 +665,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DealersIndexRouteImport
       parentRoute: typeof DealersRoute
     }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/blog/': {
       id: '/blog/'
       path: '/'
@@ -824,10 +841,12 @@ const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
 
 interface DashboardRouteChildren {
   DashboardOffersRoute: typeof DashboardOffersRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardOffersRoute: DashboardOffersRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
 }
 
 const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
