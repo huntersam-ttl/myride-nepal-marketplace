@@ -29,6 +29,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DealersIndexRouteImport } from './routes/dealers.index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
+import { Route as AuthIndexRouteImport } from './routes/auth.index'
 import { Route as ListingsIdRouteImport } from './routes/listings.$id'
 import { Route as DealersSlugRouteImport } from './routes/dealers.$slug'
 import { Route as DealerDashboardRouteImport } from './routes/dealer.dashboard'
@@ -147,6 +148,11 @@ const BlogIndexRoute = BlogIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => BlogRoute,
+} as any)
+const AuthIndexRoute = AuthIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthRoute,
 } as any)
 const ListingsIdRoute = ListingsIdRouteImport.update({
   id: '/listings/$id',
@@ -272,6 +278,7 @@ export interface FileRoutesByFullPath {
   '/dealer/dashboard': typeof DealerDashboardRouteWithChildren
   '/dealers/$slug': typeof DealersSlugRoute
   '/listings/$id': typeof ListingsIdRouteWithChildren
+  '/auth/': typeof AuthIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/dealers/': typeof DealersIndexRoute
   '/dealer/dashboard/analytics': typeof DealerDashboardAnalyticsRoute
@@ -291,7 +298,6 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
-  '/auth': typeof AuthRouteWithChildren
   '/browse': typeof BrowseRoute
   '/compare': typeof CompareRoute
   '/dashboard': typeof DashboardRouteWithChildren
@@ -310,6 +316,7 @@ export interface FileRoutesByTo {
   '/dealer/dashboard': typeof DealerDashboardRouteWithChildren
   '/dealers/$slug': typeof DealersSlugRoute
   '/listings/$id': typeof ListingsIdRouteWithChildren
+  '/auth': typeof AuthIndexRoute
   '/blog': typeof BlogIndexRoute
   '/dealers': typeof DealersIndexRoute
   '/dealer/dashboard/analytics': typeof DealerDashboardAnalyticsRoute
@@ -351,6 +358,7 @@ export interface FileRoutesById {
   '/dealer/dashboard': typeof DealerDashboardRouteWithChildren
   '/dealers/$slug': typeof DealersSlugRoute
   '/listings/$id': typeof ListingsIdRouteWithChildren
+  '/auth/': typeof AuthIndexRoute
   '/blog/': typeof BlogIndexRoute
   '/dealers/': typeof DealersIndexRoute
   '/dealer/dashboard/analytics': typeof DealerDashboardAnalyticsRoute
@@ -393,6 +401,7 @@ export interface FileRouteTypes {
     | '/dealer/dashboard'
     | '/dealers/$slug'
     | '/listings/$id'
+    | '/auth/'
     | '/blog/'
     | '/dealers/'
     | '/dealer/dashboard/analytics'
@@ -412,7 +421,6 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/admin'
-    | '/auth'
     | '/browse'
     | '/compare'
     | '/dashboard'
@@ -431,6 +439,7 @@ export interface FileRouteTypes {
     | '/dealer/dashboard'
     | '/dealers/$slug'
     | '/listings/$id'
+    | '/auth'
     | '/blog'
     | '/dealers'
     | '/dealer/dashboard/analytics'
@@ -471,6 +480,7 @@ export interface FileRouteTypes {
     | '/dealer/dashboard'
     | '/dealers/$slug'
     | '/listings/$id'
+    | '/auth/'
     | '/blog/'
     | '/dealers/'
     | '/dealer/dashboard/analytics'
@@ -652,6 +662,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BlogIndexRouteImport
       parentRoute: typeof BlogRoute
     }
+    '/auth/': {
+      id: '/auth/'
+      path: '/'
+      fullPath: '/auth/'
+      preLoaderRoute: typeof AuthIndexRouteImport
+      parentRoute: typeof AuthRoute
+    }
     '/listings/$id': {
       id: '/listings/$id'
       path: '/listings/$id'
@@ -783,10 +800,12 @@ declare module '@tanstack/react-router' {
 
 interface AuthRouteChildren {
   AuthCallbackRoute: typeof AuthCallbackRoute
+  AuthIndexRoute: typeof AuthIndexRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
   AuthCallbackRoute: AuthCallbackRoute,
+  AuthIndexRoute: AuthIndexRoute,
 }
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
