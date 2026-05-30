@@ -1,6 +1,6 @@
-import { createFileRoute, Link, Outlet, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
@@ -25,13 +25,15 @@ export const Route = createFileRoute("/dealer/dashboard")({
 
 function DealerDashboardLayout() {
   const { user, loading: authLoading } = useAuth();
+  const location = useLocation();
+  const redirectPath = useRef(location.pathname);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!authLoading && !user) {
-      navigate({ to: "/auth", search: { redirect: "/dealer/dashboard" } as any });
+      navigate({ to: "/auth", search: { redirect: redirectPath.current } as any });
     }
-  }, [user, authLoading]);
+  }, [user, authLoading, navigate]);
 
   // Fetch dealer profile
   const { data: dealerProfile, isLoading: profileLoading } = useQuery({
@@ -112,17 +114,8 @@ function DealerDashboardLayout() {
           </TabsTrigger>
         </TabsList>
 
-        <DashboardOverview dealerProfile={dealerProfile} />
+        <Outlet />
       </Tabs>
-    </div>
-  );
-}
-
-function DashboardOverview({ dealerProfile }: { dealerProfile: any }) {
-  // ... stats queries will go here after migration applied
-  return (
-    <div className="space-y-6">
-      <p>Dashboard overview coming after migration is applied...</p>
     </div>
   );
 }

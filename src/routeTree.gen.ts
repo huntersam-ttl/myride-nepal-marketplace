@@ -38,6 +38,7 @@ import { Route as DashboardOffersRouteImport } from './routes/dashboard.offers'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as ListingsIdIndexRouteImport } from './routes/listings.$id.index'
+import { Route as DealerDashboardIndexRouteImport } from './routes/dealer.dashboard.index'
 import { Route as ListingsIdEditRouteImport } from './routes/listings.$id.edit'
 import { Route as DealerDashboardShareRouteImport } from './routes/dealer.dashboard.share'
 import { Route as DealerDashboardSettingsRouteImport } from './routes/dealer.dashboard.settings'
@@ -45,6 +46,8 @@ import { Route as DealerDashboardOnboardingRouteImport } from './routes/dealer.d
 import { Route as DealerDashboardLeadsRouteImport } from './routes/dealer.dashboard.leads'
 import { Route as DealerDashboardInventoryRouteImport } from './routes/dealer.dashboard.inventory'
 import { Route as DealerDashboardAnalyticsRouteImport } from './routes/dealer.dashboard.analytics'
+import { Route as DealerDashboardSettingsIndexRouteImport } from './routes/dealer.dashboard.settings.index'
+import { Route as DealerDashboardInventoryIndexRouteImport } from './routes/dealer.dashboard.inventory.index'
 import { Route as DealerDashboardSettingsTeamRouteImport } from './routes/dealer.dashboard.settings.team'
 import { Route as DealerDashboardSettingsSecurityRouteImport } from './routes/dealer.dashboard.settings.security'
 import { Route as DealerDashboardSettingsProfileRouteImport } from './routes/dealer.dashboard.settings.profile'
@@ -196,6 +199,11 @@ const ListingsIdIndexRoute = ListingsIdIndexRouteImport.update({
   path: '/',
   getParentRoute: () => ListingsIdRoute,
 } as any)
+const DealerDashboardIndexRoute = DealerDashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DealerDashboardRoute,
+} as any)
 const ListingsIdEditRoute = ListingsIdEditRouteImport.update({
   id: '/edit',
   path: '/edit',
@@ -233,6 +241,18 @@ const DealerDashboardAnalyticsRoute =
     id: '/analytics',
     path: '/analytics',
     getParentRoute: () => DealerDashboardRoute,
+  } as any)
+const DealerDashboardSettingsIndexRoute =
+  DealerDashboardSettingsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => DealerDashboardSettingsRoute,
+  } as any)
+const DealerDashboardInventoryIndexRoute =
+  DealerDashboardInventoryIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => DealerDashboardInventoryRoute,
   } as any)
 const DealerDashboardSettingsTeamRoute =
   DealerDashboardSettingsTeamRouteImport.update({
@@ -301,12 +321,15 @@ export interface FileRoutesByFullPath {
   '/dealer/dashboard/settings': typeof DealerDashboardSettingsRouteWithChildren
   '/dealer/dashboard/share': typeof DealerDashboardShareRoute
   '/listings/$id/edit': typeof ListingsIdEditRoute
+  '/dealer/dashboard/': typeof DealerDashboardIndexRoute
   '/listings/$id/': typeof ListingsIdIndexRoute
   '/dealer/dashboard/inventory/import': typeof DealerDashboardInventoryImportRoute
   '/dealer/dashboard/settings/notifications': typeof DealerDashboardSettingsNotificationsRoute
   '/dealer/dashboard/settings/profile': typeof DealerDashboardSettingsProfileRoute
   '/dealer/dashboard/settings/security': typeof DealerDashboardSettingsSecurityRoute
   '/dealer/dashboard/settings/team': typeof DealerDashboardSettingsTeamRoute
+  '/dealer/dashboard/inventory/': typeof DealerDashboardInventoryIndexRoute
+  '/dealer/dashboard/settings/': typeof DealerDashboardSettingsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -326,25 +349,25 @@ export interface FileRoutesByTo {
   '/auth/callback': typeof AuthCallbackRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/dashboard/offers': typeof DashboardOffersRoute
-  '/dealer/dashboard': typeof DealerDashboardRouteWithChildren
   '/dealers/$slug': typeof DealersSlugRoute
   '/auth': typeof AuthIndexRoute
   '/blog': typeof BlogIndexRoute
   '/dashboard': typeof DashboardIndexRoute
   '/dealers': typeof DealersIndexRoute
   '/dealer/dashboard/analytics': typeof DealerDashboardAnalyticsRoute
-  '/dealer/dashboard/inventory': typeof DealerDashboardInventoryRouteWithChildren
   '/dealer/dashboard/leads': typeof DealerDashboardLeadsRoute
   '/dealer/dashboard/onboarding': typeof DealerDashboardOnboardingRoute
-  '/dealer/dashboard/settings': typeof DealerDashboardSettingsRouteWithChildren
   '/dealer/dashboard/share': typeof DealerDashboardShareRoute
   '/listings/$id/edit': typeof ListingsIdEditRoute
+  '/dealer/dashboard': typeof DealerDashboardIndexRoute
   '/listings/$id': typeof ListingsIdIndexRoute
   '/dealer/dashboard/inventory/import': typeof DealerDashboardInventoryImportRoute
   '/dealer/dashboard/settings/notifications': typeof DealerDashboardSettingsNotificationsRoute
   '/dealer/dashboard/settings/profile': typeof DealerDashboardSettingsProfileRoute
   '/dealer/dashboard/settings/security': typeof DealerDashboardSettingsSecurityRoute
   '/dealer/dashboard/settings/team': typeof DealerDashboardSettingsTeamRoute
+  '/dealer/dashboard/inventory': typeof DealerDashboardInventoryIndexRoute
+  '/dealer/dashboard/settings': typeof DealerDashboardSettingsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -383,12 +406,15 @@ export interface FileRoutesById {
   '/dealer/dashboard/settings': typeof DealerDashboardSettingsRouteWithChildren
   '/dealer/dashboard/share': typeof DealerDashboardShareRoute
   '/listings/$id/edit': typeof ListingsIdEditRoute
+  '/dealer/dashboard/': typeof DealerDashboardIndexRoute
   '/listings/$id/': typeof ListingsIdIndexRoute
   '/dealer/dashboard/inventory/import': typeof DealerDashboardInventoryImportRoute
   '/dealer/dashboard/settings/notifications': typeof DealerDashboardSettingsNotificationsRoute
   '/dealer/dashboard/settings/profile': typeof DealerDashboardSettingsProfileRoute
   '/dealer/dashboard/settings/security': typeof DealerDashboardSettingsSecurityRoute
   '/dealer/dashboard/settings/team': typeof DealerDashboardSettingsTeamRoute
+  '/dealer/dashboard/inventory/': typeof DealerDashboardInventoryIndexRoute
+  '/dealer/dashboard/settings/': typeof DealerDashboardSettingsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -428,12 +454,15 @@ export interface FileRouteTypes {
     | '/dealer/dashboard/settings'
     | '/dealer/dashboard/share'
     | '/listings/$id/edit'
+    | '/dealer/dashboard/'
     | '/listings/$id/'
     | '/dealer/dashboard/inventory/import'
     | '/dealer/dashboard/settings/notifications'
     | '/dealer/dashboard/settings/profile'
     | '/dealer/dashboard/settings/security'
     | '/dealer/dashboard/settings/team'
+    | '/dealer/dashboard/inventory/'
+    | '/dealer/dashboard/settings/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -453,25 +482,25 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/blog/$slug'
     | '/dashboard/offers'
-    | '/dealer/dashboard'
     | '/dealers/$slug'
     | '/auth'
     | '/blog'
     | '/dashboard'
     | '/dealers'
     | '/dealer/dashboard/analytics'
-    | '/dealer/dashboard/inventory'
     | '/dealer/dashboard/leads'
     | '/dealer/dashboard/onboarding'
-    | '/dealer/dashboard/settings'
     | '/dealer/dashboard/share'
     | '/listings/$id/edit'
+    | '/dealer/dashboard'
     | '/listings/$id'
     | '/dealer/dashboard/inventory/import'
     | '/dealer/dashboard/settings/notifications'
     | '/dealer/dashboard/settings/profile'
     | '/dealer/dashboard/settings/security'
     | '/dealer/dashboard/settings/team'
+    | '/dealer/dashboard/inventory'
+    | '/dealer/dashboard/settings'
   id:
     | '__root__'
     | '/'
@@ -509,12 +538,15 @@ export interface FileRouteTypes {
     | '/dealer/dashboard/settings'
     | '/dealer/dashboard/share'
     | '/listings/$id/edit'
+    | '/dealer/dashboard/'
     | '/listings/$id/'
     | '/dealer/dashboard/inventory/import'
     | '/dealer/dashboard/settings/notifications'
     | '/dealer/dashboard/settings/profile'
     | '/dealer/dashboard/settings/security'
     | '/dealer/dashboard/settings/team'
+    | '/dealer/dashboard/inventory/'
+    | '/dealer/dashboard/settings/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -745,6 +777,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ListingsIdIndexRouteImport
       parentRoute: typeof ListingsIdRoute
     }
+    '/dealer/dashboard/': {
+      id: '/dealer/dashboard/'
+      path: '/'
+      fullPath: '/dealer/dashboard/'
+      preLoaderRoute: typeof DealerDashboardIndexRouteImport
+      parentRoute: typeof DealerDashboardRoute
+    }
     '/listings/$id/edit': {
       id: '/listings/$id/edit'
       path: '/edit'
@@ -793,6 +832,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/dealer/dashboard/analytics'
       preLoaderRoute: typeof DealerDashboardAnalyticsRouteImport
       parentRoute: typeof DealerDashboardRoute
+    }
+    '/dealer/dashboard/settings/': {
+      id: '/dealer/dashboard/settings/'
+      path: '/'
+      fullPath: '/dealer/dashboard/settings/'
+      preLoaderRoute: typeof DealerDashboardSettingsIndexRouteImport
+      parentRoute: typeof DealerDashboardSettingsRoute
+    }
+    '/dealer/dashboard/inventory/': {
+      id: '/dealer/dashboard/inventory/'
+      path: '/'
+      fullPath: '/dealer/dashboard/inventory/'
+      preLoaderRoute: typeof DealerDashboardInventoryIndexRouteImport
+      parentRoute: typeof DealerDashboardInventoryRoute
     }
     '/dealer/dashboard/settings/team': {
       id: '/dealer/dashboard/settings/team'
@@ -885,11 +938,13 @@ const DealersRouteWithChildren =
 
 interface DealerDashboardInventoryRouteChildren {
   DealerDashboardInventoryImportRoute: typeof DealerDashboardInventoryImportRoute
+  DealerDashboardInventoryIndexRoute: typeof DealerDashboardInventoryIndexRoute
 }
 
 const DealerDashboardInventoryRouteChildren: DealerDashboardInventoryRouteChildren =
   {
     DealerDashboardInventoryImportRoute: DealerDashboardInventoryImportRoute,
+    DealerDashboardInventoryIndexRoute: DealerDashboardInventoryIndexRoute,
   }
 
 const DealerDashboardInventoryRouteWithChildren =
@@ -902,6 +957,7 @@ interface DealerDashboardSettingsRouteChildren {
   DealerDashboardSettingsProfileRoute: typeof DealerDashboardSettingsProfileRoute
   DealerDashboardSettingsSecurityRoute: typeof DealerDashboardSettingsSecurityRoute
   DealerDashboardSettingsTeamRoute: typeof DealerDashboardSettingsTeamRoute
+  DealerDashboardSettingsIndexRoute: typeof DealerDashboardSettingsIndexRoute
 }
 
 const DealerDashboardSettingsRouteChildren: DealerDashboardSettingsRouteChildren =
@@ -911,6 +967,7 @@ const DealerDashboardSettingsRouteChildren: DealerDashboardSettingsRouteChildren
     DealerDashboardSettingsProfileRoute: DealerDashboardSettingsProfileRoute,
     DealerDashboardSettingsSecurityRoute: DealerDashboardSettingsSecurityRoute,
     DealerDashboardSettingsTeamRoute: DealerDashboardSettingsTeamRoute,
+    DealerDashboardSettingsIndexRoute: DealerDashboardSettingsIndexRoute,
   }
 
 const DealerDashboardSettingsRouteWithChildren =
@@ -925,6 +982,7 @@ interface DealerDashboardRouteChildren {
   DealerDashboardOnboardingRoute: typeof DealerDashboardOnboardingRoute
   DealerDashboardSettingsRoute: typeof DealerDashboardSettingsRouteWithChildren
   DealerDashboardShareRoute: typeof DealerDashboardShareRoute
+  DealerDashboardIndexRoute: typeof DealerDashboardIndexRoute
 }
 
 const DealerDashboardRouteChildren: DealerDashboardRouteChildren = {
@@ -934,6 +992,7 @@ const DealerDashboardRouteChildren: DealerDashboardRouteChildren = {
   DealerDashboardOnboardingRoute: DealerDashboardOnboardingRoute,
   DealerDashboardSettingsRoute: DealerDashboardSettingsRouteWithChildren,
   DealerDashboardShareRoute: DealerDashboardShareRoute,
+  DealerDashboardIndexRoute: DealerDashboardIndexRoute,
 }
 
 const DealerDashboardRouteWithChildren = DealerDashboardRoute._addFileChildren(
