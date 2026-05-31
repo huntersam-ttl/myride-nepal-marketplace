@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, Calendar, Clock, User, BookOpen } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { sanitizeBlogHtml } from "@/lib/sanitize-blog-html";
 
 // Extended type to support optional video_url (frontend-only, not in DB yet)
 type BlogPostWithVideo = {
@@ -128,6 +129,7 @@ export const Route = createFileRoute("/blog/$slug")({
 function BlogPostPage() {
   const { post, relatedPosts } = Route.useLoaderData();
   const embedUrl = post.video_url ? getYouTubeEmbedUrl(post.video_url) : null;
+  const sanitizedContent = sanitizeBlogHtml(post.content);
 
   return (
     <div className="min-h-screen bg-muted/30">
@@ -228,7 +230,7 @@ function BlogPostPage() {
                      prose-a:text-primary prose-a:no-underline hover:prose-a:underline
                      prose-img:rounded-xl prose-img:shadow-md
                      prose-strong:font-semibold prose-strong:text-foreground"
-          dangerouslySetInnerHTML={{ __html: post.content }}
+          dangerouslySetInnerHTML={{ __html: sanitizedContent }}
         />
       </article>
 

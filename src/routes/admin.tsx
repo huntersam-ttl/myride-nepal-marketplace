@@ -16,6 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { sanitizeBlogHtml } from "@/lib/sanitize-blog-html";
 
 export const Route = createFileRoute("/admin")({
   component: AdminPage,
@@ -453,7 +454,7 @@ function AdminBlog() {
   const save = async () => {
     const slug = f.slug || slugify(f.title);
     if (!f.title || !f.content) return toast.error("Title and content required");
-    const payload = { ...f, slug };
+    const payload = { ...f, slug, content: sanitizeBlogHtml(f.content) };
     const { error } = editing
       ? await supabase.from("blog_posts").update(payload).eq("id", editing.id)
       : await supabase.from("blog_posts").insert(payload);
@@ -517,7 +518,7 @@ function AdminBlog() {
               <Textarea rows={2} value={f.excerpt ?? ""} onChange={e => setF({ ...f, excerpt: e.target.value })} />
             </div>
             <div>
-              <Label>Content (markdown supported)</Label>
+              <Label>Content (safe HTML supported)</Label>
               <Textarea rows={10} value={f.content} onChange={e => setF({ ...f, content: e.target.value })} />
             </div>
             <label className="flex items-center gap-2 text-sm">
