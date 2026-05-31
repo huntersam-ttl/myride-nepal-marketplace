@@ -126,10 +126,9 @@ function OffersPage() {
 
   const acceptOfferMutation = useMutation({
     mutationFn: async (offer: Offer) => {
-      const { error } = await supabase
-        .from("offers")
-        .update({ status: "accepted" })
-        .eq("id", offer.id);
+      const { error } = await supabase.rpc("seller_accept_offer", {
+        p_offer_id: offer.id,
+      });
 
       if (error) throw error;
 
@@ -146,10 +145,9 @@ function OffersPage() {
 
   const declineOfferMutation = useMutation({
     mutationFn: async (offer: Offer) => {
-      const { error } = await supabase
-        .from("offers")
-        .update({ status: "declined" })
-        .eq("id", offer.id);
+      const { error } = await supabase.rpc("seller_decline_offer", {
+        p_offer_id: offer.id,
+      });
 
       if (error) throw error;
 
@@ -168,14 +166,11 @@ function OffersPage() {
     mutationFn: async () => {
       if (!selectedOffer) return;
 
-      const { error } = await supabase
-        .from("offers")
-        .update({
-          status: "countered",
-          counter_price: Number(counterPrice),
-          counter_message: counterMessage || null,
-        })
-        .eq("id", selectedOffer.id);
+      const { error } = await supabase.rpc("seller_counter_offer", {
+        p_offer_id: selectedOffer.id,
+        p_counter_price: Number(counterPrice),
+        p_counter_message: counterMessage || null,
+      });
 
       if (error) throw error;
 
@@ -196,10 +191,9 @@ function OffersPage() {
 
   const acceptCounterMutation = useMutation({
     mutationFn: async (offer: Offer) => {
-      const { error } = await supabase
-        .from("offers")
-        .update({ status: "accepted" })
-        .eq("id", offer.id);
+      const { error } = await supabase.rpc("buyer_accept_counter_offer", {
+        p_offer_id: offer.id,
+      });
 
       if (error) throw error;
 
@@ -216,10 +210,9 @@ function OffersPage() {
 
   const declineCounterMutation = useMutation({
     mutationFn: async (offer: Offer) => {
-      const { error } = await supabase
-        .from("offers")
-        .update({ status: "declined" })
-        .eq("id", offer.id);
+      const { error } = await supabase.rpc("buyer_decline_counter_offer", {
+        p_offer_id: offer.id,
+      });
 
       if (error) throw error;
 

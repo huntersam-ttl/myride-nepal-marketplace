@@ -889,10 +889,9 @@ function ListingDetailPage() {
                             className="flex-1 bg-green-600 hover:bg-green-700"
                             onClick={async () => {
                               try {
-                                const { error } = await supabase
-                                  .from("offers")
-                                  .update({ status: "accepted" })
-                                  .eq("id", existingOffer.id);
+                                const { error } = await supabase.rpc("buyer_accept_counter_offer", {
+                                  p_offer_id: existingOffer.id,
+                                });
                                 
                                 if (error) throw error;
                                 toast.success("Counter offer accepted!");
@@ -911,10 +910,9 @@ function ListingDetailPage() {
                             className="flex-1"
                             onClick={async () => {
                               try {
-                                const { error } = await supabase
-                                  .from("offers")
-                                  .update({ status: "declined" })
-                                  .eq("id", existingOffer.id);
+                                const { error } = await supabase.rpc("buyer_decline_counter_offer", {
+                                  p_offer_id: existingOffer.id,
+                                });
                                 
                                 if (error) throw error;
                                 toast.success("Counter offer declined");
@@ -1608,14 +1606,11 @@ function ListingDetailPage() {
                       return;
                     }
 
-                    // Insert the offer
-                    const { error } = await supabase.from("offers").insert({
-                      listing_id: listing.id,
-                      buyer_id: user.id,
-                      seller_id: listing.user_id,
-                      offer_price: price,
-                      message: offerMessage || null,
-                      status: "pending"
+                    // Create the offer through the trusted server-side workflow.
+                    const { error } = await supabase.rpc("create_offer", {
+                      p_listing_id: listing.id,
+                      p_offer_price: price,
+                      p_message: offerMessage || null,
                     });
 
                     if (error) throw error;

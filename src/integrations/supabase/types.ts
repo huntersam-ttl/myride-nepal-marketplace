@@ -1187,6 +1187,22 @@ export type Database = {
       }
     }
     Functions: {
+      buyer_accept_counter_offer: {
+        Args: { p_offer_id: string }
+        Returns: Database["public"]["Tables"]["offers"]["Row"]
+      }
+      buyer_decline_counter_offer: {
+        Args: { p_offer_id: string }
+        Returns: Database["public"]["Tables"]["offers"]["Row"]
+      }
+      create_offer: {
+        Args: {
+          p_listing_id: string
+          p_message?: string | null
+          p_offer_price: number
+        }
+        Returns: Database["public"]["Tables"]["offers"]["Row"]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1197,6 +1213,22 @@ export type Database = {
       increment_listing_report_count: {
         Args: { listing_id_param: string }
         Returns: undefined
+      }
+      seller_accept_offer: {
+        Args: { p_offer_id: string }
+        Returns: Database["public"]["Tables"]["offers"]["Row"]
+      }
+      seller_counter_offer: {
+        Args: {
+          p_counter_message?: string | null
+          p_counter_price: number
+          p_offer_id: string
+        }
+        Returns: Database["public"]["Tables"]["offers"]["Row"]
+      }
+      seller_decline_offer: {
+        Args: { p_offer_id: string }
+        Returns: Database["public"]["Tables"]["offers"]["Row"]
       }
     }
     Enums: {
