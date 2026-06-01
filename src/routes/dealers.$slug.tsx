@@ -1,4 +1,4 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ListingCard } from "@/components/ListingCard";
@@ -16,6 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useState } from "react";
+import { useAuth } from "@/hooks/use-auth";
 
 // TikTok icon (Lucide doesn't have it)
 const TikTokIcon = ({ className }: { className?: string }) => (
@@ -393,7 +394,7 @@ function DealerProfilePage() {
 
               {/* Report Dealer */}
               <div className="mt-6 pt-6 border-t">
-                <ReportDealerDialog dealerId={dealer.id} dealerName={dealer.business_name} />
+                <ReportDealerDialog dealerId={dealer.id} dealerName={dealer.business_name} redirectPath={`/dealers/${dealer.slug}`} />
               </div>
             </Card>
           </div>
@@ -403,21 +404,31 @@ function DealerProfilePage() {
   );
 }
 
-function ReportDealerDialog({ dealerId, dealerName }: { dealerId: string; dealerName: string }) {
+function ReportDealerDialog({ dealerId, dealerName, redirectPath }: { dealerId: string; dealerName: string; redirectPath: string }) {
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState<string>("");
   const [details, setDetails] = useState("");
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const requireLogin = () => {
+    toast.error("Please sign in to report a dealer");
+    navigate({ to: "/auth", search: { redirect: redirectPath } as any });
+  };
 
   const reportMutation = useMutation({
     mutationFn: async () => {
+      if (!user) throw new Error("Authentication required");
+
       const reportData = {
         dealer_id: dealerId,
+        reporter_id: user.id,
         reason: reason,
         details: details || null,
+        resolved: false,
       };
       
-      // Type assertion needed until dealer_reports table is in generated types
-      const { error } = await (supabase as any).from("dealer_reports").insert(reportData);
+      const { error } = await supabase.from("dealer_reports").insert(reportData);
       
       if (error) throw error;
     },
@@ -435,6 +446,10 @@ function ReportDealerDialog({ dealerId, dealerName }: { dealerId: string; dealer
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) {
+      requireLogin();
+      return;
+    }
     if (!reason) {
       toast.error("Please select a reason");
       return;
@@ -443,7 +458,16 @@ function ReportDealerDialog({ dealerId, dealerName }: { dealerId: string; dealer
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (nextOpen && !user) {
+          requireLogin();
+          return;
+        }
+        setOpen(nextOpen);
+      }}
+    >
       <DialogTrigger asChild>
         <Button variant="ghost" size="sm" className="w-full gap-2 text-muted-foreground hover:text-destructive">
           <Flag className="w-4 h-4" /> Report this dealer
@@ -481,6 +505,7 @@ function ReportDealerDialog({ dealerId, dealerName }: { dealerId: string; dealer
               onChange={(e) => setDetails(e.target.value)}
               placeholder="Provide more information about the issue..."
               rows={4}
+              maxLength={1000}
             />
           </div>
 
