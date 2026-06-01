@@ -31,21 +31,33 @@ export function DealerReviews({ dealerId, dealerUserId, averageRating, totalRevi
   const { data: reviews = [], isLoading } = useQuery({
     queryKey: ["dealer-reviews", dealerId],
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data: reviews, error } = await supabase
         .from("dealer_reviews")
-        .select(`
-          *,
-          profiles:reviewer_id (
-            full_name,
-            avatar_url
-          )
-        `)
+        .select("id,dealer_id,reviewer_id,rating,title,comment,status,created_at,helpful_count,reported,verified_purchase")
         .eq("dealer_id", dealerId)
-        .eq("admin_removed", false)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return data || [];
+      if (!reviews?.length) return [];
+
+      const reviewerIds = reviews.flatMap((review) => review.reviewer_id ? [review.reviewer_id] : []);
+      if (!reviewerIds.length) return reviews;
+
+      const { data: badges, error: badgesError } = await supabase
+        .from("public_profile_badges")
+        .select("id,name,avatar_url")
+        .in("id", reviewerIds);
+
+      if (badgesError) throw badgesError;
+
+      const badgesById = new Map(badges?.map((badge) => [badge.id, badge]) ?? []);
+      return reviews.map((review) => {
+        const badge = review.reviewer_id ? badgesById.get(review.reviewer_id) : null;
+        return {
+          ...review,
+          profiles: badge ? { full_name: badge.name, avatar_url: badge.avatar_url } : null,
+        };
+      });
     },
   });
 
@@ -68,7 +80,7 @@ export function DealerReviews({ dealerId, dealerUserId, averageRating, totalRevi
           dealer_id: dealerId,
           reviewer_id: user.id,
           rating: rating,
-          review_text: reviewText || null,
+          comment: reviewText || null,
         });
 
       if (error) throw error;
@@ -240,8 +252,8 @@ export function DealerReviews({ dealerId, dealerUserId, averageRating, totalRevi
                       </div>
                     </div>
                   </div>
-                  {review.review_text && (
-                    <p className="text-sm text-muted-foreground mt-2">{review.review_text}</p>
+                  {review.comment && (
+                    <p className="text-sm text-muted-foreground mt-2">{review.comment}</p>
                   )}
                   
                   {/* Dealer Response */}

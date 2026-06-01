@@ -9,7 +9,6 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ShieldCheck, MapPin, Store, Clock, Facebook, Youtube, Instagram, CheckCircle, Wrench, AlertTriangle, Calendar, Flag, Lock } from "lucide-react";
-import { formatNPR } from "@/lib/nepal";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -84,23 +83,6 @@ function DealerProfilePage() {
         .order("created_at", { ascending: false });
 
       return listings ?? [];
-    },
-  });
-
-  // Fetch recently sold listings
-  const { data: soldListings } = useQuery({
-    queryKey: ["dealer-sold-listings", dealer.id],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("public_listings")
-        .select("id,title,price,sold_at,images")
-        .eq("dealer_id", dealer.id)
-        .eq("status", "sold")
-        .not("sold_at", "is", null)
-        .order("sold_at", { ascending: false })
-        .limit(10);
-
-      return data ?? [];
     },
   });
 
@@ -232,44 +214,6 @@ function DealerProfilePage() {
                 </Card>
               )}
             </div>
-
-            {/* Recently Sold */}
-            {soldListings && soldListings.length > 0 && (
-              <div>
-                <h2 className="text-xl font-bold mb-4">Recently Sold</h2>
-                <div className="grid sm:grid-cols-2 gap-4">
-                  {soldListings.map((listing: any) => (
-                    <Card key={listing.id} className="overflow-hidden opacity-75">
-                      <div className="relative">
-                        {listing.images?.[0] && (
-                          <img
-                            src={listing.images[0]}
-                            alt={listing.title}
-                            className="w-full h-48 object-cover"
-                          />
-                        )}
-                        <div className="absolute top-2 right-2">
-                          <Badge className="bg-blue-500">Sold</Badge>
-                        </div>
-                      </div>
-                      <div className="p-4">
-                        <h3 className="font-semibold mb-1">{listing.title}</h3>
-                        <p className="text-sm text-muted-foreground mb-2">
-                          {formatNPR(listing.price)}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          Sold {new Date(listing.sold_at).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                          })}
-                        </p>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              </div>
-            )}
 
             {/* Buyer Protection Tips */}
             <Card className="p-5 bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-900">
