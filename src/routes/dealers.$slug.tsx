@@ -118,11 +118,20 @@ function DealerProfilePage() {
         <Card className="p-5 md:p-6 shadow-[var(--shadow-elegant)]">
           <div className="flex items-start gap-4 flex-wrap">
             {/* Logo */}
-            <div className="w-20 h-20 md:w-24 md:h-24 rounded-xl bg-muted border-4 border-card overflow-hidden flex items-center justify-center flex-shrink-0 -mt-12 md:-mt-16 shadow-md">
-              {dealer.logo_url
-                ? <img src={dealer.logo_url} alt={dealer.business_name} className="w-full h-full object-cover" />
-                : <Store className="w-8 h-8 text-muted-foreground" />
-              }
+            <div className="w-20 h-20 md:w-24 md:h-24 rounded-xl border-4 border-card overflow-hidden flex-shrink-0 -mt-12 md:-mt-16 shadow-md relative bg-[#0B1D3A]">
+              {dealer.logo_url && (
+                <img
+                  src={dealer.logo_url}
+                  alt={dealer.business_name}
+                  className="w-full h-full object-cover absolute inset-0"
+                  onError={(e) => { e.currentTarget.style.display = "none"; }}
+                />
+              )}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-white font-bold text-xl leading-none select-none">
+                  {dealer.business_name.slice(0, 2).toUpperCase()}
+                </span>
+              </div>
             </div>
 
             <div className="flex-1 min-w-0">

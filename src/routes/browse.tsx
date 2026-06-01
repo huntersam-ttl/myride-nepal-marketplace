@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,8 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { POPULAR_BRANDS, NEPAL_DISTRICTS, BIKE_TYPES, CONDITIONS } from "@/lib/nepal";
-import { Filter, X, SlidersHorizontal } from "lucide-react";
+import { POPULAR_BRANDS, NEPAL_DISTRICTS, BIKE_TYPES, CONDITIONS, formatNPR } from "@/lib/nepal";
+import { Bike, Filter, X, SlidersHorizontal } from "lucide-react";
 import { useSavedIds, useToggleSave } from "@/hooks/use-saved";
 import { calculateListingScore } from "@/utils/listingScore";
 import { getRecentlyViewed } from "@/utils/recentlyViewed";
@@ -376,30 +376,46 @@ function BrowsePage() {
       </div>
 
       <div className="container mx-auto px-4 pb-8">
-        {/* Continue where you left off */}
+        {/* Continue where you left off — compact strip, no wasted vertical space */}
         {!dismissedRecent && recentlyViewed.length > 0 && (
-          <Card className="p-4 mb-5 bg-[#FF6A00]/5 border-[#FF6A00]/20 shadow-sm">
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-semibold text-[#0B1D3A]">Continue where you left off</h2>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
+          <div className="mb-5 rounded-xl border border-[#FF6A00]/20 bg-[#FF6A00]/5 px-4 py-3">
+            <div className="flex items-center justify-between mb-2.5">
+              <h2 className="text-xs font-semibold uppercase tracking-wide text-[#0B1D3A]/70">Continue where you left off</h2>
+              <button
+                className="h-6 w-6 flex items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-black/5 transition-colors"
                 onClick={dismissRecentlyViewed}
+                aria-label="Dismiss"
               >
-                <X className="w-4 h-4" />
-              </Button>
+                <X className="w-3.5 h-3.5" />
+              </button>
             </div>
-            <div className="overflow-x-auto -mx-4 px-4">
-              <div className="flex gap-4 pb-2" style={{ minWidth: 'min-content' }}>
-                {recentlyViewed.map((listing) => (
-                  <div key={listing.id} className="flex-shrink-0 w-64">
-                    <ListingCard listing={listing as any} />
+            <div className="flex gap-3 overflow-x-auto pb-1 -mx-1 px-1" style={{ scrollbarWidth: "none" }}>
+              {recentlyViewed.map((listing) => (
+                <Link
+                  key={listing.id}
+                  to="/listings/$id"
+                  params={{ id: listing.id }}
+                  className="flex-shrink-0 flex items-center gap-2.5 bg-card rounded-lg border border-border/60 px-3 py-2 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 min-w-0 max-w-[220px]"
+                >
+                  {(listing as any).images?.[0] ? (
+                    <img
+                      src={(listing as any).images[0]}
+                      alt={listing.title}
+                      className="w-12 h-10 object-cover rounded-md flex-shrink-0"
+                    />
+                  ) : (
+                    <div className="w-12 h-10 rounded-md bg-muted flex items-center justify-center flex-shrink-0">
+                      <Bike className="w-5 h-5 text-muted-foreground/40" />
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold text-[#0B1D3A] truncate leading-tight">{listing.title}</p>
+                    <p className="text-xs text-[#FF6A00] font-bold mt-0.5">{formatNPR((listing as any).price)}</p>
                   </div>
-                ))}
-              </div>
+                </Link>
+              ))}
             </div>
-          </Card>
+          </div>
         )}
 
         {/* Active filter chips */}
